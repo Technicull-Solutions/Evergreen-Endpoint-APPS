@@ -954,7 +954,7 @@
                                       HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"/>
                     <Border Name="SelectionPill"
                             Width="16" Height="3" CornerRadius="1.5"
-                            Background="{DynamicResource AccentFillColorDefaultBrush}"
+                            Background="{DynamicResource BrandOrangeBrush}"
                             HorizontalAlignment="Center" VerticalAlignment="Bottom"
                             Margin="0,0,0,2"
                             Opacity="0">

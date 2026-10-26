@@ -39,7 +39,7 @@ namespace UniGetUI.Core.Data
             }
         }
         public const string VersionName = "0.1.0"; // Do not modify this line, use file scripts/set-version.ps1
-        public const int BuildNumber = 30; // Do not modify this line, use file scripts/set-version.ps1
+        public const int BuildNumber = 31; // Do not modify this line, use file scripts/set-version.ps1
         public const string ProductName = "Evergreen Endpoint Package Manager";
         public const string ApplicationDisplayName = "Evergreen Endpoint | APPS";
         public const string UpstreamBaseVersion = "3.3.7";
