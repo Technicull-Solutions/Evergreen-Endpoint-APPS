@@ -70,17 +70,26 @@ public sealed class TelemetryHandlerTests : IDisposable
 
         int warningCountBefore = Logger
             .GetLogs()
-            .Count(log => log.Content.Contains("OpenSearch credentials are not configured"));
+            .Count(log => log.Content.Contains("Telemetry service or credentials are not configured"));
 
         await TelemetryHandler.InitializeAsync();
         await TelemetryHandler.InitializeAsync();
 
         int warningCountAfter = Logger
             .GetLogs()
-            .Count(log => log.Content.Contains("OpenSearch credentials are not configured"));
+            .Count(log => log.Content.Contains("Telemetry service or credentials are not configured"));
 
         Assert.Equal(0, sendCount);
         Assert.Equal(warningCountBefore + 1, warningCountAfter);
+    }
+
+    [Fact]
+    public async Task ConfiguredCredentialsWithoutOwnedServiceKeepTelemetryDisabled()
+    {
+        TelemetryHandler.Configure("inherited-user", "inherited-secret");
+        await TelemetryHandler.InitializeAsync();
+        Assert.Contains(Logger.GetLogs(), log =>
+            log.Content.Contains("Telemetry service or credentials are not configured"));
     }
 
     [Fact]

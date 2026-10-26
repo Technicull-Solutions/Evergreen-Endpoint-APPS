@@ -31,7 +31,7 @@ public class DiscoverSoftwarePage : AbstractPackagesPage
     public DiscoverSoftwarePage(CatalogEditorViewModel? catalogEditor = null) : base(new PackagesPageData
     {
         PageName = "SoftwarePages.DiscoverSoftwarePage",
-        PageTitle = CoreTools.Translate("Apps"),
+        PageTitle = CoreTools.Translate("Search apps"),
         IconName = "DiscoverPackage",
         PageRole = OperationType.Install,
         EnableUserFriendlyDefaultView = true,

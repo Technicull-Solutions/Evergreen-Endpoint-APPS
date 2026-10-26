@@ -42,15 +42,30 @@
                  automation:AutomationProperties.Name="{t:Translate Navigation}"
                  Padding="8,10,8,0">
 
-            <!-- Employee app catalog -->
-            <ListBoxItem x:Name="DiscoverNavBtn" Tag="Discover" Classes="nav-item" Padding="4,2" CornerRadius="6"
+            <ListBoxItem x:Name="CatalogNavBtn" Tag="Catalog" Classes="nav-item" Padding="4,2" CornerRadius="6"
+                         IsVisible="True"
                          automation:AutomationProperties.Name="{t:Translate Apps}"
                          automation:AutomationProperties.AcceleratorKey="Ctrl+1"
                          ToolTip.Tip="{t:Translate Apps}">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Margin="8,8">
+                    <controls:SvgIcon Path="avares://UniGetUI/Assets/Symbols/catalog.svg"
+                                      Width="24" Height="24" VerticalAlignment="Center"
+                                      Foreground="{DynamicResource SidebarForeground}"/>
+                    <TextBlock Grid.Column="1" Text="{t:Translate Apps}" FontSize="14"
+                               VerticalAlignment="Center"
+                               IsVisible="{Binding $parent[local:SidebarView].ShowLabels}"/>
+                </Grid>
+            </ListBoxItem>
+
+            <!-- Search configured sources -->
+            <ListBoxItem x:Name="DiscoverNavBtn" Tag="Discover" Classes="nav-item" Padding="4,2" CornerRadius="6"
+                         automation:AutomationProperties.Name="{t:Translate Search apps}"
+                         automation:AutomationProperties.AcceleratorKey="Ctrl+5"
+                         ToolTip.Tip="{t:Translate Search apps}">
                 <Panel>
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Margin="8,8">
                         <controls:SvgIcon Grid.Column="0" Path="avares://UniGetUI/Assets/Symbols/DiscoverPackage.svg" Width="24" Height="24" VerticalAlignment="Center" Foreground="{DynamicResource SidebarForeground}" />
-                        <TextBlock Grid.Column="1" Text="{t:Translate Apps}"
+                        <TextBlock Grid.Column="1" Text="{t:Translate Search apps}"
                                    FontSize="14"
                                    FontWeight="Normal"
                                    VerticalAlignment="Center"
@@ -149,20 +164,6 @@
                                    IsVisible="{Binding $parent[local:SidebarView].ShowLabels}"/>
                     </Grid>
                 </Panel>
-            </ListBoxItem>
-
-            <ListBoxItem x:Name="CatalogNavBtn" Tag="Catalog" Classes="nav-item" Padding="4,2" CornerRadius="6"
-                         IsVisible="False"
-                         automation:AutomationProperties.Name="{t:Translate Software Catalog}"
-                         ToolTip.Tip="{t:Translate Software Catalog}">
-                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Margin="8,8">
-                    <controls:SvgIcon Path="avares://UniGetUI/Assets/Symbols/catalog.svg"
-                                      Width="24" Height="24" VerticalAlignment="Center"
-                                      Foreground="{DynamicResource SidebarForeground}"/>
-                    <TextBlock Grid.Column="1" Text="{t:Translate Software Catalog}" FontSize="14"
-                               VerticalAlignment="Center"
-                               IsVisible="{Binding $parent[local:SidebarView].ShowLabels}"/>
-                </Grid>
             </ListBoxItem>
 
             <ListBoxItem x:Name="CatalogEditorNavBtn" Tag="CatalogEditor" Classes="nav-item" Padding="4,2" CornerRadius="6"

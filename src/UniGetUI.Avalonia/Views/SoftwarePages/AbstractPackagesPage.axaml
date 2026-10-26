@@ -671,6 +671,12 @@
                                           Content="{t:Translate Select all}"
                                           VerticalAlignment="Center"
                                           automation:AutomationProperties.Name="{t:Translate Select all}"/>
+                                <Button IsVisible="{Binding ShowUninstallAppsButton}"
+                                        Content="{t:Translate Uninstall Apps}"
+                                        Classes="warning-action"
+                                        MinHeight="36" Padding="16,6"
+                                        Click="BulkActionButton_Click"
+                                        automation:AutomationProperties.Name="{t:Translate Uninstall Apps}"/>
                                 <CheckBox IsChecked="{Binding AdvancedView, Mode=TwoWay}"
                                           IsVisible="{Binding ShowAdvancedViewToggle}"
                                           Content="{t:Translate Advanced view}"
@@ -936,7 +942,7 @@
                                                         HorizontalAlignment="Right"
                                                         VerticalAlignment="Center"
                                                         Margin="8,0,12,0">
-                                                <Button Click="CardOverflowButton_Click"
+                                                <Button Click="CardOverflowButton_Click" Classes="package-options-action"
                                                         MinWidth="82"
                                                         Height="36"
                                                         Padding="14,5"
@@ -1080,7 +1086,7 @@
                                                             Orientation="Horizontal"
                                                             Spacing="8"
                                                             VerticalAlignment="Center">
-                                                    <Button Click="CardOverflowButton_Click"
+                                                    <Button Click="CardOverflowButton_Click" Classes="package-options-action"
                                                             MinWidth="76"
                                                             Height="42"
                                                             Padding="14,6"
@@ -1145,7 +1151,7 @@
                                                           MinHeight="0"
                                                           Padding="0" Margin="2,0,0,0"/>
                                                 <Button Grid.Row="0"
-                                                        Click="CardOverflowButton_Click"
+                                                        Click="CardOverflowButton_Click" Classes="package-options-action"
                                                         Width="26" Height="24" Padding="0"
                                                         MinWidth="0" MinHeight="0"
                                                         HorizontalAlignment="Right"
@@ -1218,6 +1224,9 @@
                         <StackPanel VerticalAlignment="Center"
                                     HorizontalAlignment="Center"
                                     Spacing="16">
+                            <ContentControl Content="{Binding NoPackagesContent}"
+                                            HorizontalContentAlignment="Center"
+                                            IsVisible="{Binding NoPackagesContentVisible}"/>
                             <controls:BrodyRunner
                                    MaxWidth="{Binding #PackageListHost.Bounds.Width, Converter={StaticResource ScaleClampConverter}, ConverterParameter=0.5|240}"
                                    MaxHeight="{Binding #PackageListHost.Bounds.Height, Converter={StaticResource ScaleClampConverter}, ConverterParameter=0.3|120}"

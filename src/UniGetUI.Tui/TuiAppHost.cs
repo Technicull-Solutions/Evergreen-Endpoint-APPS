@@ -2,7 +2,6 @@ using System.ComponentModel;
 using Avalonia;
 using Consolonia;
 using Consolonia.Fonts;
-using Consolonia.ManagedWindows.Storage;
 using UniGetUI.Core.Data;
 using UniGetUI.Core.Logging;
 using UniGetUI.Interface;
@@ -124,14 +123,15 @@ public static class TuiAppHost
         AppBuilder app;
         try
         {
+            using var terminalMode = TuiConsolePlatform.EnterOutputMode();
             app = BuildAvaloniaApp();
+            return app.StartWithConsoleLifetime(commandLine.RemainingArgs);
         }
         catch (Exception ex) when (ex is IOException or Win32Exception)
         {
             ReportConsoleStartupFailure(ex);
             return 1;
         }
-        return app.StartWithConsoleLifetime(commandLine.RemainingArgs);
     }
 
     private static void ReportConsoleStartupFailure(Exception exception)
@@ -142,7 +142,7 @@ public static class TuiAppHost
         if (OperatingSystem.IsWindows())
         {
             Console.Error.WriteLine(
-                "In PowerShell, run the adjacent uniget.exe tui instead of launching Evergreen Endpoint Package Manager.exe directly."
+                "In PowerShell, run the adjacent evergreen.exe tui instead of launching Evergreen Endpoint Package Manager.exe directly."
             );
             Console.Error.WriteLine(
                 "To launch Evergreen Endpoint Package Manager.exe itself, use Start-Process with -NoNewWindow -Wait."
@@ -154,9 +154,8 @@ public static class TuiAppHost
         => AppBuilder.Configure<App>()
             .LogToException()
             // Consolonia renders and shapes terminal text without initializing the desktop Skia backend.
-            .UseConsoloniaStorage()
             .UseConsolonia()
-            .UseAutoDetectedConsole()
+            .UseEvergreenConsole()
             .WithConsoleFonts()
             .WithoutConsolePasteSniffer()
             .ThrowOnErrors();

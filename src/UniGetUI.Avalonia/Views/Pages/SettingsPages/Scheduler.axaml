@@ -71,7 +71,7 @@
                                           Margin="44,32,4,4"
                                           automation:AutomationProperties.HeadingLevel="2"/>
 
-            <TextBlock Text="{t:Translate Text='Tasks run while UniGetUI is running, including from the notification area.'}"
+            <TextBlock Text="{t:Translate Text='Tasks run while Evergreen Endpoint | APPS is running, including from the notification area.'}"
                        FontSize="12"
                        Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                        TextWrapping="Wrap"

@@ -248,7 +248,7 @@ public partial class ScheduledTaskViewModel : ViewModelBase
 
         SchedulePrimaryText = frequency switch
         {
-            ScheduleFrequency.AtAppStart => CoreTools.Translate("When UniGetUI starts"),
+            ScheduleFrequency.AtAppStart => CoreTools.Translate("When Evergreen Endpoint | APPS starts"),
             ScheduleFrequency.AfterEveryUpdateCheck => CoreTools.Translate("After every update check"),
             ScheduleFrequency.Interval => IntervalOptions[Math.Clamp(IntervalIndex, 0, IntervalOptions.Count - 1)],
             _ => GetTimeLabel(),
@@ -349,7 +349,7 @@ public partial class ScheduledTaskViewModel : ViewModelBase
 
     private static string GetFrequencyLabel(ScheduleFrequency frequency) => frequency switch
     {
-        ScheduleFrequency.AtAppStart => CoreTools.Translate("When UniGetUI starts"),
+        ScheduleFrequency.AtAppStart => CoreTools.Translate("When Evergreen Endpoint | APPS starts"),
         ScheduleFrequency.AfterEveryUpdateCheck => CoreTools.Translate("After every update check"),
         ScheduleFrequency.Interval => CoreTools.Translate("On a fixed interval"),
         ScheduleFrequency.Daily => CoreTools.Translate("Every day"),
@@ -392,7 +392,7 @@ public partial class ScheduledTaskViewModel : ViewModelBase
 
     private static string GetGraceLabel(int minutes) => minutes switch
     {
-        MaintenanceTaskSchedule.UnlimitedGrace => CoreTools.Translate("Run whenever UniGetUI next starts"),
+        MaintenanceTaskSchedule.UnlimitedGrace => CoreTools.Translate("Run whenever Evergreen Endpoint | APPS next starts"),
         0 => CoreTools.Translate("Skip until the next occurrence"),
         _ => CoreTools.Translate("Run within {0}", GetGraceDurationLabel(minutes)),
     };

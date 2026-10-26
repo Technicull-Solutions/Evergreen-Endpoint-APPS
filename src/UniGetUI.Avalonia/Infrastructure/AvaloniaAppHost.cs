@@ -179,7 +179,7 @@ public static class AvaloniaAppHost
     }
 
     private const string CliDocumentationUrl =
-        "https://github.com/Devolutions/UniGetUI/blob/main/docs/CLI.md#unigetui-command-line-interface";
+        "https://github.com/Technicull-Solutions/PackageManager/blob/main/docs/CLI.md#evergreen-endpoint-package-manager-command-line-interface";
 
     private static bool ShouldPrepareCliConsole(IReadOnlyList<string> args)
     {

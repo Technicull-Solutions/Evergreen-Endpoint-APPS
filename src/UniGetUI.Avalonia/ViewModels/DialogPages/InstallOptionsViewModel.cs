@@ -106,10 +106,10 @@ public partial class InstallOptionsViewModel : ObservableObject
     public bool CliDisabledWarningVisible => !CliEnabled;
     public bool PrePostEnabled { get; }
     public bool PrePostDisabledWarningVisible => !PrePostEnabled;
-    public string CliDisabledLabel { get; } = CoreTools.Translate("For security reasons, custom command-line arguments are disabled by default. Go to UniGetUI security settings to change this.");
-    public string PrePostDisabledLabel { get; } = CoreTools.Translate("For security reasons, pre-operation and post-operation scripts are disabled by default. Go to UniGetUI security settings to change this.");
+    public string CliDisabledLabel { get; } = CoreTools.Translate("For security reasons, custom command-line arguments are disabled by default. Go to Evergreen Endpoint | APPS security settings to change this.");
+    public string PrePostDisabledLabel { get; } = CoreTools.Translate("For security reasons, pre-operation and post-operation scripts are disabled by default. Go to Evergreen Endpoint | APPS security settings to change this.");
     public string PrePostExplainerLabel { get; } = CoreTools.Translate("You can define the commands that will be run before or after this package is installed, updated or uninstalled. They will be run on a command prompt, so CMD scripts will work here.");
-    public string GoToSecurityLabel { get; } = CoreTools.Translate("Go to UniGetUI security settings");
+    public string GoToSecurityLabel { get; } = CoreTools.Translate("Go to Evergreen Endpoint | APPS security settings");
 
     // ── Capability flags (for IsEnabled bindings) ─────────────────────────────
     public bool CanRunAsAdmin { get; }

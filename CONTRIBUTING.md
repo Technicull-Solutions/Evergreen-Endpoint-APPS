@@ -1,19 +1,19 @@
-# Contributing to UniGetUI
+# Contributing to Evergreen Endpoint Package Manager
 
-Thank you for helping improve UniGetUI. Please follow the [Code of Conduct](CODE_OF_CONDUCT.md) in all project spaces.
+Thank you for helping improve Evergreen Endpoint Package Manager. Please follow the [Code of Conduct](CODE_OF_CONDUCT.md) in all project spaces.
 
 ## Issues and feature requests
 
 Use the GitHub issue forms and choose the template that best matches your request:
 
-- **Bug or issue:** use the bug template, include the UniGetUI version, platform details, logs, and reproduction steps when available.
+- **Bug or issue:** use the bug template, include the Evergreen version and build, platform details, logs, and reproduction steps when available.
 - **Hard crash:** use the hard-crash template.
 - **New feature:** use the feature request template.
 - **Improvement to an existing feature:** use the enhancement/improvement template.
 
-Before opening an issue, search for duplicates and check whether the problem is specific to UniGetUI. If the same behavior can be reproduced directly with the underlying package manager or package, report it to that project first.
+Before opening an issue, search for duplicates and check whether the problem is specific to Evergreen. If the same behavior can be reproduced directly with the underlying package manager or package, report it to that project first.
 
-Do not include secrets, tokens, personal data, or private logs in public issues. Security vulnerabilities should be reported through the [Devolutions security page](https://devolutions.net/security/). Private non-security inquiries can be sent through the [Devolutions contact page](https://devolutions.net/contact/).
+Do not include secrets, tokens, personal data, or private logs in public issues. Follow [SECURITY.md](SECURITY.md) for security reporting. Support and contribution discussions belong to this repository, not the upstream project.
 
 Feature requests and improvements are reviewed by the maintainers and prioritized based on scope, impact, maintainability, and the project roadmap.
 
@@ -27,6 +27,8 @@ Feature requests and improvements are reviewed by the maintainers and prioritize
 - Spam, unrelated, non-building, or low-effort pull requests may be closed without review.
 
 ## Development setup and validation
+
+Start with the [Evergreen contributor workflow](docs/EVERGREEN_CONTRIBUTOR_WORKFLOW.md) for product boundaries, sources of truth, and the seven engineering skills checked into `.agents/skills/`. These workflows are shared by human contributors and coding agents; read the linked `SKILL.md` directly if your tool does not discover repository skills. The existing translation skills remain available for localization work.
 
 Run the pre-commit hook setup once after cloning:
 
@@ -47,7 +49,7 @@ dotnet test src/UniGetUI.Windows.slnx --no-restore --verbosity q --nologo /p:Pla
 
 ## Coding guidelines
 
-UniGetUI is primarily a C#/.NET Avalonia application. Follow the existing codebase style and patterns:
+Evergreen Endpoint Package Manager is primarily a C#/.NET Avalonia application. Follow the existing codebase style and patterns:
 
 - Use PascalCase for types, methods, and properties.
 - Follow existing private field conventions, including `_singleUnderscore` and `__doubleUnderscore` prefixes.

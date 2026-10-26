@@ -50,7 +50,7 @@ internal sealed class TuiHelpLocalizationTests : TuiE2ETestBase
         ["Choice fields"] = "Choix test",
         ["{0} changes the value, {1} lists every value"] = "{0} change le choix, {1} liste les valeurs",
         ["Documentation"] = "Documentation test FR",
-        ["Open UniGetUI help"] = "Ouvrir aide test",
+        ["Open Evergreen Endpoint Package Manager help"] = "Ouvrir aide test",
         ["Command-line reference"] = "Référence CLI test",
         ["Release notes"] = "Notes de version test",
         ["Report an issue or submit a feature request"] = "Signaler un problème test",

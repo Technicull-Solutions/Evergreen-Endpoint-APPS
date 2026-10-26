@@ -5,6 +5,8 @@
   <description>Administrative policy for Evergreen Endpoint Package Manager.</description>
   <resources>
     <stringTable>
+      <string id="MaximumConcurrentUninstalls">Set the maximum concurrent uninstalls</string>
+      <string id="MaximumConcurrentUninstalls_Help">Limits concurrent uninstall execution in each client process and the number of apps in a desktop uninstall selection. Enter 1 to 100. Not configured uses machine JSON, or 3 if absent. Invalid deployed numbers restrict the limit to 1. Other operation or manager serialization settings may reduce concurrency further. This does not restrict uninstall commands run outside Evergreen.</string>
       <string id="SUPPORTED_Windows10OrLater">Windows 10 or later</string>
       <string id="TechnicullSolutions">Technicull Solutions</string>
       <string id="EvergreenEndpointPackageManager">Evergreen Endpoint Package Manager</string>
@@ -27,6 +29,7 @@
       <string id="AllowedSources_Help">Enter one source or repository name per line. Only matching configured sources are exposed by the application. Source registration is performed during managed deployment.</string>
     </stringTable>
     <presentationTable>
+      <presentation id="MaximumConcurrentUninstalls"><decimalTextBox refId="MaximumConcurrentUninstalls" defaultValue="3" spinStep="1">Maximum apps:</decimalTextBox></presentation>
       <presentation id="PackageManagerConfigurationFile"><textBox refId="ConfigurationFile"><label>Configuration file:</label></textBox></presentation>
       <presentation id="WinGetExecutablePath"><textBox refId="WinGetExecutablePath"><label>Executable path:</label></textBox></presentation>
       <presentation id="AllowedWinGetSources"><multiTextBox refId="AllowedWinGetSources">Allowed source names:</multiTextBox></presentation>

@@ -14,6 +14,12 @@ namespace UniGetUI.Core.SettingsEngine;
 public static class ManagedPackageManagerConfiguration
 {
     private const long MaximumConfigurationFileSize = 1024 * 1024;
+    public const int DefaultMaximumConcurrentUninstalls = 3;
+    public const int MaximumSupportedConcurrentUninstalls = 100;
+
+    public static int MaximumConcurrentUninstalls => GetSnapshot().MaximumConcurrentUninstalls;
+
+    public static bool IsUninstallSelectionAllowed(int count) => count > 0 && count <= MaximumConcurrentUninstalls;
 
     public const string PolicyRegistryPath =
         @"Software\Policies\Technicull Solutions\Evergreen Endpoint\Package Manager\PackageManagers";
@@ -129,6 +135,7 @@ public static class ManagedPackageManagerConfiguration
             return new ManagedPackageManagerPolicy
             {
                 ConfigurationFile = key.GetValue("ConfigurationFile") as string,
+                MaximumConcurrentUninstalls = key.GetValue("MaximumConcurrentUninstalls") as int?,
                 WinGetEnabled = ReadPolicyBoolean(key, "EnableWinGet"),
                 PowerShellEnabled = ReadPolicyBoolean(key, "EnablePowerShell"),
                 PowerShell7Enabled = ReadPolicyBoolean(key, "EnablePowerShell7"),
@@ -162,6 +169,7 @@ public static class ManagedPackageManagerConfiguration
 public sealed class ManagedPackageManagerConfigurationDocument
 {
     public int SchemaVersion { get; set; } = 1;
+    public int? MaximumConcurrentUninstalls { get; set; }
     public Dictionary<string, ManagedPackageManagerEntry> Managers { get; set; } = new();
 }
 
@@ -175,6 +183,7 @@ public sealed class ManagedPackageManagerEntry
 public sealed class ManagedPackageManagerPolicy
 {
     public string? ConfigurationFile { get; set; }
+    public int? MaximumConcurrentUninstalls { get; set; }
     public bool? WinGetEnabled { get; set; }
     public bool? PowerShellEnabled { get; set; }
     public bool? PowerShell7Enabled { get; set; }
@@ -190,6 +199,19 @@ internal sealed class ManagedPackageManagerConfigurationSnapshot
 {
     private readonly ManagedPackageManagerConfigurationDocument? _document;
     private readonly ManagedPackageManagerPolicy _policy;
+
+    public int MaximumConcurrentUninstalls
+    {
+        get
+        {
+            int value = _policy.MaximumConcurrentUninstalls
+                ?? _document?.MaximumConcurrentUninstalls
+                ?? ManagedPackageManagerConfiguration.DefaultMaximumConcurrentUninstalls;
+            // Invalid deployed limits fail conservatively instead of enabling a larger batch.
+            return value is >= 1 and <= ManagedPackageManagerConfiguration.MaximumSupportedConcurrentUninstalls
+                ? value : 1;
+        }
+    }
 
     public ManagedPackageManagerConfigurationSnapshot(
         ManagedPackageManagerConfigurationDocument? document,

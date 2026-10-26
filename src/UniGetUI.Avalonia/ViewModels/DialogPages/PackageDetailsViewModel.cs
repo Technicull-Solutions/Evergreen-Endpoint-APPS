@@ -154,7 +154,7 @@ public partial class PackageDetailsViewModel : ObservableObject
     public string LabelInstallationOptions { get; } = CoreTools.Translate("Installation options");
     public string LabelSave { get; } = CoreTools.Translate("Save");
     public string LabelContributorBanner { get; } = CoreTools.Translate(
-        "This package has no screenshots or is missing the icon? Contribute to UniGetUI by adding the missing icons and screenshots to our open, public database.");
+        "This package has no screenshots or is missing the icon? Help improve Evergreen Endpoint | APPS by reporting missing icons or screenshots in our repository.");
     public string LabelContribute { get; } = CoreTools.Translate("Become a contributor");
 
     public PackageDetailsViewModel(IPackage package, OperationType role)

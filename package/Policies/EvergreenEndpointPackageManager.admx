@@ -21,6 +21,15 @@
     </category>
   </categories>
   <policies>
+    <policy name="MaximumConcurrentUninstalls" class="Machine"
+      displayName="$(string.MaximumConcurrentUninstalls)"
+      explainText="$(string.MaximumConcurrentUninstalls_Help)"
+      key="Software\Policies\Technicull Solutions\Evergreen Endpoint\Package Manager\PackageManagers"
+      presentation="$(presentation.MaximumConcurrentUninstalls)">
+      <parentCategory ref="PackageManagers" />
+      <supportedOn ref="SUPPORTED_Windows10OrLater" />
+      <elements><decimal id="MaximumConcurrentUninstalls" valueName="MaximumConcurrentUninstalls" minValue="1" maxValue="100" required="true" /></elements>
+    </policy>
     <policy name="PackageManagerConfigurationFile" class="Machine"
       displayName="$(string.PackageManagerConfigurationFile)"
       explainText="$(string.PackageManagerConfigurationFile_Help)"

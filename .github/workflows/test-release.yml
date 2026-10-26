@@ -1,0 +1,164 @@
+name: Windows Test Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish the verified unsigned device-testing prerelease
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-test-release
+  cancel-in-progress: false
+
+jobs:
+  package:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - uses: actions/cache@v6
+        with:
+          path: ~/.nuget/packages
+          key: windows-test-release-nuget-${{ hashFiles('global.json', 'src/**/*.csproj', 'src/**/*.props', 'src/**/*.targets') }}
+          restore-keys: windows-test-release-nuget-
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup -y --no-progress
+      - name: Verify isolated installer PATH and compile contracts
+        shell: pwsh
+        run: |
+          ./testing/automation/run-installer-path-tests.ps1 -ArtifactDirectory (Join-Path $env:RUNNER_TEMP 'evergreen-installer-contracts') -Compiler "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+      - name: Restore
+        run: dotnet restore src/UniGetUI.Windows.slnx
+      - name: Validate brand contrast and version stamping
+        shell: pwsh
+        run: |
+          python scripts/validate-brand-contrast.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./testing/automation/test-version-stamping.ps1
+          ./testing/automation/test-portable-integrity.ps1
+      - name: Verify formatting
+        shell: pwsh
+        run: |
+          dotnet format whitespace src --folder --verify-no-changes --verbosity minimal
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet format style src/UniGetUI.Windows.slnx --no-restore --verify-no-changes --verbosity minimal
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Test and package NativeAOT Windows x64
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          ./scripts/build.ps1 -Platform x64
+          if (-not (Get-ChildItem output/*.Setup.exe)) { throw 'Installer was not produced.' }
+      - name: Verify packaged application
+        shell: pwsh
+        run: |
+          $Zip = Get-ChildItem output/EvergreenEndpointPackageManager.*.x64.zip
+          $SmokeDir = Join-Path $env:RUNNER_TEMP 'eepm-release-smoke'
+          Expand-Archive -LiteralPath $Zip.FullName -DestinationPath $SmokeDir
+          ./scripts/verify-integrity-tree.ps1 -Path $SmokeDir -FailOnUnexpectedFiles
+          $Launcher = Join-Path $SmokeDir 'evergreen.exe'
+          & $Launcher tui --help
+          if ($LASTEXITCODE -ne 0) { throw 'Packaged terminal UI help check failed.' }
+          python -m pip install --disable-pip-version-check --only-binary=:all: -r testing/automation/native-tui-smoke.requirements.txt
+          if ($LASTEXITCODE -ne 0) { throw 'Could not install native smoke-test tools.' }
+          python testing/automation/native-tui-smoke.py --executable $Launcher
+          if ($LASTEXITCODE -ne 0) { throw 'Packaged NativeAOT terminal smoke test failed.' }
+      - name: Verify installer on disposable runner
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $Installer = Get-ChildItem output/*.Setup.exe
+          $PreviousTag = gh release list --repo $env:GITHUB_REPOSITORY --limit 1 --json tagName --jq '.[0].tagName'
+          if ($LASTEXITCODE -ne 0) { throw 'Could not resolve the previous published release.' }
+          $Parameters = @{ Installer = $Installer.FullName }
+          if ($PreviousTag) {
+            $PreviousDir = Join-Path $env:RUNNER_TEMP 'eepm-previous-release'
+            gh release download $PreviousTag --repo $env:GITHUB_REPOSITORY --pattern '*.x64.Setup.exe' --dir $PreviousDir
+            if ($LASTEXITCODE -ne 0) { throw 'Could not download the previous installer for upgrade verification.' }
+            $Parameters.PreviousInstaller = (Get-ChildItem $PreviousDir/*.Setup.exe).FullName
+          }
+          ./testing/automation/native-installer-smoke.ps1 @Parameters
+      - name: Verify portable administrator on disposable runner
+        shell: pwsh
+        run: |
+          $AdminZip = Get-ChildItem output/EvergreenEndpointAdmin.*.x64.zip
+          $AdminDir = Join-Path $env:RUNNER_TEMP 'evergreen-admin-smoke'
+          Expand-Archive -LiteralPath $AdminZip.FullName -DestinationPath $AdminDir
+          ./testing/automation/native-admin-smoke.ps1 -Executable (Join-Path $AdminDir 'Evergreen Endpoint Admin.exe')
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: Windows-test-reports
+          path: |
+            artifacts/test-results/**
+            ${{ runner.temp }}/eepm-installer-smoke/*.log
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v7
+        with:
+          name: EvergreenEndpointPackageManager-win-x64
+          path: output/*
+          if-no-files-found: error
+
+  release:
+    if: ${{ inputs.publish }}
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: EvergreenEndpointPackageManager-win-x64
+          path: output
+      - name: Publish test prerelease
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_COMMIT: ${{ github.sha }}
+        run: |
+          $Info = Get-Content src/SharedAssemblyInfo.cs -Raw
+          $Version = [regex]::Match($Info, 'AssemblyInformationalVersion\("([^"]+)"\)').Groups[1].Value
+          $Build = (Get-Content scripts/BuildNumber -Raw).Trim()
+          if (-not $Version -or $Build -notmatch '^\d+$') { throw 'Invalid release version.' }
+          $Tag = "v$Version-build.$Build"
+          $ChangeSummary = git log -1 --format=%s
+          $Notes = @"
+          Device-testing release of Evergreen Endpoint Package Manager: version $Version, Build $Build.
+
+          Changes: $ChangeSummary.
+
+          This iteration adds the branded Admin library editor with **List, Cards, Icons, and JSON** views, light/dark/system appearance, and graphical library/app forms. APPS includes clearer dark-mode view indicators and button states, aligned settings warnings, and a confirmed **Uninstall Apps** action in place of Installed-page Select all. The administrator-configurable concurrent uninstall limit defaults to **3**.
+
+          Download the Windows x64 **.Setup.exe** to install, or extract the application **.x64.zip** into a writable folder and run **Evergreen Endpoint Package Manager.exe**. The application is self-contained; a separate .NET installation is not required.
+
+          The employee client enables the software library by default under **Apps**. Use **Search apps** to browse configured sources. The separate **EvergreenEndpointAdmin** ZIP contains the portable administrator client: extract it and run **Evergreen Endpoint Admin.exe** to author, validate, and export library and manager-configuration drafts. See its included README for deploying the library to the employee client. The portable utility does not apply machine policy or manage remote devices.
+
+          For a self-hosted Gitea pilot, use Admin's **Catalog source** page to configure your environment's server/repository and fetch a catalog with a session-only repository read token. Source profiles contain no credentials. The ZIP includes **CATALOG_SOURCE_PROFILES.md**, **catalog-source.example.json**, and **SoftwareCatalog.example.json**, plus alternate Admin logos/icons in **Brand/**. Review and export the library, then deploy it to the protected local catalog path on each Apps device. Direct retrieval/authentication in the employee client and automatic catalog synchronization are not implemented.
+
+          SHA-256 hashes are included in **checksums.x64.txt**. The **Policies** ZIP contains optional Group Policy templates.
+
+          This test build is unsigned. Windows Smart App Control or organization policy may block it entirely; SmartScreen may display an unknown-publisher warning. Package cleanup does not resolve signing or reputation. Elevated policy writes require signed binaries and are unavailable in this build. GitHub OAuth credentials and telemetry credentials are not configured. ARM64, Linux, and macOS are not included or validated in this release.
+
+          Please report device details, steps to reproduce, and relevant logs when reporting a problem.
+          "@
+          $Notes | Set-Content release-notes.txt
+          $Assets = (Get-ChildItem output -File).FullName
+          gh release create $Tag --target $env:RELEASE_COMMIT --title "Evergreen Endpoint Package Manager $Version Build $Build" --prerelease --latest=false --notes-file release-notes.txt @Assets
+          if ($LASTEXITCODE -ne 0) { throw 'GitHub prerelease creation failed.' }

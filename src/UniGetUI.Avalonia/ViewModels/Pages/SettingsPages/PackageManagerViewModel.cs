@@ -126,13 +126,13 @@ public partial class PackageManagerViewModel : ViewModelBase
         {
             Severity = ManagerStatusSeverity.Error;
             StatusTitle = CoreTools.Translate("{pm} could not be loaded").Replace("{pm}", Manager.DisplayName);
-            StatusMessage = CoreTools.Translate("{pm} was found on your system, but it could not be started. Check the UniGetUI log for more details.").Replace("{pm}", Manager.DisplayName);
+            StatusMessage = CoreTools.Translate("{pm} was found on your system, but it could not be started. Check the Evergreen Endpoint | APPS log for more details.").Replace("{pm}", Manager.DisplayName);
         }
         else
         {
             Severity = ManagerStatusSeverity.Error;
             StatusTitle = CoreTools.Translate("{pm} was not found!").Replace("{pm}", Manager.DisplayName);
-            StatusMessage = CoreTools.Translate("You may need to install {pm} in order to use it with UniGetUI.").Replace("{pm}", Manager.DisplayName);
+            StatusMessage = CoreTools.Translate("You may need to install {pm} in order to use it with Evergreen Endpoint | APPS.").Replace("{pm}", Manager.DisplayName);
         }
 
         StatusMessageVisible = !string.IsNullOrEmpty(StatusMessage);
@@ -144,7 +144,7 @@ public partial class PackageManagerViewModel : ViewModelBase
     {
         _ = CoreTools.LaunchBatchFile(
             Path.Join(CoreData.UniGetUIExecutableDirectory, "Assets", "Utilities", "install_scoop.cmd"),
-            CoreTools.Translate("Scoop Installer - UniGetUI"));
+            CoreTools.Translate("Scoop Installer - Evergreen Endpoint | APPS"));
         RestartRequired?.Invoke(this, EventArgs.Empty);
     }
 
@@ -153,7 +153,7 @@ public partial class PackageManagerViewModel : ViewModelBase
     {
         _ = CoreTools.LaunchBatchFile(
             Path.Join(CoreData.UniGetUIExecutableDirectory, "Assets", "Utilities", "uninstall_scoop.cmd"),
-            CoreTools.Translate("Scoop Uninstaller - UniGetUI"));
+            CoreTools.Translate("Scoop Uninstaller - Evergreen Endpoint | APPS"));
         RestartRequired?.Invoke(this, EventArgs.Empty);
     }
 
@@ -162,7 +162,7 @@ public partial class PackageManagerViewModel : ViewModelBase
     {
         _ = CoreTools.LaunchBatchFile(
             Path.Join(CoreData.UniGetUIExecutableDirectory, "Assets", "Utilities", "scoop_cleanup.cmd"),
-            CoreTools.Translate("Clearing Scoop cache - UniGetUI"),
+            CoreTools.Translate("Clearing Scoop cache - Evergreen Endpoint | APPS"),
             RunAsAdmin: true);
     }
 

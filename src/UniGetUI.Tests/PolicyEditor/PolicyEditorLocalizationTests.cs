@@ -667,7 +667,7 @@ public partial class PolicyEditorLocalizationTests
         Assert.DoesNotContain("RepairPolicyCommand", view);
         Assert.DoesNotContain("CanRepair", view);
         Assert.DoesNotContain("CanRepair", viewModel);
-        Assert.Contains("outside UniGetUI", viewModel);
+        Assert.Contains("outside Evergreen Endpoint | APPS", viewModel);
     }
 
     [Fact]

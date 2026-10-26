@@ -71,7 +71,7 @@ public sealed class TuiWinGetRepairTests
             NAssert.That(notifications, Has.Count.EqualTo(1));
             NAssert.That(notifications[0].Severity, Is.EqualTo(TuiNotificationSeverity.Success));
             NAssert.That(notifications[0].Title, Is.EqualTo("WinGet was repaired successfully"));
-            NAssert.That(notifications[0].Message, Is.EqualTo("It is recommended to restart UniGetUI after WinGet has been repaired"));
+            NAssert.That(notifications[0].Message, Is.EqualTo("It is recommended to restart Evergreen Endpoint | APPS after WinGet has been repaired"));
         }
         finally
         {

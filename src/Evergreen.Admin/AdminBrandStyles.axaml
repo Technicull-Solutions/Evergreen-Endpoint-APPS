@@ -1,0 +1,229 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Evergreen.Admin.AdminBrandStyles">
+  <Styles.Resources>
+    <ResourceDictionary>
+      <SolidColorBrush x:Key="AdminGold" Color="#D69B2D" />
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+          <SolidColorBrush x:Key="AdminPage" Color="#E2F5E9" />
+          <SolidColorBrush x:Key="AdminCard" Color="#F7FAF8" />
+          <SolidColorBrush x:Key="AdminEditor" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="AdminText" Color="#17211D" />
+          <SolidColorBrush x:Key="AdminBorder" Color="#527A68" />
+          <SolidColorBrush x:Key="AdminSelected" Color="#176B4D" />
+          <SolidColorBrush x:Key="AdminSelectedText" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="AdminHover" Color="#C9E7D9" />
+          <SolidColorBrush x:Key="AdminHoverText" Color="#17211D" />
+          <SolidColorBrush x:Key="AdminHeader" Color="#176B4D" />
+          <SolidColorBrush x:Key="AdminHeaderText" Color="#F7FAF8" />
+          <SolidColorBrush x:Key="AdminSubtleHover" Color="#09000000" />
+          <SolidColorBrush x:Key="AdminSelectorFill" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="AdminPrimary" Color="#176B4D" />
+          <SolidColorBrush x:Key="AdminPrimaryText" Color="#F7FAF8" />
+          <SolidColorBrush x:Key="AdminPrimaryHover" Color="#2A7B5E" />
+          <Color x:Key="SystemAccentColor">#176B4D</Color>
+          <Color x:Key="SystemAccentColorLight1">#176B4D</Color>
+          <Color x:Key="SystemAccentColorDark1">#0D3F30</Color>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+          <SolidColorBrush x:Key="AdminPage" Color="#27332D" />
+          <SolidColorBrush x:Key="AdminCard" Color="#303E37" />
+          <SolidColorBrush x:Key="AdminEditor" Color="#17211D" />
+          <SolidColorBrush x:Key="AdminText" Color="#DCE5DF" />
+          <SolidColorBrush x:Key="AdminBorder" Color="#91B5A4" />
+          <SolidColorBrush x:Key="AdminSelected" Color="#79CDB0" />
+          <SolidColorBrush x:Key="AdminSelectedText" Color="#0D3F30" />
+          <SolidColorBrush x:Key="AdminHover" Color="#3C5B4C" />
+          <SolidColorBrush x:Key="AdminHoverText" Color="#F7FAF8" />
+          <SolidColorBrush x:Key="AdminHeader" Color="#0D3F30" />
+          <SolidColorBrush x:Key="AdminHeaderText" Color="#F7FAF8" />
+          <SolidColorBrush x:Key="AdminSubtleHover" Color="#0FFFFFFF" />
+          <SolidColorBrush x:Key="AdminSelectorFill" Color="#0FFFFFFF" />
+          <SolidColorBrush x:Key="AdminPrimary" Color="#0D3F30" />
+          <SolidColorBrush x:Key="AdminPrimaryText" Color="#DCE5DF" />
+          <SolidColorBrush x:Key="AdminPrimaryHover" Color="#176B4D" />
+          <Color x:Key="SystemAccentColor">#79CDB0</Color>
+          <Color x:Key="SystemAccentColorLight1">#79CDB0</Color>
+          <Color x:Key="SystemAccentColorDark1">#79CDB0</Color>
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+    </ResourceDictionary>
+  </Styles.Resources>
+  <Style Selector="Window">
+    <Setter Property="TemplatedControl.Background" Value="{DynamicResource AdminPage}" />
+    <Setter Property="TemplatedControl.Foreground" Value="{DynamicResource AdminText}" />
+    <Setter Property="FontFamily" Value="Segoe UI Variable, Segoe UI" />
+    <Setter Property="FontSize" Value="14" />
+  </Style>
+  <Style Selector="Border.brandHeader">
+    <Setter Property="Background" Value="{DynamicResource AdminHeader}" />
+  </Style>
+  <Style Selector="Border.brandHeader TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource AdminHeaderText}" />
+  </Style>
+  <Style Selector="Border.card">
+    <Setter Property="Background" Value="{DynamicResource AdminCard}" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Padding" Value="16" />
+  </Style>
+  <Style Selector="Button, ComboBox, TextBox">
+    <Setter Property="MinHeight" Value="36" />
+    <Setter Property="TemplatedControl.CornerRadius" Value="4" />
+    <Setter Property="TemplatedControl.Background" Value="{DynamicResource AdminEditor}" />
+    <Setter Property="TemplatedControl.Foreground" Value="{DynamicResource AdminText}" />
+    <Setter Property="TemplatedControl.BorderBrush" Value="{DynamicResource AdminBorder}" />
+    <Setter Property="TemplatedControl.BorderThickness" Value="1" />
+  </Style>
+  <Style Selector="Button, ComboBox">
+    <Setter Property="TemplatedControl.Padding" Value="12,7" />
+  </Style>
+  <Style Selector="TextBox.jsonEditor">
+    <Setter Property="FontFamily" Value="Cascadia Mono, Consolas, monospace" />
+    <Setter Property="TemplatedControl.Padding" Value="12" />
+    <Setter Property="TemplatedControl.CornerRadius" Value="8" />
+    <Setter Property="SelectionBrush" Value="{DynamicResource AdminSelected}" />
+    <Setter Property="SelectionForegroundBrush" Value="{DynamicResource AdminSelectedText}" />
+  </Style>
+  <Style Selector="TextBox:pointerover, TextBox:focus">
+    <Setter Property="Foreground" Value="{DynamicResource AdminText}" />
+    <Setter Property="CaretBrush" Value="{DynamicResource AdminText}" />
+  </Style>
+  <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
+    <Setter Property="Background" Value="{DynamicResource AdminEditor}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AdminBorder}" />
+  </Style>
+  <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+    <Setter Property="Background" Value="{DynamicResource AdminEditor}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AdminSelected}" />
+  </Style>
+  <Style Selector="ComboBox /template/ Border#PopupBorder">
+    <Setter Property="Background" Value="{DynamicResource AdminEditor}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AdminBorder}" />
+  </Style>
+  <Style Selector="ComboBox:focus-visible /template/ Border#HighlightBackground">
+    <Setter Property="Background" Value="{DynamicResource AdminEditor}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AdminSelected}" />
+  </Style>
+  <Style Selector="ComboBox:focus-visible /template/ ContentControl#ContentPresenter, ComboBox:focus-visible /template/ PathIcon#DropDownGlyph">
+    <Setter Property="TemplatedControl.Foreground" Value="{DynamicResource AdminText}" />
+  </Style>
+  <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter, ComboBox:pointerover /template/ Border#Background">
+    <Setter Property="Border.Background" Value="{DynamicResource AdminHover}" />
+    <Setter Property="Border.BorderBrush" Value="{DynamicResource AdminBorder}" />
+  </Style>
+  <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource AdminHoverText}" />
+    <Setter Property="Border.BorderBrush" Value="{DynamicResource AdminBorder}" />
+  </Style>
+  <Style Selector="Button:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Border.Background" Value="{DynamicResource AdminSelected}" />
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource AdminSelectedText}" />
+  </Style>
+  <Style Selector="Button.primary">
+    <Setter Property="TemplatedControl.Background" Value="{DynamicResource AdminPrimary}" />
+    <Setter Property="TemplatedControl.Foreground" Value="{DynamicResource AdminPrimaryText}" />
+    <Setter Property="TemplatedControl.CornerRadius" Value="8" />
+  </Style>
+  <Style Selector="Button.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter,
+                   Button.primary:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource AdminPrimaryHover}" />
+    <Setter Property="Foreground" Value="{DynamicResource AdminPrimaryText}" />
+  </Style>
+  <Style Selector="TabItem:selected /template/ Border#PART_SelectedPipe">
+    <Setter Property="Background" Value="{DynamicResource AdminSelectedText}" />
+  </Style>
+  <Style Selector="TabControl">
+    <Setter Property="TemplatedControl.Padding" Value="0" />
+  </Style>
+  <Style Selector="TabItem">
+    <Setter Property="MinHeight" Value="44" />
+    <Setter Property="FontSize" Value="16" />
+    <Setter Property="TemplatedControl.Foreground" Value="{DynamicResource AdminText}" />
+  </Style>
+  <Style Selector="TabItem:pointerover /template/ Border#PART_LayoutRoot">
+    <Setter Property="Border.Background" Value="{DynamicResource AdminHover}" />
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource AdminHoverText}" />
+  </Style>
+  <Style Selector="TabItem:selected /template/ Border#PART_LayoutRoot">
+    <Setter Property="Border.Background" Value="{DynamicResource AdminSelected}" />
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource AdminSelectedText}" />
+  </Style>
+  <Style Selector="ComboBoxItem">
+    <Setter Property="MinHeight" Value="36" />
+    <Setter Property="TemplatedControl.Background" Value="{DynamicResource AdminEditor}" />
+    <Setter Property="TemplatedControl.Foreground" Value="{DynamicResource AdminText}" />
+  </Style>
+  <Style Selector="ComboBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Border.Background" Value="{DynamicResource AdminHover}" />
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource AdminHoverText}" />
+  </Style>
+  <Style Selector="ComboBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Border.Background" Value="{DynamicResource AdminSelected}" />
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource AdminSelectedText}" />
+  </Style>
+  <!-- The APPS shell's forest navigation, subtle hover and gold location marker. -->
+  <Style Selector="ListBox.adminNavigation">
+    <Setter Property="Background" Value="{DynamicResource AdminHeader}" />
+  </Style>
+  <Style Selector="ListBox.adminNavigation ListBoxItem">
+    <Setter Property="MinHeight" Value="48" />
+    <Setter Property="Margin" Value="0,0,0,4" />
+    <Setter Property="Padding" Value="16,12" />
+    <Setter Property="Foreground" Value="{DynamicResource AdminHeaderText}" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Panel>
+          <ContentPresenter Name="NavigationContent" Content="{TemplateBinding Content}" Padding="{TemplateBinding Padding}"
+                            CornerRadius="6" Foreground="{TemplateBinding Foreground}" />
+          <Border Name="NavigationMarker" Width="3" Margin="0,14" CornerRadius="1.5"
+                  Background="{DynamicResource AdminGold}" HorizontalAlignment="Left" IsVisible="False" />
+        </Panel>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="ListBox.adminNavigation ListBoxItem:pointerover /template/ ContentPresenter#NavigationContent,
+                   ListBox.adminNavigation ListBoxItem:selected /template/ ContentPresenter#NavigationContent">
+    <Setter Property="Background" Value="{DynamicResource AdminSubtleHover}" />
+  </Style>
+  <Style Selector="ListBox.adminNavigation ListBoxItem:selected /template/ Border#NavigationMarker">
+    <Setter Property="IsVisible" Value="True" />
+  </Style>
+  <Style Selector="Button.libraryTile">
+    <Setter Property="Background" Value="{DynamicResource AdminCard}" />
+    <Setter Property="CornerRadius" Value="8" />
+  </Style>
+  <Style Selector="Button.libraryTile:pointerover /template/ ContentPresenter#PART_ContentPresenter,
+                   Button.libraryTile:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource AdminHover}" />
+    <Setter Property="Foreground" Value="{DynamicResource AdminHoverText}" />
+  </Style>
+  <Style Selector="ListBox.viewModes">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AdminBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="7" />
+    <Setter Property="Padding" Value="0" />
+  </Style>
+  <Style Selector="ListBox.viewModes ListBoxItem">
+    <Setter Property="MinHeight" Value="38" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Panel>
+          <ContentPresenter Name="ViewContent" Content="{TemplateBinding Content}" Padding="{TemplateBinding Padding}" CornerRadius="6" />
+          <Border Name="ViewMarker" Width="16" Height="3" CornerRadius="1.5" Margin="0,0,0,2"
+                  Background="{DynamicResource AdminSelected}" HorizontalAlignment="Center" VerticalAlignment="Bottom" IsVisible="False" />
+        </Panel>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="ListBox.viewModes ListBoxItem:pointerover /template/ ContentPresenter#ViewContent">
+    <Setter Property="Background" Value="{DynamicResource AdminSubtleHover}" />
+  </Style>
+  <Style Selector="ListBox.viewModes ListBoxItem:selected /template/ ContentPresenter#ViewContent">
+    <Setter Property="Background" Value="{DynamicResource AdminSelectorFill}" />
+  </Style>
+  <Style Selector="ListBox.viewModes ListBoxItem:selected /template/ Border#ViewMarker">
+    <Setter Property="IsVisible" Value="True" />
+  </Style>
+</Styles>

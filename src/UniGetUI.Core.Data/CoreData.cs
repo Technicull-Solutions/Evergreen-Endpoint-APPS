@@ -38,8 +38,8 @@ namespace UniGetUI.Core.Data
                 return __console_encoding;
             }
         }
-        public const string VersionName = "0.1.0"; // Do not modify this line, use file scripts/set-version.ps1
-        public const int BuildNumber = 31; // Do not modify this line, use file scripts/set-version.ps1
+        public const string VersionName = "0.2.1-rc.4"; // Do not modify this line, use file scripts/set-version.ps1
+        public const int BuildNumber = 8; // Do not modify this line, use file scripts/set-version.ps1
         public const string ProductName = "Evergreen Endpoint Package Manager";
         public const string ApplicationDisplayName = "Evergreen Endpoint | APPS";
         public const string UpstreamBaseVersion = "3.3.7";
@@ -51,8 +51,8 @@ namespace UniGetUI.Core.Data
         public const string MainBuildNumberUrl =
             "https://raw.githubusercontent.com/Technicull-Solutions/PackageManager/main/scripts/BuildNumber";
 
-        public const string AppIdentifier = "MartiCliment.UniGetUI";
-        public const string MainWindowIdentifier = "MartiCliment.UniGetUI.MainInterface";
+        public const string AppIdentifier = "Technicull.EvergreenEndpointApps";
+        public const string MainWindowIdentifier = "Technicull.EvergreenEndpointApps.MainInterface";
 
         public static string GetGitHubReleaseTag()
         {
@@ -611,7 +611,7 @@ namespace UniGetUI.Core.Data
                 UniGetUIExecutableDirectory,
                 "Assets",
                 "Utilities",
-                "unigetui_ps_operation.ps1"
+                "evergreen_ps_operation.ps1"
             );
 
         private static string GetLocalDataRoot()

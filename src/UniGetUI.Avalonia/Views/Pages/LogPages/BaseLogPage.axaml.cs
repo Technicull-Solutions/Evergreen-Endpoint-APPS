@@ -58,7 +58,7 @@ public partial class BaseLogPage : UserControl, IEnterLeaveListener, IKeyboardSh
         var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
             Title = CoreTools.Translate("Export log"),
-            SuggestedFileName = CoreTools.Translate("UniGetUI Log"),
+            SuggestedFileName = CoreTools.Translate("Evergreen Endpoint | APPS Log"),
             FileTypeChoices =
             [
                 new FilePickerFileType(CoreTools.Translate("Text")) { Patterns = ["*.txt"] },

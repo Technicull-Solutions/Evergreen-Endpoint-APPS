@@ -25,6 +25,6 @@ try
 }
 catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or IOException or InvalidOperationException)
 {
-    Console.Error.WriteLine($"uniget: {ex.Message}");
+    Console.Error.WriteLine($"{(OperatingSystem.IsWindows() ? "evergreen" : "uniget")}: {ex.Message}");
     return 1;
 }

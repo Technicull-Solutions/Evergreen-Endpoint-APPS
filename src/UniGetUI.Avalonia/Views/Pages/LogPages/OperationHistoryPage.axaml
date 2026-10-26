@@ -12,7 +12,7 @@
              x:DataType="vm:OperationHistoryListViewModel">
 
     <UserControl.Styles>
-        <!-- WinUI-style tabs: no accent underline; selection shown by header background. -->
+        <!-- Selection has a distinct brand fill, stronger label weight and the native focus adorner. -->
         <Style Selector="TabItem">
             <Setter Property="Padding" Value="12,6"/>
             <Setter Property="MinHeight" Value="0"/>
@@ -22,13 +22,20 @@
             <Setter Property="CornerRadius" Value="4"/>
         </Style>
         <Style Selector="TabItem:selected">
-            <Setter Property="Background" Value="{DynamicResource SettingsCardBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource BrandSelectionForeground}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Background" Value="{DynamicResource BrandSelectionBackground}"/>
         </Style>
-        <Style Selector="TabItem:selected:pointerover /template/ Border#PART_LayoutRoot">
-            <Setter Property="Background" Value="{DynamicResource SettingsCardBackground}"/>
+        <Style Selector="TabItem:selected controls|SvgIcon">
+            <Setter Property="Foreground" Value="{DynamicResource BrandSelectionForeground}"/>
+        </Style>
+        <Style Selector="TabItem:selected /template/ Border#PART_LayoutRoot, TabItem:selected:pointerover /template/ Border#PART_LayoutRoot">
+            <Setter Property="BorderBrush" Value="{DynamicResource AccessibleControlBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="{DynamicResource BrandSelectionBackground}"/>
         </Style>
         <Style Selector="TabItem:selected:pressed /template/ Border#PART_LayoutRoot">
-            <Setter Property="Background" Value="{DynamicResource SettingsCardBackground}"/>
+            <Setter Property="Background" Value="{DynamicResource BrandSelectionBackground}"/>
         </Style>
         <Style Selector="TabItem /template/ #PART_SelectedPipe" x:SetterTargetType="Control">
             <Setter Property="IsVisible" Value="False"/>

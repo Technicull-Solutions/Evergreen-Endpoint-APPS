@@ -17,7 +17,7 @@ public sealed class PowerShellOperationLauncherTests
             AppContext.BaseDirectory,
             "Assets",
             "Utilities",
-            "unigetui_ps_operation.ps1"
+            "evergreen_ps_operation.ps1"
         );
         if (File.Exists(fromOutput))
             return fromOutput;
@@ -30,7 +30,7 @@ public sealed class PowerShellOperationLauncherTests
                 "SharedAssets",
                 "Assets",
                 "Utilities",
-                "unigetui_ps_operation.ps1"
+                "evergreen_ps_operation.ps1"
             );
             if (File.Exists(candidate))
                 return candidate;

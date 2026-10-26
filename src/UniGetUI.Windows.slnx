@@ -1,9 +1,16 @@
 <Solution>
+  <Project Path="Evergreen.Configuration/Evergreen.Configuration.csproj" />
+  <Project Path="Evergreen.Admin/Evergreen.Admin.csproj" />
+  <Project Path="Evergreen.Admin.UiTests/Evergreen.Admin.UiTests.csproj" />
   <Configurations>
     <Platform Name="x64" />
     <Platform Name="arm64" />
   </Configurations>
   <Folder Name="/ExternalLibraries/">
+    <Project Path="ExternalLibraries.AvaloniaDataGrid/ExternalLibraries.AvaloniaDataGrid.csproj">
+      <Platform Solution="*|arm64" Project="arm64" />
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
     <Project Path="ExternalLibraries.Clipboard/ExternalLibraries.Clipboard.csproj">
       <Platform Solution="*|arm64" Project="arm64" />
       <Platform Solution="*|x64" Project="x64" />

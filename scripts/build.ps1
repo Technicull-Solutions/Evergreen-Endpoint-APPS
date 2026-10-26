@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 <#
 .SYNOPSIS
-    Builds UniGetUI, produces the published output, and packages artifacts.
+    Builds Evergreen Endpoint Package Manager and packages its published output.
 
 .PARAMETER Configuration
     Build configuration (Debug or Release). Default: Release.
@@ -67,10 +67,18 @@ $VersionMatch = Select-String -Path $AssemblyInfoPath -Pattern 'AssemblyInformat
 $PackageVersion = if ($VersionMatch) { $VersionMatch.Matches[0].Groups[1].Value } else { "0.0.0" }
 Write-Host "Building Evergreen Endpoint Package Manager version: $PackageVersion"
 
+$StampedBuild = [int](Get-Content -LiteralPath (Join-Path $PSScriptRoot 'BuildNumber') -Raw).Trim()
+$ProductInfo = Get-Content -LiteralPath (Join-Path $RepoRoot 'update/productinfo.json') -Raw | ConvertFrom-Json
+$ChannelName = if ($PackageVersion.Contains('-')) { 'Beta' } else { 'Current' }
+$Channel = $ProductInfo.'TechnicullSolutions.EvergreenEndpointPackageManager'.$ChannelName
+if ($Channel.Version -ne $PackageVersion -or $Channel.BuildNumber -ne $StampedBuild -or $Channel.BuildVersion -ne [string]$StampedBuild) {
+    throw 'Release metadata is out of sync. Run scripts/set-version.ps1 with the intended version and build number.'
+}
+
 # --- Test ---
 if (-not $SkipTests) {
     Write-Host "`n=== Running tests ===" -ForegroundColor Cyan
-    dotnet test $WindowsSolution --verbosity q --nologo --ignore-failed-sources /p:Platform=$Platform
+    dotnet test $WindowsSolution --verbosity minimal --nologo --blame-hang-timeout 5m --blame-hang-dump-type none --logger "console;verbosity=normal" --logger "trx;LogFilePrefix=tests" --results-directory (Join-Path $RepoRoot "artifacts/test-results") /p:RestoreIgnoreFailedSources=true /p:Platform=$Platform /p:UseSharedCompilation=false /m:1
     if ($LASTEXITCODE -ne 0) {
         throw "Tests failed with exit code $LASTEXITCODE"
     }
@@ -80,7 +88,7 @@ if (-not $SkipTests) {
 Write-Host "`n=== Publishing $Configuration|$Platform ===" -ForegroundColor Cyan
 dotnet clean $WindowsSolution -v m --nologo /p:Platform=$Platform
 
-dotnet publish $PublishProject /noLogo /m:1 /p:Configuration=$Configuration /p:Platform=$Platform -p:RuntimeIdentifier=win-$Platform --ignore-failed-sources -v m
+dotnet publish $PublishProject /noLogo /m:1 /p:Configuration=$Configuration /p:Platform=$Platform -p:RuntimeIdentifier=win-$Platform /p:TrimmerSingleWarn=false /p:ILLinkTreatWarningsAsErrors=true /p:IlcTreatWarningsAsErrors=true --ignore-failed-sources -v m
 if ($LASTEXITCODE -ne 0) {
     throw "dotnet publish Avalonia failed with exit code $LASTEXITCODE"
 }
@@ -102,7 +110,7 @@ if (-not (Test-Path $WindowsAppHostPath)) {
     throw "Windows app host was not produced at $WindowsAppHostPath"
 }
 
-$CliLauncherPath = Join-Path $BinDir "uniget.exe"
+$CliLauncherPath = Join-Path $BinDir "evergreen.exe"
 if (-not (Test-Path -LiteralPath $CliLauncherPath -PathType Leaf)) {
     throw "NativeAOT CLI launcher was not staged for win-$Platform at $CliLauncherPath"
 }
@@ -114,18 +122,7 @@ if (-not (Test-Path $PolicyElevatorPath)) {
     throw "Elevated policy helper was not staged at $PolicyElevatorPath"
 }
 
-# Keep smaller symbols for useful local crash source information, and prune oversized ones.
-$MaxShippedPdbSizeBytes = 1MB
-
-$PdbsToRemove = Get-ChildItem $BinDir -Filter "*.pdb" -File | Where-Object {
-    $_.Length -gt $MaxShippedPdbSizeBytes
-}
-
-if ($PdbsToRemove.Count -gt 0) {
-    $RemovedPdbBytes = ($PdbsToRemove | Measure-Object -Property Length -Sum).Sum
-    $PdbsToRemove | Remove-Item -Force
-    Write-Host ("Removed {0} oversized PDBs above {1:N2} MiB ({2:N2} MiB total)." -f $PdbsToRemove.Count, ($MaxShippedPdbSizeBytes / 1MB), ($RemovedPdbBytes / 1MB))
-}
+& (Join-Path $PSScriptRoot 'remove-package-symbols.ps1') -Path $BinDir
 
 # --- Package output ---
 if (Test-Path $OutputPath) { Remove-Item $OutputPath -Recurse -Force }
@@ -136,10 +133,14 @@ $BuildNumber = (Get-Content -LiteralPath $BuildNumberPath -Raw).Trim()
 $ArtifactStem = "EvergreenEndpointPackageManager.$PackageVersion-build.$BuildNumber.$Platform"
 $ZipPath = Join-Path $OutputPath "$ArtifactStem.zip"
 Write-Host "`n=== Refreshing integrity tree before zip packaging ===" -ForegroundColor Cyan
+Copy-Item -LiteralPath (Join-Path $RepoRoot 'InstallerExtras\EvergreenEndpoint.portable') -Destination $BinDir
 & (Join-Path $PSScriptRoot "refresh-integrity-tree.ps1") -Path $BinDir -FailOnUnexpectedFiles
 
 Write-Host "`n=== Creating zip: $ZipPath ===" -ForegroundColor Cyan
 Compress-Archive -Path (Join-Path $BinDir "*") -DestinationPath $ZipPath -CompressionLevel Optimal
+& (Join-Path $PSScriptRoot 'verify-release-package.ps1') -Archive $ZipPath -Kind Apps
+# The ZIP is portable; the installer task controls portable mode independently.
+Remove-Item -LiteralPath (Join-Path $BinDir 'EvergreenEndpoint.portable')
 
 # Package the ADMX/ADML files in the PolicyDefinitions layout expected by local and domain GPO stores.
 $PolicyArtifactPath = Join-Path $OutputPath "EvergreenEndpointPackageManager.Policies.$PackageVersion-build.$BuildNumber.zip"
@@ -204,6 +205,8 @@ if (-not $SkipInstaller) {
 }
 
 # --- Checksums ---
+& (Join-Path $PSScriptRoot 'package-admin.ps1') -Platform $Platform -OutputPath $OutputPath
+
 Write-Host "`n=== Checksums ===" -ForegroundColor Cyan
 $ChecksumFile = Join-Path $OutputPath "checksums.$Platform.txt"
 Get-ChildItem $OutputPath -File | Where-Object { $_.Name -notlike "checksums.*.txt" } | ForEach-Object {

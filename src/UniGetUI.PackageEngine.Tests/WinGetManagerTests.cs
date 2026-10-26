@@ -2670,6 +2670,87 @@ public sealed class WinGetManagerTests : IDisposable
         );
     }
 
+    [Theory]
+    [InlineData(0x8A150006u, true)]
+    [InlineData(0x8A150101u, true)]
+    [InlineData(0x8A150103u, true)]
+    [InlineData(0x8A150111u, true)]
+    [InlineData(0x8A150011u, false)] // Hash mismatch.
+    [InlineData(0x8A15010Fu, false)] // Policy denial.
+    [InlineData(0x8A15010Cu, false)] // User cancellation.
+    [InlineData(0x8A150109u, false)] // Restart required.
+    [InlineData(2u, false)] // A bare installer code is not a WinGet diagnosis.
+    public async Task WinGetSuggestsInteractiveRecoveryOnlyForInstallerFailures(uint code, bool expected)
+    {
+        var manager = new WinGet();
+        var package = new PackageBuilder().WithManager(manager).WithId("Bitwarden.Bitwarden").Build();
+        using var operation = new VeredictProbingUpdateOperation(package, new InstallOptions());
+
+        await operation.ProbeProcessVeredict(unchecked((int)code), []);
+
+        Assert.Equal(expected, operation.SuggestInteractiveRetry);
+        Assert.Equal(code is 0x8A150101u or 0x8A150103u or 0x8A150111u, operation.FailedBecauseApplicationRunning);
+    }
+
+    [Theory]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    public async Task WinGetDoesNotRecommendRecoveryForInteractiveAttemptsOrUnsupportedPingetUpdates(
+        bool interactive, bool pinget)
+    {
+        var manager = new WinGet();
+        SetCliToolKind(manager, pinget ? WinGetCliToolKind.BundledPinget : WinGetCliToolKind.SystemWinGet);
+        var package = new PackageBuilder().WithManager(manager).WithId("Bitwarden.Bitwarden").Build();
+        using var operation = new VeredictProbingUpdateOperation(package,
+            new InstallOptions { InteractiveInstallation = interactive });
+
+        await operation.ProbeProcessVeredict(unchecked((int)0x8A150006), []);
+
+        Assert.False(operation.SuggestInteractiveRetry);
+        Assert.False(PackageOperation.CanRetryInteractively(operation));
+    }
+
+    [Fact]
+    public async Task WinGetRecommendsInteractiveRecoveryForInstallsAndClearsItForUnrelatedFailures()
+    {
+        var manager = new WinGet();
+        var package = new PackageBuilder().WithManager(manager).WithId("Bitwarden.Bitwarden").Build();
+        using var operation = new VeredictProbingInstallOperation(package, new InstallOptions());
+
+        await operation.ProbeProcessVeredict(unchecked((int)0x8A150006));
+        Assert.True(operation.SuggestInteractiveRetry);
+        Assert.False(operation.FailedBecauseApplicationRunning);
+
+        await operation.ProbeProcessVeredict(unchecked((int)0x8A15010F));
+        Assert.False(operation.SuggestInteractiveRetry);
+    }
+
+    [Fact]
+    public async Task InteractiveRecoveryDoesNotChangeScopeElevationOrIntegrityAndClearsAfterAnotherFailure()
+    {
+        var manager = new WinGet();
+        var package = new PackageBuilder().WithManager(manager).WithId("Bitwarden.Bitwarden").Build();
+        var options = new InstallOptions { InstallationScope = PackageScope.User };
+        using var operation = new VeredictProbingUpdateOperation(package, options);
+        await operation.ProbeProcessVeredict(unchecked((int)0x8A150006), []);
+        Assert.True(operation.SuggestInteractiveRetry);
+
+        operation.ApplyInteractiveRetry();
+        Assert.False(operation.SuggestInteractiveRetry);
+        var parameters = manager.OperationHelper.GetParameters(package, options, OperationType.Update);
+
+        Assert.Contains("--interactive", parameters);
+        Assert.DoesNotContain("--silent", parameters);
+        Assert.DoesNotContain("--ignore-security-hash", parameters);
+        Assert.Equal(PackageScope.User, options.InstallationScope);
+        Assert.False(options.RunAsAdministrator);
+        Assert.False(options.SkipHashCheck);
+        Assert.False(operation.FailedBecauseApplicationRunning);
+
+        await operation.ProbeProcessVeredict(unchecked((int)0x8A150006), []);
+        Assert.False(operation.SuggestInteractiveRetry);
+    }
+
     private sealed class VeredictProbingUpdateOperation : UpdatePackageOperation
     {
         public VeredictProbingUpdateOperation(IPackage package, InstallOptions options)
@@ -2681,6 +2762,15 @@ public sealed class WinGetManagerTests : IDisposable
 
         public Task<OperationVeredict> ProbeProcessVeredict(int returnCode, List<string> output)
             => GetProcessVeredict(returnCode, output);
+
+        public void ApplyInteractiveRetry() => ApplyRetryAction(RetryMode.Retry_Interactive);
+    }
+
+    private sealed class VeredictProbingInstallOperation(IPackage package, InstallOptions options)
+        : InstallPackageOperation(package, options)
+    {
+        public Task<OperationVeredict> ProbeProcessVeredict(int returnCode)
+            => GetProcessVeredict(returnCode, []);
     }
 
     private static void SetCliToolKind(WinGet manager, WinGetCliToolKind kind)

@@ -9,6 +9,7 @@
         <OutputType>Library</OutputType>
         <RootNamespace>UniGetUI.Tui</RootNamespace>
         <AssemblyName>UniGetUI.Tui</AssemblyName>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <!-- The UI is built entirely in C# (no AXAML), so compiled bindings are irrelevant here;
              keep parity with the Consolonia fork projects which opt out under Avalonia 12. -->
         <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
@@ -62,7 +63,8 @@
         <PackageReference Include="Consolonia" Version="$(ConsoloniaVersion)" />
         <PackageReference Include="Consolonia.Fonts" Version="$(ConsoloniaVersion)" />
         <PackageReference Include="Consolonia.Controls.DataGrid" Version="$(ConsoloniaVersion)" />
-        <PackageReference Include="Consolonia.ManagedWindows" Version="$(ConsoloniaVersion)" />
+        <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.0.0" ExcludeAssets="all" />
+        <ProjectReference Include="../ExternalLibraries.AvaloniaDataGrid/ExternalLibraries.AvaloniaDataGrid.csproj" />
     </ItemGroup>
 
 </Project>

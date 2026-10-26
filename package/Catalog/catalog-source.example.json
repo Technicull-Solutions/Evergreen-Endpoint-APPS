@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "provider": "gitea",
+  "name": "Example environment",
+  "serverUrl": "https://gitea.example.test",
+  "owner": "Example",
+  "repository": "endpoint-config",
+  "revision": "main",
+  "filePath": "software-catalog.json"
+}

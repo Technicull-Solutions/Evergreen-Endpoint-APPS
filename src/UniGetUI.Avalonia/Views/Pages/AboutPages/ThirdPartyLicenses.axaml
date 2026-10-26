@@ -14,12 +14,12 @@
     <ScrollViewer HorizontalScrollBarVisibility="Disabled">
         <StackPanel Orientation="Vertical" Spacing="4" Margin="16,8">
 
-            <TextBlock Text="{t:Translate UniGetUI License}"
+            <TextBlock Text="{t:Translate Evergreen Endpoint | APPS License}"
                        FontFamily="Segoe UI Variable Display"
                        FontSize="24"
                        FontWeight="Bold"/>
 
-            <TextBlock Text="{t:Translate Text='Using UniGetUI implies the acceptation of the MIT License'}"
+            <TextBlock Text="{t:Translate Text='Using Evergreen Endpoint | APPS implies the acceptation of the MIT License'}"
                        FontSize="14"
                        TextWrapping="Wrap"/>
 

@@ -20,7 +20,7 @@ public sealed partial class Experimental : UserControl, ISettingsPage
         var vm = (ExperimentalViewModel)DataContext;
         vm.RestartRequired += (s, e) => RestartRequired?.Invoke(s, e);
 
-        ShowVersionNumberOnTitlebar.Text = CoreTools.Translate("Show UniGetUI's version and build number on the titlebar.");
-        IconDatabaseURLCard.HelpUrl = new Uri("https://github.com/Devolutions/UniGetUI");
+        ShowVersionNumberOnTitlebar.Text = CoreTools.Translate("Show Evergreen Endpoint | APPS's version and build number on the titlebar.");
+        IconDatabaseURLCard.HelpUrl = new Uri("https://github.com/Technicull-Solutions/PackageManager");
     }
 }

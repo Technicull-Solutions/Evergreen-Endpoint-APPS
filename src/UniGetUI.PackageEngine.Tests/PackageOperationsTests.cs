@@ -544,6 +544,57 @@ public sealed class PackageOperationsTests
     }
 
     [Fact]
+    public async Task UninstallLimitAppliesEvenWhenTheGlobalQueueIsBypassed()
+    {
+        if (!OperatingSystem.IsWindows()) return;
+        ManagedPackageManagerConfiguration.TEST_PolicyOverride = new() { MaximumConcurrentUninstalls = 1 };
+        ManagedPackageManagerConfiguration.Reload();
+        try
+        {
+            var manager = CreateSlowProcessManager(serializesOperations: false);
+            InitializeLoaders();
+            using var first = new UninstallPackageOperation(
+                new PackageBuilder().WithManager(manager).WithId("limited-first").Build(),
+                new InstallOptions(), IgnoreParallelInstalls: true);
+            using var second = new UninstallPackageOperation(
+                new PackageBuilder().WithManager(manager).WithId("limited-second").Build(),
+                new InstallOptions(), IgnoreParallelInstalls: true);
+            var waiting = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            second.LogLineAdded += (_, line) =>
+            {
+                if (line.Item1.StartsWith("Waiting for an available uninstall slot", StringComparison.Ordinal))
+                    waiting.TrySetResult();
+            };
+            Task firstRun = first.MainThread();
+            try
+            {
+                await WaitForConditionAsync(() => HasLine(first, "Start Time"));
+                Task secondRun = second.MainThread();
+                await waiting.Task.WaitAsync(TimeSpan.FromSeconds(5));
+                second.Cancel();
+                await secondRun.WaitAsync(TimeSpan.FromSeconds(10));
+                Assert.False(HasLine(second, "Executing process"));
+                Assert.Equal(OperationStatus.Canceled, second.Status);
+            }
+            finally
+            {
+                first.Cancel();
+                await firstRun.WaitAsync(TimeSpan.FromSeconds(10));
+            }
+            using var next = new UninstallPackageOperation(
+                new PackageBuilder().WithManager(manager).WithId("limited-next").Build(),
+                new InstallOptions(), IgnoreParallelInstalls: true);
+            await next.MainThread().WaitAsync(TimeSpan.FromSeconds(15));
+            Assert.Equal(OperationStatus.Succeeded, next.Status);
+        }
+        finally
+        {
+            ManagedPackageManagerConfiguration.TEST_PolicyOverride = null;
+            ManagedPackageManagerConfiguration.Reload();
+        }
+    }
+
+    [Fact]
     public async Task OperationsOfASerializingManagerNeverRunTheirProcessesConcurrently()
     {
         if (!OperatingSystem.IsWindows())

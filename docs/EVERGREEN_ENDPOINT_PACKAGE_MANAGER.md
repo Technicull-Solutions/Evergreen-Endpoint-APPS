@@ -168,6 +168,8 @@ Package allow/deny rules should continue to use the existing signed broker polic
 
 ## Delivery sequence
 
+The first portable administrator increment is described in [ADMIN_CLIENT.md](ADMIN_CLIENT.md): offline software-library and manager-configuration authoring/export plus read-only local diagnostics. The employee library is enabled by default under Apps, with source search available separately as Search apps. This increment does not provide signed catalogs, remote management, or portable privileged policy application. Broader phases below remain the product roadmap.
+
 ### 1. Product boundary and identity
 
 - Load only WinGet, Windows PowerShell, and PowerShell 7 on Windows.

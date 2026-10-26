@@ -81,6 +81,7 @@ namespace UniGetUI.PackageEngine.Operations
         public readonly InstallOptions Options;
         public readonly OperationType Role;
         public bool FailedBecauseApplicationRunning { get; private set; }
+        public bool SuggestInteractiveRetry { get; private set; }
         private IReadOnlyList<string> _closeRunningAppProcessNames = [];
         private readonly List<string> _brokerKillBeforeOperationAdded = [];
 
@@ -119,6 +120,8 @@ namespace UniGetUI.PackageEngine.Operations
             Role = role;
 
             Initialize();
+
+            OperationStarting += (_, _) => SuggestInteractiveRetry = false;
 
             Enqueued += (_, _) =>
             {
@@ -210,6 +213,7 @@ namespace UniGetUI.PackageEngine.Operations
 
         protected override void ApplyRetryAction(string retryMode)
         {
+            SuggestInteractiveRetry = false;
             ClearCloseRunningAppAttempt();
             switch (retryMode)
             {
@@ -322,6 +326,29 @@ namespace UniGetUI.PackageEngine.Operations
         /// broker protocol. Falls back to process-based execution otherwise.
         /// </summary>
         protected override async Task<OperationVeredict> PerformOperation()
+        {
+            IDisposable? uninstallSlot = null;
+            try
+            {
+                if (Role is OperationType.Uninstall)
+                {
+                    Line(CoreTools.Translate("Waiting for an available uninstall slot (administrator limit: {0})...",
+                        ManagedPackageManagerConfiguration.MaximumConcurrentUninstalls), LineType.ProgressIndicator);
+                    uninstallSlot = await UninstallConcurrencyLimiter.Shared.AcquireAsync(CancellationToken);
+                }
+                return await PerformLimitedOperation();
+            }
+            catch (OperationCanceledException) when (CancellationToken.IsCancellationRequested)
+            {
+                return OperationVeredict.Canceled;
+            }
+            finally
+            {
+                uninstallSlot?.Dispose();
+            }
+        }
+
+        private async Task<OperationVeredict> PerformLimitedOperation()
         {
             // Observational stage marker only: structured progress starts as indeterminate
             // with the role's stage label (e.g. "Installing..."). Re-reported on every
@@ -1094,6 +1121,7 @@ namespace UniGetUI.PackageEngine.Operations
             );
 
             FailedBecauseApplicationRunning = false;
+            SuggestInteractiveRetry = false;
             if (veredict is OperationVeredict.Failure)
             {
                 if (Role is OperationType.Update)
@@ -1101,6 +1129,14 @@ namespace UniGetUI.PackageEngine.Operations
                 ExplainInstallerHashMismatch(ReturnCode);
                 ExplainApplicationCurrentlyRunning(Output, ReturnCode);
                 ExplainFileInUse(Output);
+#if WINDOWS
+                // A generic installer failure does not establish why it failed. Offer a
+                // user-controlled recovery, without changing elevation or integrity checks.
+                SuggestInteractiveRetry = Package.Manager is WinGet
+                    && Role is OperationType.Install or OperationType.Update
+                    && CanRetryInteractively(this)
+                    && unchecked((uint)ReturnCode) is 0x8A150006 or 0x8A150101 or 0x8A150103 or 0x8A150111;
+#endif
             }
 
             return Task.FromResult(veredict);
@@ -1111,6 +1147,17 @@ namespace UniGetUI.PackageEngine.Operations
             if (!operation.FailedBecauseApplicationRunning)
                 return false;
             return GetRunningCloseProcessNames(operation.Package).Count > 0;
+        }
+
+        public static bool CanRetryInteractively(PackageOperation operation)
+        {
+            if (operation.Options.InteractiveInstallation || !operation.Package.Manager.Capabilities.CanRunInteractively)
+                return false;
+#if WINDOWS
+            if (operation.Package.Manager is WinGet winget)
+                return winget.SupportsInteractiveOperation(operation.Role);
+#endif
+            return true;
         }
 
         internal static IReadOnlyList<string> GuessCloseProcessNames(IPackage package)

@@ -1,17 +1,17 @@
 // Included inside [Code]. Bare MSI-style property alias for one Inno task only.
 // Keep this separate from the PATH registry/ownership implementation.
 var
-  UnigetPathAliasPresent, UnigetPathAliasEnabled, UnigetPathAliasApplied: Boolean;
+  EvergreenPathAliasPresent, EvergreenPathAliasEnabled, EvergreenPathAliasApplied: Boolean;
 
-function InitializeUnigetPathTaskAlias: Boolean;
+function InitializeEvergreenPathTaskAlias: Boolean;
 var
   I, EqualsPos: Integer;
   Argument, Name, Value, Error: String;
   Enabled: Boolean;
 begin
   Result := True;
-  UnigetPathAliasPresent := False;
-  UnigetPathAliasApplied := False;
+  EvergreenPathAliasPresent := False;
+  EvergreenPathAliasApplied := False;
   for I := 1 to ParamCount do
   begin
     Argument := ParamStr(I);
@@ -27,7 +27,7 @@ begin
     else
     begin
       Enabled := Value = '1';
-      if UnigetPathAliasPresent and (Enabled <> UnigetPathAliasEnabled) then
+      if EvergreenPathAliasPresent and (Enabled <> EvergreenPathAliasEnabled) then
         Error := 'Conflicting ADDTOPATH properties: both 0 and 1 were specified.';
     end;
     if Error <> '' then
@@ -38,15 +38,15 @@ begin
       Result := False;
       Exit;
     end;
-    UnigetPathAliasPresent := True;
-    UnigetPathAliasEnabled := Enabled;
+    EvergreenPathAliasPresent := True;
+    EvergreenPathAliasEnabled := Enabled;
   end;
 end;
 
-procedure ApplyUnigetPathTaskAlias;
+procedure ApplyEvergreenPathTaskAlias;
 begin
-  if not UnigetPathAliasPresent or UnigetPathAliasApplied then Exit;
-  UnigetPathAliasApplied := True;
+  if not EvergreenPathAliasPresent or EvergreenPathAliasApplied then Exit;
+  EvergreenPathAliasApplied := True;
   // Never let selecting a child implicitly select its regular-install parent.
   if not WizardIsTaskSelected('regularinstall') then
   begin
@@ -55,9 +55,9 @@ begin
   end;
   // The wizard has already restored previous tasks and processed /TASKS and
   // /MERGETASKS. Only change this checkbox, once; subsequent UI edits win.
-  if UnigetPathAliasEnabled then
+  if EvergreenPathAliasEnabled then
     WizardSelectTasks('regularinstall\addtopath')
   else
     WizardSelectTasks('!regularinstall\addtopath');
-  Log('Applied ADDTOPATH=' + IntToStr(Ord(UnigetPathAliasEnabled)) + ' to the uniget PATH checkbox.');
+  Log('Applied ADDTOPATH=' + IntToStr(Ord(EvergreenPathAliasEnabled)) + ' to the evergreen PATH checkbox.');
 end;

@@ -221,7 +221,7 @@
             <_CliLauncherTargetFramework Condition="'$(RuntimeIdentifier)' == 'linux-x64' or '$(RuntimeIdentifier)' == 'linux-arm64' or '$(RuntimeIdentifier)' == 'osx-x64' or '$(RuntimeIdentifier)' == 'osx-arm64'">$(PortableTargetFramework)</_CliLauncherTargetFramework>
             <_CliLauncherPlatform Condition="'$(RuntimeIdentifier)' == 'win-x64' or '$(RuntimeIdentifier)' == 'linux-x64' or '$(RuntimeIdentifier)' == 'osx-x64'">x64</_CliLauncherPlatform>
             <_CliLauncherPlatform Condition="'$(RuntimeIdentifier)' == 'win-arm64' or '$(RuntimeIdentifier)' == 'linux-arm64' or '$(RuntimeIdentifier)' == 'osx-arm64'">arm64</_CliLauncherPlatform>
-            <_CliLauncherExecutableName Condition="$([MSBuild]::IsOSPlatform('Windows'))">uniget.exe</_CliLauncherExecutableName>
+            <_CliLauncherExecutableName Condition="$([MSBuild]::IsOSPlatform('Windows'))">evergreen.exe</_CliLauncherExecutableName>
             <_CliLauncherExecutableName Condition="!$([MSBuild]::IsOSPlatform('Windows'))">uniget</_CliLauncherExecutableName>
             <_CliLauncherIntermediateDir>$([System.IO.Path]::GetFullPath($([System.IO.Path]::Combine('$(MSBuildThisFileDirectory)', '$(BaseIntermediateOutputPath)', 'cli-launcher', '$(Configuration)', '$(RuntimeIdentifier)'))))</_CliLauncherIntermediateDir>
             <_CliLauncherExecutable>$([System.IO.Path]::Combine('$(_CliLauncherIntermediateDir)', '$(_CliLauncherExecutableName)'))</_CliLauncherExecutable>
@@ -269,7 +269,10 @@
     <ItemGroup>
         <PackageReference Include="Avalonia" Version="12.0.4" />
         <PackageReference Include="Avalonia.AvaloniaEdit" Version="12.0.0" />
-        <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.0.0" />
+        <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.0.0" ExcludeAssets="all" />
+        <ProjectReference Include="../ExternalLibraries.AvaloniaDataGrid/ExternalLibraries.AvaloniaDataGrid.csproj" />
+        <Content Include="../ExternalLibraries.AvaloniaDataGrid/LICENSE.md" Link="Assets/Licenses/Avalonia.DataGrid.LICENSE.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+        <Content Include="../UniGetUI.Tui/Infrastructure/Console/*.LICENSE.md" Link="Assets/Licenses/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
         <PackageReference Include="Avalonia.Desktop" Version="12.0.4" />
         <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.4" />
         <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.4" />
@@ -284,6 +287,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="../Evergreen.Configuration/Evergreen.Configuration.csproj" />
         <ProjectReference Include="..\UniGetUI.Core.Data\UniGetUI.Core.Data.csproj" />
         <ProjectReference Include="..\UniGetUI.Core.LanguageEngine\UniGetUI.Core.LanguageEngine.csproj" />
         <ProjectReference Include="..\UniGetUI.Core.Logger\UniGetUI.Core.Logging.csproj" />
@@ -318,6 +322,8 @@
         <AvaloniaResource Include="Assets\Images\Trophee.png" />
         <AvaloniaResource Include="Assets\Images\Empty_inbox.png" />
         <AvaloniaResource Include="Assets\Brand\*.png" />
+        <AvaloniaResource Include="Assets\Fonts\Lato-*.ttf" />
+        <Content Include="Assets\Fonts\OFL.txt" Link="Assets\Licenses\Lato-OFL.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
         <AvaloniaResource Include="Assets\Brand\*.svg" />
         <AvaloniaResource Include="..\SharedAssets\Assets\SplashScreen.png" Link="Assets\SplashScreen.png" />
         <AvaloniaResource Include="..\SharedAssets\Assets\SplashScreen.theme-dark.png" Link="Assets\SplashScreen.theme-dark.png" />

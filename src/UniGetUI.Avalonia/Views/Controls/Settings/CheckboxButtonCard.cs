@@ -71,7 +71,7 @@ public sealed partial class CheckboxButtonCard : SettingsCard
 
     public CheckboxButtonCard()
     {
-        Button = new Button { Margin = new Thickness(0, 8, 0, 0) };
+        Button = new Button { Margin = new Thickness(12, 4, 0, 4), VerticalAlignment = VerticalAlignment.Center };
         Button.Classes.Add("secondary-action");
         _checkbox = new ToggleSwitch
         {
@@ -105,8 +105,13 @@ public sealed partial class CheckboxButtonCard : SettingsCard
             VerticalAlignment = VerticalAlignment.Center,
             Children = { _stateLabel, _checkbox },
         };
-        Header = _textblock;
-        Description = Button;
+        // Wrap only when the available header column cannot hold both label and action.
+        Header = new WrapPanel
+        {
+            Orientation = Orientation.Horizontal,
+            VerticalAlignment = VerticalAlignment.Center,
+            Children = { _textblock, Button },
+        };
 
         _checkbox.IsCheckedChanged += (_, _) =>
         {

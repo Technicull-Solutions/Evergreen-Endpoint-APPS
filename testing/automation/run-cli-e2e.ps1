@@ -281,7 +281,7 @@ $daemonStartupTimeoutSeconds = if ($runningOnWindows) { 300 } else { 120 }
 $daemonCommand = Get-DaemonCommand
 $cliCommand = $daemonCommand
 if ($env:UNIGETUI_DAEMON_EXE -or [string]$manifest.daemon.kind -eq 'avalonia-native') {
-    $launcherName = if ($runningOnWindows) { 'uniget.exe' } else { 'uniget' }
+    $launcherName = if ($runningOnWindows) { 'evergreen.exe' } else { 'uniget' }
     $launcherPath = Join-Path $daemonCommand.WorkingDirectory $launcherName
     if (-not (Test-Path $launcherPath)) {
         throw "NativeAOT CLI launcher was not found at $launcherPath"

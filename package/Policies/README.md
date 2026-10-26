@@ -24,3 +24,18 @@ command-line API cannot add or remove sources for managed package managers.
 
 Configured executable paths fail closed if the file does not exist. Leave an executable path
 unconfigured to use the application's normal trusted executable discovery.
+
+`maximumConcurrentUninstalls` is an optional top-level integer in the version 1 JSON.
+It defaults to **3**; supported values are **1–100**. The **Set the maximum concurrent
+uninstalls** policy writes a `MaximumConcurrentUninstalls` DWORD under the registry key
+`HKLM\Software\Policies\Technicull Solutions\Evergreen Endpoint\Package Manager\PackageManagers`
+and takes precedence over JSON. An invalid deployed number restricts the limit to 1.
+Restart the client after deployment to reload its cached machine configuration.
+
+Installed has no select-all action. Selecting multiple apps shows **Uninstall Apps**;
+the confirmation lists the apps, defaults focus to Cancel, and blocks selections above
+the effective limit. Other desktop uninstall selections use the same confirmation.
+The shared operation engine also limits simultaneous uninstall execution across managers
+and its desktop, CLI, TUI, and API callers within each client process. Excess operations
+wait for a slot and can be canceled. Existing operation/manager limits may serialize
+them further. This is not a machine-wide restriction on Windows or external uninstall commands.

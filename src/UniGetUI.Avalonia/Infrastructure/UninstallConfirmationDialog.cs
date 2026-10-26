@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Media;
 using UniGetUI.Avalonia.Views.DialogPages;
+using UniGetUI.Core.SettingsEngine;
 using UniGetUI.Core.Tools;
 using UniGetUI.PackageEngine.Interfaces;
 
@@ -20,12 +21,16 @@ internal static class UninstallConfirmationDialog
             return false;
         }
 
+        int maximum = ManagedPackageManagerConfiguration.MaximumConcurrentUninstalls;
+        bool overLimit = !ManagedPackageManagerConfiguration.IsUninstallSelectionAllowed(packages.Count);
         var messageBlock = new TextBlock
         {
-            Text = packages.Count == 1
+            Text = overLimit
+                ? CoreTools.Translate("You selected {0} apps. Your administrator allows a maximum of {1} apps to be uninstalled at once. Select fewer apps and try again.", packages.Count, maximum)
+                : packages.Count == 1
                 ? CoreTools.Translate("Do you really want to uninstall {0}?", packages[0].Name)
                 : CoreTools.Translate(
-                    "Do you really want to uninstall the following {0} packages?",
+                    "Uninstall these {0} apps? This removes them from your device.",
                     packages.Count),
             Opacity = 0.82,
             TextWrapping = TextWrapping.Wrap,
@@ -44,7 +49,6 @@ internal static class UninstallConfirmationDialog
             var packageListBlock = new TextBlock
             {
                 Text = packageListText,
-                FontFamily = new FontFamily("Consolas"),
                 TextWrapping = TextWrapping.Wrap,
             };
 
@@ -57,15 +61,22 @@ internal static class UninstallConfirmationDialog
         }
 
         var dialog = new ImmersiveConfirmationDialog(
-            CoreTools.Translate("Are you sure?"),
+            overLimit ? CoreTools.Translate("Uninstall limit reached") : CoreTools.Translate("Uninstall Apps"),
             body,
-            CoreTools.Translate("Yes"),
-            CoreTools.Translate("No"))
+            CoreTools.Translate("Uninstall Apps"),
+            overLimit ? CoreTools.Translate("Close") : CoreTools.Translate("Cancel"))
         {
+            FocusPrimaryButton = false,
             MaxWidth = packages.Count == 1 ? 520 : 560,
             MaxHeight = packages.Count == 1 ? 220 : 380,
         };
+        var uninstallButton = dialog.FindControl<Button>("PrimaryButton")!;
+        uninstallButton.Classes.Remove("accent");
+        uninstallButton.Classes.Add("warning-action");
+        uninstallButton.IsEnabled = !overLimit;
         await dialog.ShowDialog(owner);
-        return dialog.Result is true;
+        // Re-read before dispatch so a policy reload during the prompt cannot enlarge the batch.
+        return !overLimit && dialog.Result is true
+            && ManagedPackageManagerConfiguration.IsUninstallSelectionAllowed(packages.Count);
     }
 }

@@ -6,12 +6,12 @@ namespace UniGetUI.Avalonia.Infrastructure;
 
 internal static class GitHubCloudBackupService
 {
-    private const string GistDescriptionEndingKey = "@[UNIGETUI_BACKUP_V1]";
+    private const string GistDescriptionEndingKey = "@[EVERGREEN_ENDPOINT_APPS_BACKUP_V1]";
     private const string PackageBackupStartingKey = "@[PACKAGES]";
-    private const string GistDescription = "UniGetUI package backups - DO NOT RENAME OR MODIFY " + GistDescriptionEndingKey;
-    private const string ReadMeContents = "This special Gist is used by UniGetUI to store your package backups.\n"
+    private const string GistDescription = "Evergreen Endpoint | APPS package backups - DO NOT RENAME OR MODIFY " + GistDescriptionEndingKey;
+    private const string ReadMeContents = "This special Gist is used by Evergreen Endpoint | APPS to store your package backups.\n"
         + "Please DO NOT EDIT the contents or the description of this gist, or unexpected behaviours may occur.\n"
-        + "Learn more about UniGetUI at https://github.com/Devolutions/UniGetUI\n";
+        + "Learn more about Evergreen Endpoint | APPS at https://github.com/Technicull-Solutions/PackageManager\n";
 
     internal sealed class CloudBackupEntry
     {

@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>$(WindowsTargetFramework)</TargetFramework>
+    <TargetFrameworks />
+    <!-- Resource authorities must match a loaded assembly in NativeAOT without URI escaping. -->
+    <AssemblyName>Evergreen.Admin</AssemblyName>
+    <ApplicationIcon>Assets/admin.ico</ApplicationIcon>
+    <PublishAot>true</PublishAot>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>full</TrimMode>
+    <PublishReadyToRun>false</PublishReadyToRun>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <Authors>Technicull Solutions</Authors>
+  </PropertyGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Assets/admin.ico" />
+    <AvaloniaResource Include="Assets/admin.png" />
+    <Content Include="Assets/admin-logo-*.png" Link="Brand/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="Assets/admin.ico" Link="Brand/EvergreenEndpointAdmin.ico" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="../../media/brand/evergreen-endpoint-package-manager/evergreen-endpoint-admin*.svg" Link="Brand/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <AvaloniaResource Include="../UniGetUI.Avalonia/Assets/Fonts/Lato-*.ttf" Link="Assets/Fonts/%(Filename)%(Extension)" />
+    <Content Include="../UniGetUI.Avalonia/Assets/Fonts/OFL.txt" Link="Assets/Licenses/Lato-OFL.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.0.4" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.4" />
+    <ProjectReference Include="../Evergreen.Configuration/Evergreen.Configuration.csproj" />
+    <ProjectReference Include="../UniGetUI.Core.Tools/UniGetUI.Core.Tools.csproj" />
+    <Compile Include="../SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs" />
+  </ItemGroup>
+</Project>

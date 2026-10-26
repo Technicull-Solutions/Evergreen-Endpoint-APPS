@@ -83,7 +83,17 @@ namespace UniGetUI.Core.Data.Tests
         [Fact]
         public void MarkerFileName_MatchesInstallerContract()
         {
-            Assert.Equal(".unigetui-update-in-progress", UpdateInProgressGuard.MarkerFileName);
+            Assert.Equal(".evergreen-endpoint-update-in-progress", UpdateInProgressGuard.MarkerFileName);
+        }
+
+        [Fact]
+        public void LegacyMarkerStillProtectsAnUpgradeFromEarlierEvergreenBuilds()
+        {
+            string marker = Path.Combine(_appDir, ".unigetui-update-in-progress");
+            File.WriteAllText(marker, "1234");
+            Assert.True(UpdateInProgressGuard.IsUpdateInProgress(_appDir, ProcessAlive));
+            Assert.False(UpdateInProgressGuard.IsUpdateInProgress(_appDir, ProcessDead));
+            Assert.False(File.Exists(marker));
         }
     }
 }

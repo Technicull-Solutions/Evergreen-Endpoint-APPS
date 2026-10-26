@@ -13,8 +13,8 @@ public partial class SettingsBasePageViewModel : ViewModelBase
 
     public event EventHandler? BackRequested;
 
-    public string RestartBannerText => CoreTools.Translate("Restart UniGetUI to fully apply changes");
-    public string RestartButtonText => CoreTools.Translate("Restart UniGetUI");
+    public string RestartBannerText => CoreTools.Translate("Restart Evergreen Endpoint | APPS to fully apply changes");
+    public string RestartButtonText => CoreTools.Translate("Restart Evergreen Endpoint | APPS");
 
     [RelayCommand]
     private void Back() => BackRequested?.Invoke(this, EventArgs.Empty);

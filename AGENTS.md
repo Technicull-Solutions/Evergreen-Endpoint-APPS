@@ -5,10 +5,11 @@
 - `AGENTS.md` is the authoritative repository instruction file for Codex and other compatible coding agents.
 - Reusable project skills live under `.agents/skills/`; each skill keeps its workflow in `SKILL.md` and any supporting automation in its own `scripts/` directory.
 - Keep agent instructions and skills provider-neutral. Do not add provider-specific mirrors or compatibility links that can drift from these canonical files.
+- Read `docs/EVERGREEN_CONTRIBUTOR_WORKFLOW.md` for shared Evergreen product knowledge and the repository skill index. Select the relevant workflow for the task; roadmap requirements are not evidence of implemented behavior.
 
 ## Project Overview
 
-UniGetUI is an Avalonia desktop app (C#/.NET 10) providing a GUI for CLI package managers (WinGet, Scoop, Chocolatey, Pip, Npm, .NET Tool, PowerShell Gallery, Cargo, Vcpkg).
+Evergreen Endpoint Package Manager is a Technicull Solutions derivative of UniGetUI, built with Avalonia and C#/.NET 10. The Windows endpoint profile supports WinGet (including Microsoft Store), Windows PowerShell, and PowerShell 7 repositories. The inherited engine retains additional adapters; existing `UniGetUI.*` source names are internal implementation identities.
 
 Solution entry points:
 - `src/UniGetUI.Windows.slnx` - official Windows solution; builds the Avalonia app and Windows-specific package-manager integrations
@@ -213,6 +214,15 @@ Use these rules when changing Avalonia diagnostics/devtools behavior:
 - If diagnostics were excluded at build time, runtime toggle requests should log a no-op warning.
 
 ## Key Patterns & Conventions
+
+### Accessibility baseline
+Follow `docs/ACCESSIBILITY.md` for every employee/admin UI change. Target WCAG 2.2 AA
+using WCAG2ICT for desktop software; use the evolving WCAG 3 draft as design guidance,
+not a completed conformance standard. Use shared theme tokens and measurable contrast,
+preserve visible keyboard focus, expose accessible names/states, and verify both themes,
+scaling, narrow layouts, and relevant assistive-technology behavior. Do not claim product-wide
+conformance from token tests alone. Run `python scripts/validate-brand-contrast.py` when
+changing shared colours and record unavailable rendered/runtime checks as gaps.
 
 ### Settings
 File-based settings via `Settings.Get(Settings.K.*)` / `Settings.Set(Settings.K.*, value)` and `Settings.GetValue(Settings.K.*)` / `Settings.SetValue(Settings.K.*, value)`. Setting keys are defined in the `Settings.K` enum in `SettingsEngine_Names.cs`. Boolean settings are stored as file existence; string settings as file content.

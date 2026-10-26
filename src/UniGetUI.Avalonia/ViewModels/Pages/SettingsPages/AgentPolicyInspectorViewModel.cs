@@ -618,7 +618,7 @@ public partial class AgentPolicyInspectorViewModel : ViewModelBase, IDisposable
             case BrokerPolicyManagementStatus.AccessDenied:
                 SetManagementStatus(
                     CoreTools.Translate("Access to policy management was denied"),
-                    CoreTools.Translate("Devolutions Agent did not authorize UniGetUI to manage the package policy."),
+                    CoreTools.Translate("Devolutions Agent did not authorize Evergreen Endpoint | APPS to manage the package policy."),
                     InfoBarSeverity.Error);
                 break;
             case BrokerPolicyManagementStatus.InvalidResponse:
@@ -704,7 +704,7 @@ public partial class AgentPolicyInspectorViewModel : ViewModelBase, IDisposable
                 : !agentWritable
                     ? CoreTools.Translate("Devolutions Agent does not allow policy changes.")
                 : snapshot.State == PolicyManagementState.Invalid
-                    ? CoreTools.Translate("Invalid policy files cannot be changed from UniGetUI. An administrator must correct or replace the protected policy file outside this app.")
+                    ? CoreTools.Translate("Invalid policy files cannot be changed from Evergreen Endpoint | APPS. An administrator must correct or replace the protected policy file outside this app.")
                     : GetElevationEligibilityReason(writeEligibility.Status);
 
         CanEdit = writable && snapshot.State == PolicyManagementState.Active;
@@ -747,7 +747,7 @@ public partial class AgentPolicyInspectorViewModel : ViewModelBase, IDisposable
             case PolicyManagementState.Invalid:
                 SetManagementStatus(
                     CoreTools.Translate("The configured policy file is invalid"),
-                    CoreTools.Translate("Review the diagnostics below. An administrator must correct or replace the protected policy file outside UniGetUI."),
+                    CoreTools.Translate("Review the diagnostics below. An administrator must correct or replace the protected policy file outside Evergreen Endpoint | APPS."),
                     InfoBarSeverity.Warning);
                 break;
             default:
@@ -764,11 +764,11 @@ public partial class AgentPolicyInspectorViewModel : ViewModelBase, IDisposable
         status switch
         {
             PolicyWriteElevationEligibilityStatus.HelperMissing => CoreTools.Translate(
-                "The signed policy write helper is missing. Reinstall UniGetUI for all users in an administrator-protected location to enable policy changes."),
+                "The signed policy write helper is missing. Reinstall Evergreen Endpoint | APPS for all users in an administrator-protected location to enable policy changes."),
             PolicyWriteElevationEligibilityStatus.ProtectedInstallRequired => CoreTools.Translate(
-                "Policy changes are disabled because this UniGetUI installation is not administrator-protected. Reinstall UniGetUI for all users in an administrator-protected location to enable them."),
+                "Policy changes are disabled because this Evergreen Endpoint | APPS installation is not administrator-protected. Reinstall Evergreen Endpoint | APPS for all users in an administrator-protected location to enable them."),
             _ => CoreTools.Translate(
-                "This UniGetUI installation cannot securely launch the policy write helper. Reinstall UniGetUI for all users in an administrator-protected location to enable policy changes."),
+                "This Evergreen Endpoint | APPS installation cannot securely launch the policy write helper. Reinstall Evergreen Endpoint | APPS for all users in an administrator-protected location to enable policy changes."),
         };
 
     private static string GetAgentReadOnlyReason(PolicyReadOnlyReason reason) =>

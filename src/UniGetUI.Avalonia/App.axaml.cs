@@ -255,7 +255,7 @@ public partial class App : Application
         bool isDaemonLaunch = args.Contains(AvaloniaCliHandler.DAEMON);
         CoreData.IsDaemon = isDaemonLaunch;
 
-        // A toast click launches the app with its unigetui:// deep-link; route the
+        // A toast click launches the app with its evergreen-endpoint:// deep-link; route the
         // encoded action to the notification activation handler before foregrounding.
         if (args is { Length: > 0 })
         {

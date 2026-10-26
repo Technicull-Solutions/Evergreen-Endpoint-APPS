@@ -1,43 +1,50 @@
-# UniGetUI command-line interface
+# Evergreen Endpoint Package Manager command-line interface
 
-This file documents the **public command-line surface** exposed by UniGetUI in the 2026 CLI redesign.
+This file documents the **public command-line surface** exposed by Evergreen Endpoint Package Manager in the 2026 CLI redesign.
 
 - For the background IPC API that powers these commands, see [IPC.md](IPC.md).
-- For portable installations and where UniGetUI stores its data, see [PORTABLE.md](PORTABLE.md).
+- For portable installations and where Evergreen stores its data, see [PORTABLE.md](PORTABLE.md).
 - For developer-only Avalonia diagnostics toggles, see the project source and build props; they are intentionally not documented here as public CLI arguments.
 
 ## Quick start
 
-The `uniget` console launcher is included beside the GUI executable on Windows, Linux, and
-macOS. It forwards arguments and terminal input/output, waits for each command to finish, and
+The `evergreen` console launcher is included beside the GUI executable on Windows. The
+cross-platform builds retain the internal `uniget` launcher name. The launcher forwards
+arguments and terminal input/output, waits for each command to finish, and
 returns its exit code. Keep it with the rest of the installation; copying only the launcher
 elsewhere will not work.
 
-- **Windows:** Select **Add to PATH** during a regular installation to run `uniget` from any
+- **Windows:** Select **Add to PATH** during a regular installation to run `evergreen` from any
   directory. This option is off by default and uses the user or system `PATH` according to
   the install mode. Open a new terminal after installation. Without this option, run
-  `.\uniget.exe` from the installation directory.
+  `.\evergreen.exe` from the installation directory.
+
 - **Linux:** The `.deb` and `.rpm` packages expose `uniget` on `PATH`; from an extracted tarball,
   run `./uniget` in the directory containing `UniGetUI`.
 - **macOS:** The launcher is at `/Applications/UniGetUI.app/Contents/MacOS/uniget` after moving
   the app to `/Applications`; run it by its full path.
 
+Fresh Windows installations use `Technicull Solutions\Evergreen Endpoint\Package Manager`
+under the selected scope's programs directory. Existing Evergreen installations keep their
+chosen directory during an upgrade. See [Windows identity migration](WINDOWS_IDENTITY_MIGRATION.md)
+for PATH ownership and compatibility behavior.
+
 The commands below assume PowerShell is in the installation directory on Windows:
 
 ```powershell
-.\uniget.exe status
-.\uniget.exe tui
-.\uniget.exe app status
-.\uniget.exe package search --manager dotnet-tool --query dotnetsay
-.\uniget.exe package install --manager dotnet-tool --id dotnetsay --version 2.1.4 --scope Global
-.\uniget.exe operation wait --id 123 --timeout 300
+.\evergreen.exe status
+.\evergreen.exe tui
+.\evergreen.exe app status
+.\evergreen.exe package search --manager winget --query PowerToys
+.\evergreen.exe package install --manager winget --id Microsoft.PowerToys
+.\evergreen.exe operation wait --id 123 --timeout 300
 ```
 
 For a silent Windows installation, include `ADDTOPATH=1` to opt in, or `ADDTOPATH=0` to
 explicitly deselect **Add to PATH**:
 
 ```powershell
-.\UniGetUI.Installer.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART ADDTOPATH=1
+.\EvergreenEndpointPackageManager.0.2.0-build.2.x64.Setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART ADDTOPATH=1
 ```
 
 The property name is case-insensitive and accepts only `0` or `1`. It overrides the saved
@@ -49,21 +56,21 @@ the `PATH` entry added by this installer; a pre-existing entry is left intact.
 
 ## Terminal UI
 
-`unigetui tui` opens the interactive terminal UI inside the main executable.
-On Windows PowerShell, use `.\uniget.exe tui` (or `uniget tui` on PATH): the launcher
-forwards to the same command and waits for the session to exit. A direct `.\UniGetUI.exe tui`
+The `tui` command opens the interactive terminal UI inside the main executable.
+On Windows PowerShell, use `.\evergreen.exe tui` (or `evergreen tui` on PATH): the launcher
+forwards to the same command and waits for the session to exit. A direct `.\"Evergreen Endpoint Package Manager.exe" tui`
 launch does not block the PowerShell prompt, which then competes with the TUI for console
 input and can cause a startup failure. To launch the main executable itself, use
-`Start-Process -FilePath .\UniGetUI.exe -ArgumentList 'tui' -NoNewWindow -Wait`.
+`Start-Process -FilePath ".\Evergreen Endpoint Package Manager.exe" -ArgumentList 'tui' -NoNewWindow -Wait`.
 
-Use `uniget tui --help` for its options, or `uniget tui --fake-data` to try it without
+Use `evergreen tui --help` for its options, or `evergreen tui --fake-data` on Windows to try it without
 calling real package managers. See [TUI.md](TUI.md) for keyboard controls and more options.
 This command runs locally, independently of the desktop window or an IPC daemon, and is
 included in the same application package; no separate TUI executable is installed.
 
 ## Global transport options
 
-These options select how the CLI connects to the local UniGetUI automation session.
+These options select how the CLI connects to the local Evergreen Endpoint Package Manager automation session.
 
 | Option | Meaning |
 | --- | --- |
@@ -109,7 +116,7 @@ Related environment variables:
 | Command | Required options | Optional options | Notes |
 | --- | --- | --- | --- |
 | `status` | None | None | Returns transport, endpoint, and build information for the selected automation session. |
-| `version` | None | None | Returns the UniGetUI build number through the IPC API. |
+| `version` | None | None | Returns the Evergreen Endpoint Package Manager build number through the IPC API. |
 
 ### App
 
@@ -171,8 +178,8 @@ Related environment variables:
 
 Available keys live in:
 
-- [`src/UniGetUI.Core.Settings/SettingsEngine_Names.cs`](src/UniGetUI.Core.Settings/SettingsEngine_Names.cs)
-- [`src/UniGetUI.Core.SecureSettings/SecureSettings.cs`](src/UniGetUI.Core.SecureSettings/SecureSettings.cs)
+- [`src/UniGetUI.Core.Settings/SettingsEngine_Names.cs`](../src/UniGetUI.Core.Settings/SettingsEngine_Names.cs)
+- [`src/UniGetUI.Core.SecureSettings/SecureSettings.cs`](../src/UniGetUI.Core.SecureSettings/SecureSettings.cs)
 
 ### Shortcuts
 
@@ -196,9 +203,9 @@ Windows only. Deletion verdicts are keyed by shortcut path and are re-applied wh
 
 ### Start Menu folders
 
-Windows only. A folder rule names the subfolder of the current user's Start Menu `Programs` directory where a package should keep its shortcuts. UniGetUI re-applies it after every install and upgrade, and deletes the relocated shortcuts when the package is uninstalled.
+Windows only. A folder rule names the subfolder of the current user's Start Menu `Programs` directory where a package should keep its shortcuts. Evergreen Endpoint Package Manager re-applies it after every install and upgrade, and deletes the relocated shortcuts when the package is uninstalled.
 
-`--package` is the rule key, in `manager\PackageId` form, for example `winget\Python.Python.3.13`; the manager segment is lower-cased. Note that the key carries no source, unlike package equivalence elsewhere in UniGetUI, so two packages sharing a manager and an id but coming from different sources share a single rule and cannot be placed in different folders. `--folder` must be a subfolder of the Start Menu `Programs` directory, so an absolute path, a `..` segment or the machine-wide directory is rejected.
+`--package` is the rule key, in `manager\PackageId` form, for example `winget\Python.Python.3.13`; the manager segment is lower-cased. Note that the key carries no source, unlike package equivalence elsewhere in Evergreen Endpoint Package Manager, so two packages sharing a manager and an id but coming from different sources share a single rule and cannot be placed in different folders. `--folder` must be a subfolder of the Start Menu `Programs` directory, so an absolute path, a `..` segment or the machine-wide directory is rejected.
 
 | Command | Required options | Optional options | Notes |
 | --- | --- | --- | --- |
@@ -238,7 +245,7 @@ Windows only. A folder rule names the subfolder of the current user's Start Menu
 | `bundle export` | None | `--path <path>` | Exports the current bundle, optionally to disk. |
 | `bundle add` | `--id <package-id>` | `--manager <id>`, `--source <source>`, `--version <version>`, `--scope <scope>`, `--pre-release`, `--selection <search\|installed\|updates\|auto>` | Resolves a package and adds it to the bundle. |
 | `bundle remove` | `--id <package-id>` | `--manager <id>`, `--source <source>`, `--version <version>`, `--scope <scope>`, `--pre-release`, `--selection <mode>` | Removes matching package entries from the bundle. |
-| `bundle install` | None | `--include-installed true\|false`, `--elevated true\|false`, `--interactive true\|false`, `--skip-hash true\|false` | Installs the bundle through UniGetUI’s shared operation pipeline. |
+| `bundle install` | None | `--include-installed true\|false`, `--elevated true\|false`, `--interactive true\|false`, `--skip-hash true\|false` | Installs the bundle through Evergreen Endpoint Package Manager’s shared operation pipeline. |
 
 ### Packages
 
@@ -256,7 +263,7 @@ Windows only. A folder rule names the subfolder of the current user's Start Menu
 | `package update` | `--id <package-id>` | Same options as `package install` | Updates one package. |
 | `package uninstall` | `--id <package-id>` | `--manager <id>`, `--source <source>`, `--scope <scope>`, `--remove-data true\|false`, `--elevated true\|false`, `--interactive true\|false`, `--wait true\|false`, `--detach` | Uninstalls a package. |
 | `package show` | `--id <package-id>`, `--source <source>` | None | Opens the package details UI flow. |
-| `package ignored list` | None | None | Lists ignored-update rules tracked by UniGetUI. |
+| `package ignored list` | None | None | Lists ignored-update rules tracked by Evergreen Endpoint Package Manager. |
 | `package ignored add` | `--id <package-id>` | `--manager <id>`, `--version <version>`, `--source <source>` | Adds an ignored-update rule. |
 | `package ignored remove` | `--id <package-id>` | `--manager <id>`, `--version <version>`, `--source <source>` | Removes an ignored-update rule. |
 | `package update-all` | None | None | Queues updates for all currently upgradable packages. |
@@ -264,19 +271,19 @@ Windows only. A folder rule names the subfolder of the current user's Start Menu
 
 ## Headless behavior
 
-When UniGetUI is started with `--headless`, it exposes the same automation API without opening a window.
+When Evergreen Endpoint Package Manager is started with `--headless`, it exposes the same automation API without opening a window.
 
 | Command | Headless behavior |
 | --- | --- |
 | `status`, `app status`, `app quit` | Fully supported. |
-| `app show` | Fails with “the current UniGetUI session is running headless and has no window to show.” |
-| `app navigate` | Fails with “the current UniGetUI session is running headless and cannot navigate UI pages.” |
+| `app show` | Fails with “the current Evergreen Endpoint Package Manager session is running headless and has no window to show.” |
+| `app navigate` | Fails with “the current Evergreen Endpoint Package Manager session is running headless and cannot navigate UI pages.” |
 | `package show` | UI-oriented; may fail or be meaningless in pure headless sessions. |
 | `package update-all`, `package update-manager` | Require GUI-side upgrade handlers. Headless sessions may return “cannot update all packages” or “cannot update manager packages.” |
 
 ## Headless IPC options
 
-When UniGetUI is started with `--headless`, these options control the IPC listener:
+When Evergreen Endpoint Package Manager is started with `--headless`, these options control the IPC listener:
 
 | Option | Meaning |
 | --- | --- |
@@ -290,9 +297,9 @@ These parameters are accepted by the app executables in addition to the automati
 
 | Parameter | Meaning | Notes |
 | --- | --- | --- |
-| `--daemon` | Starts UniGetUI minimized to the notification area. | Requires the corresponding startup setting. |
+| `--daemon` | Starts Evergreen Endpoint Package Manager minimized to the notification area. | Requires the corresponding startup setting. |
 | `--updateapps` | Forces automatic installation of available updates. | Historical compatibility flag. |
-| `--uninstall-unigetui` | Unregisters UniGetUI from the notification panel and quits. | Historical; only valid for specific old versions. |
+| `--uninstall-unigetui` | Unregisters Evergreen Endpoint Package Manager from the notification panel and quits. | Historical; only valid for specific old versions. |
 | `--uninstall-wingetui` | Unregisters the legacy WingetUI install from the notification panel and quits. | Historical; used by the WingetUI uninstaller. |
 | `--migrate-wingetui-to-unigetui` | Migrates legacy WingetUI data and shortcuts, then quits. | Migration helper. |
 | `--help` / `-h` | Prints CLI help. | For the direct verb-based CLI. |
@@ -303,7 +310,7 @@ These parameters are accepted by the app executables in addition to the automati
 | `--no-corrupt-dialog` | Shows the verbose crash report instead of the simplified dialog. | Troubleshooting flag. |
 | `--enable-secure-setting <key>` / `--disable-secure-setting <key>` | Toggles one secure setting for the current user. | May require elevation. |
 | `--enable-secure-setting-for-user <user> <key>` / `--disable-secure-setting-for-user <user> <key>` | Toggles one secure setting for a specified user. | May require elevation. |
-| `--delete-shortcuts <path> [<path>...]` | Deletes desktop or Start Menu shortcuts, then quits. | Used by UniGetUI to remove shortcuts the current user is not allowed to delete; refuses any path that is not a `.lnk` or `.url` under a desktop or Start Menu folder. |
+| `--delete-shortcuts <path> [<path>...]` | Deletes desktop or Start Menu shortcuts, then quits. | Used by Evergreen Endpoint Package Manager to remove shortcuts the current user is not allowed to delete; refuses any path that is not a `.lnk` or `.url` under a desktop or Start Menu folder. |
 | `<bundle-file>` | Loads a valid bundle file into the Package Bundles page. | Supported extensions include `.ubundle`, `.json`, `.yaml`, and `.xml`. |
 
 ## Other environment variables
@@ -313,38 +320,38 @@ These are read by the application itself rather than by the CLI client.
 | Variable | Values | Meaning |
 | --- | --- | --- |
 | `UNIGETUI_WINGET_CLI` | `default`, `winget`, `pinget` | Chooses which WinGet command-line tool the WinGet manager drives. Takes precedence over the `WinGetCliToolPreference` setting. |
-| `UNIGETUI_WINGET_COM` | `default`, `enabled`/`enable`/`on`/`true`/`1`, `disabled`/`disable`/`off`/`false`/`0` | Forces the WinGet COM API on or off instead of letting UniGetUI decide. Takes precedence over the `WinGetComApiPolicy` setting. |
+| `UNIGETUI_WINGET_COM` | `default`, `enabled`/`enable`/`on`/`true`/`1`, `disabled`/`disable`/`off`/`false`/`0` | Forces the WinGet COM API on or off instead of letting Evergreen Endpoint Package Manager decide. Takes precedence over the `WinGetComApiPolicy` setting. |
 | `UNIGETUI_FONT_FAMILY` | A font family name | Prepends a family to the UI font chain, ahead of the platform default (Segoe UI on Windows, the bundled Inter on Linux, the system font on macOS). Ignored when the "use the system UI font" setting is on, which itself does not apply on macOS. An entry containing the Avalonia `$Default` family is discarded. |
 | `UNIGETUI_FORCE_NATIVE_LINUX_DECORATIONS` | `1`/`true`/`on`/`yes`/`enabled`, `0`/`false`/`off`/`no`/`disabled` | Linux only. Forces the window manager's own title bar on or off instead of auto-detecting. An unrecognized value is ignored with a warning. |
-| `UNIGETUI_GITHUB_TOKEN_NAMESPACE` | Any string | Suffixes the credential-store entry holding the GitHub backup token, so several UniGetUI instances on one machine can hold separate logins. |
+| `UNIGETUI_GITHUB_TOKEN_NAMESPACE` | Any string | Suffixes the credential-store entry holding the GitHub backup token, so several Evergreen Endpoint Package Manager instances on one machine can hold separate logins. |
 | `WEBVIEW2_BROWSER_EXECUTABLE_FOLDER` | A directory path | Windows only. Points the embedded web view at a fixed-version WebView2 runtime instead of the installed evergreen one. |
 
 ## Deep links
 
-The Windows installer registers a `unigetui://` protocol handler for regular installations; a portable install does not register it, see [PORTABLE.md](PORTABLE.md). It is used to route notification clicks back into a running instance, and accepts these actions:
+The Windows installer registers a `evergreen-endpoint://` protocol handler for regular installations; a portable install does not register it, see [PORTABLE.md](PORTABLE.md). It is used to route notification clicks back into a running instance, and accepts these actions:
 
 | Deep link | Meaning |
 | --- | --- |
-| `unigetui://openUniGetUI` | Shows UniGetUI and brings the window to the front. |
-| `unigetui://openUniGetUIOnUpdatesTab` | Shows UniGetUI on the Software Updates page. |
-| `unigetui://updateAll` | Starts an update for every available package update. |
-| `unigetui://releaseSelfUpdateLock` | Allows a pending UniGetUI self-update to proceed. |
+| `evergreen-endpoint://openUniGetUI` | Shows Evergreen Endpoint Package Manager and brings the window to the front. |
+| `evergreen-endpoint://openUniGetUIOnUpdatesTab` | Shows Evergreen Endpoint Package Manager on the Software Updates page. |
+| `evergreen-endpoint://updateAll` | Starts an update for every available package update. |
+| `evergreen-endpoint://releaseSelfUpdateLock` | Allows a pending Evergreen Endpoint Package Manager self-update to proceed. |
 
-Anything else after `unigetui://` is ignored. The action is only dispatched when UniGetUI is already running: a link that cold-starts the app launches it normally and the action is dropped. To drive UniGetUI programmatically, use the verb commands above or the [IPC API](IPC.md) rather than deep links.
+Anything else after `evergreen-endpoint://` is ignored. The action is only dispatched when Evergreen Endpoint Package Manager is already running: a link that cold-starts the app launches it normally and the action is dropped. To drive Evergreen Endpoint Package Manager programmatically, use the verb commands above or the [IPC API](IPC.md) rather than deep links.
 
 ## Installer parameters
 
-The installer is Inno Setup based. It supports the standard [Inno Setup command-line parameters](https://jrsoftware.org/ishelp/index.php?topic=setupcmdline) plus these UniGetUI-specific switches:
+The installer is Inno Setup based. It supports the standard [Inno Setup command-line parameters](https://jrsoftware.org/ishelp/index.php?topic=setupcmdline) plus these Evergreen Endpoint Package Manager-specific switches:
 
 | Parameter | Meaning |
 | --- | --- |
-| `/NoAutoStart` | Do not launch UniGetUI after installation. |
-| `/NoRunOnStartup` | Do not register UniGetUI to start minimized at login. |
+| `/NoAutoStart` | Do not launch Evergreen Endpoint Package Manager after installation. |
+| `/NoRunOnStartup` | Do not register Evergreen Endpoint Package Manager to start minimized at login. |
 | `/NoVCRedist` | Skip installation of the MSVC x64 runtime. |
 | `/NoEdgeWebView` | Skip installation of the Microsoft Edge WebView runtime. |
 | `/NoChocolatey` | Deprecated no-op kept for compatibility. |
 | `/EnableSystemChocolatey` | Deprecated no-op kept for compatibility. |
 | `/NoWinGet` | Do not install WinGet and Microsoft.WinGet.Client if they are missing. |
-| `/MSStore` | Microsoft Store install mode: skip the MSVC and WebView2 dependency installers, do not launch UniGetUI after installation, and disable startup at login. Use with `/CURRENTUSER` to select user-local scope. |
+| `/MSStore` | Microsoft Store install mode: skip the MSVC and WebView2 dependency installers, do not launch Evergreen Endpoint Package Manager after installation, and disable startup at login. Use with `/CURRENTUSER` to select user-local scope. |
 
 The installation type is an Inno Setup task rather than a switch. Pass `/TASKS="portableinstall"` for a portable installation; the default is `regularinstall`, which additionally accepts `regularinstall\startmenuicon` and `regularinstall\desktopicon`. A portable install keeps its settings beside the executable and registers no protocol handler, file association, shortcuts or startup entry, see [PORTABLE.md](PORTABLE.md).

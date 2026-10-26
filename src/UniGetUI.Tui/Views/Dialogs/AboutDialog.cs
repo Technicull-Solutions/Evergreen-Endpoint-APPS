@@ -32,7 +32,7 @@ internal sealed class AboutDialog : TuiDialog
                 "Evergreen Endpoint Package Manager is not related to the compatible package managers. It is an independent project."
             )
         );
-        _form.AddButton("https://devolutions.net/unigetui", () => TuiPackageActions.OpenExternally("https://devolutions.net/unigetui"));
+        _form.AddButton("https://github.com/Technicull-Solutions/PackageManager", () => TuiPackageActions.OpenExternally("https://github.com/Technicull-Solutions/PackageManager"));
         _form.AddButton(HelpDialog.HelpUrl, () => TuiPackageActions.OpenExternally(HelpDialog.HelpUrl));
         _form.AddButton(CoreTools.Translate("Report an issue or submit a feature request"), () => TuiPackageActions.OpenExternally(HelpDialog.IssuesUrl));
 

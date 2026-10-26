@@ -6,10 +6,25 @@ const
   PathKeyRead = $20019;
   PathKeyWrite = $20006;
   PathKey64 = $100;
-  PathOwnerKey = 'Software\Devolutions\UniGetUI\InstallerPath';
+  PathOwnerKey = 'Software\Technicull Solutions\Evergreen Endpoint\Package Manager\InstallerPath';
+  LegacyPathOwnerKey = 'Software\Devolutions\UniGetUI\InstallerPath';
 
 var
-  UnigetPathUpdateFailed, UnigetPathChanged: Boolean;
+  EvergreenPathUpdateFailed, EvergreenPathChanged: Boolean;
+  EvergreenPathUpgradeDirectory: String;
+
+// Capture the old Evergreen registration before this install writes a new one.
+// A shared legacy key alone is never proof that its records belong to Evergreen.
+procedure PrepareEvergreenPathUpgrade;
+var
+  Root: Integer;
+begin
+  EvergreenPathUpgradeDirectory := '';
+  if IsAdminInstallMode then Root := HKLM else Root := HKCU;
+  RegQueryStringValue(Root,
+    'Software\Microsoft\Windows\CurrentVersion\Uninstall\{4C0F2700-664B-4AD6-9633-67C5EEECC132}_is1',
+    'InstallLocation', EvergreenPathUpgradeDirectory);
+end;
 
 function PathRegOpenKey(Root: Integer; SubKey: String; Options, Access: LongWord;
   var Key: THandle): LongWord;
@@ -207,7 +222,7 @@ begin
      (Existed and (CurrentKind <> Kind)) then
     RaiseException('PATH changed concurrently; no PATH write was attempted. Retry setup.');
   PathWrite(Root, EnvironmentKey, 'Path', After, Kind);
-  UnigetPathChanged := True;
+  EvergreenPathChanged := True;
 end;
 
 // O + entry = committed ownership; P/R + before/after SHA256 + entry =
@@ -279,7 +294,7 @@ begin
   begin
     if Matches > 0 then
     begin
-      Log('Equivalent uniget PATH entry already exists; no entry added or claimed.');
+      Log('Equivalent evergreen PATH entry already exists; no entry added or claimed.');
       Exit;
     end;
     After := Value;
@@ -291,7 +306,7 @@ begin
     PathWrite(Root, OwnerKey, OwnerName, RecordValue, PathRegSz);
     PathWriteIfUnchanged(Root, EnvironmentKey, Value, After, Kind, Exists);
     PathWrite(Root, OwnerKey, OwnerName, 'O' + Entry, PathRegSz);
-    Log('Added install directory to PATH for the uniget command.');
+    Log('Added install directory to PATH for the evergreen command.');
   end
   else
   begin
@@ -308,11 +323,45 @@ begin
     PathWrite(Root, OwnerKey, OwnerName, RecordValue, PathRegSz);
     PathWriteIfUnchanged(Root, EnvironmentKey, Value, After, Kind, Exists);
     PathDeleteOwner(Root, OwnerKey, OwnerName);
-    Log('Removed installer-owned uniget PATH entry.');
+    Log('Removed installer-owned evergreen PATH entry.');
   end;
 end;
 
-procedure UpdateUnigetPath(Selected: Boolean);
+// Move only this confirmed Evergreen installation's hashed ownership record.
+// Preserve journal bytes; PathUpdate performs its normal recovery/ambiguity checks.
+procedure PathMigrateOwnership(Root: Integer; LegacyKey, OwnerKey, Entry: String;
+  ConfirmedEvergreenUpgrade: Boolean);
+var
+  Name, LegacyRecord, CurrentRecord, OwnedEntry: String;
+  LegacyKind, CurrentKind: LongWord;
+  LegacyExists, CurrentExists: Boolean;
+begin
+  if not ConfirmedEvergreenUpgrade then Exit;
+  Name := GetSHA256OfUnicodeString(PathNormalize(Entry, PathRegSz));
+  PathRead(Root, LegacyKey, Name, LegacyRecord, LegacyKind, LegacyExists);
+  if not LegacyExists then Exit;
+  if (LegacyKind <> PathRegSz) or (Length(LegacyRecord) < 2) then
+    RaiseException('Invalid legacy Evergreen PATH ownership record');
+  if LegacyRecord[1] = 'O' then OwnedEntry := Copy(LegacyRecord, 2, MaxInt)
+  else if ((LegacyRecord[1] = 'P') or (LegacyRecord[1] = 'R')) and
+      (Length(LegacyRecord) > 129) then OwnedEntry := Copy(LegacyRecord, 130, MaxInt)
+  else RaiseException('Unknown legacy Evergreen PATH ownership record');
+  if PathNormalize(OwnedEntry, PathRegSz) <> PathNormalize(Entry, PathRegSz) then
+    RaiseException('Legacy PATH ownership does not match the Evergreen install directory');
+  PathRead(Root, OwnerKey, Name, CurrentRecord, CurrentKind, CurrentExists);
+  if CurrentExists then
+  begin
+    // Retry after a crash between copying and deleting the legacy record.
+    if (CurrentKind = PathRegSz) and (CurrentRecord = LegacyRecord) then
+      PathDeleteOwner(Root, LegacyKey, Name);
+    Exit;
+  end;
+  PathWrite(Root, OwnerKey, Name, LegacyRecord, PathRegSz);
+  PathDeleteOwner(Root, LegacyKey, Name);
+  Log('Migrated this Evergreen installation''s PATH ownership to its product key.');
+end;
+
+procedure UpdateEvergreenPath(Selected: Boolean);
 var
   Root: Integer;
   EnvironmentKey, Scope: String;
@@ -331,21 +380,25 @@ begin
     EnvironmentKey := 'Environment';
     Scope := 'HKCU (current user)';
   end;
-  UnigetPathChanged := False;
+  EvergreenPathChanged := False;
   Failed := False;
   try
-    Log('Updating uniget PATH task: ' + Scope);
+    Log('Updating evergreen PATH task: ' + Scope);
+    PathMigrateOwnership(Root, LegacyPathOwnerKey, PathOwnerKey, ExpandConstant('{app}'),
+      (EvergreenPathUpgradeDirectory <> '') and
+      (PathNormalize(EvergreenPathUpgradeDirectory, PathRegSz) =
+       PathNormalize(ExpandConstant('{app}'), PathRegSz)));
     PathUpdate(Root, EnvironmentKey, PathOwnerKey, ExpandConstant('{app}'), Selected);
   except
     Failed := True;
-    UnigetPathUpdateFailed := True;
-    Log('ERROR updating uniget PATH: ' + GetExceptionMessage);
-    SuppressibleMsgBox(FmtMessage(CustomMessage('UnigetPathError'), [Scope, GetExceptionMessage]),
+    EvergreenPathUpdateFailed := True;
+    Log('ERROR updating evergreen PATH: ' + GetExceptionMessage);
+    SuppressibleMsgBox(FmtMessage(CustomMessage('EvergreenPathError'), [Scope, GetExceptionMessage]),
       mbError, MB_OK, IDOK);
   end;
   // Also broadcast on partial failures: PATH may have changed before finalizing
   // ownership failed. Existing terminals retain their old environment regardless.
-  if not (UnigetPathChanged or Failed) then
+  if not (EvergreenPathChanged or Failed) then
   begin
     Log('PATH was not modified; no environment-change broadcast was sent.');
     Exit;
@@ -353,7 +406,7 @@ begin
   if PathSendEnvironmentChange(HWND_BROADCAST, $001A, 0, 'Environment',
        $0002, 5000, Response) = 0 then
   begin
-    Log('WARNING: uniget PATH environment-change broadcast failed or timed out.');
-    SuppressibleMsgBox(CustomMessage('UnigetPathBroadcastError'), mbError, MB_OK, IDOK);
+    Log('WARNING: evergreen PATH environment-change broadcast failed or timed out.');
+    SuppressibleMsgBox(CustomMessage('EvergreenPathBroadcastError'), mbError, MB_OK, IDOK);
   end;
 end;

@@ -91,7 +91,7 @@
                                    IsClickEnabled="True"
                                    Command="{Binding NavigateToOperationsCommand}"
                                    Header="{t:Translate Package operation preferences}"
-                                   Description="{t:Translate Text='Change how UniGetUI handles install, update and uninstall operations.'}"/>
+                                   Description="{t:Translate Text='Change how Evergreen Endpoint | APPS handles install, update and uninstall operations.'}"/>
 
             <settings:SettingsCard CornerRadius="0,0,8,8"
                                    IsClickEnabled="True"

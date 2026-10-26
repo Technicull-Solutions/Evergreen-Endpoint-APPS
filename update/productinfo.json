@@ -1,11 +1,16 @@
 {
   "TechnicullSolutions.EvergreenEndpointPackageManager": {
     "Current": {
-      "Version": "0.1.0",
-      "BuildVersion": "18",
-      "BuildNumber": 18,
+      "Version": "0.2.0",
+      "BuildVersion": "4",
+      "BuildNumber": 4,
       "Files": []
     },
-    "Beta": null
+    "Beta": {
+      "Version": "0.2.1-rc.4",
+      "BuildVersion": "8",
+      "BuildNumber": 8,
+      "Files": []
+    }
   }
 }

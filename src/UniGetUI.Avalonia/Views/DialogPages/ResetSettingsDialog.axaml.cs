@@ -10,14 +10,14 @@ public sealed class ResetSettingsDialog : ImmersiveConfirmationDialog
     public ResetSettingsDialog()
     {
         Configure(
-            CoreTools.Translate("Reset UniGetUI"),
+            CoreTools.Translate("Reset Evergreen Endpoint | APPS"),
             new TextBlock
             {
-                Text = CoreTools.Translate("Do you really want to reset UniGetUI to its default settings? This action cannot be undone."),
+                Text = CoreTools.Translate("Do you really want to reset Evergreen Endpoint | APPS to its default settings? This action cannot be undone."),
                 TextWrapping = global::Avalonia.Media.TextWrapping.Wrap,
                 Opacity = 0.85,
             },
-            CoreTools.Translate("Reset UniGetUI"),
+            CoreTools.Translate("Reset Evergreen Endpoint | APPS"),
             CoreTools.Translate("Cancel"));
         MaxWidth = 460;
         MinHeight = 160;

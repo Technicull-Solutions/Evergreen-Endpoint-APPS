@@ -1,11 +1,11 @@
-# UniGetUI portable mode
+# Evergreen Endpoint Package Manager portable mode
 
-This file documents **portable installations**, which keep UniGetUI's data beside the executable.
+This file documents **portable installations**, which keep Evergreen's data beside the executable.
 
 - For the public command-line interface, see [CLI.md](CLI.md).
 - For the background IPC API, see [IPC.md](IPC.md).
 
-By default UniGetUI keeps its configuration, caches and package metadata in a per-user directory
+By default Evergreen Endpoint Package Manager keeps its configuration, caches and package metadata in a per-user directory
 outside the installation folder. Portable mode moves all of that next to the executable, so the
 whole application, settings included, can live on a removable drive or be copied between
 machines. A few things deliberately stay outside that folder; see [What changes](#what-changes).
@@ -15,9 +15,11 @@ archives, do not.
 
 ## Enabling portable mode
 
-Portable mode is controlled by a single marker file named `ForceUniGetUIPortable`, placed in
-the installation root next to the UniGetUI executable. The file's contents are ignored (the
-one shipped by the installer is empty); only its presence matters.
+Portable mode is controlled by a marker file named `EvergreenEndpoint.portable`, placed in
+the installation root next to the Evergreen Endpoint Package Manager executable. The file's contents are ignored (the
+one shipped by the installer is empty); only its presence matters. Earlier
+`ForceUniGetUIPortable` markers remain recognized for compatibility with existing portable
+folders. Remove both marker names if present when turning portable mode off.
 
 ### With the Windows installer
 
@@ -27,30 +29,30 @@ Setup's standard `/TASKS` switch, and point `/DIR` at the location the portable 
 live in:
 
 ```powershell
-UniGetUI.Installer.exe /VERYSILENT /TASKS="portableinstall" /DIR="E:\UniGetUI"
+& ".\Evergreen Endpoint Package Manager Setup.exe" /VERYSILENT /TASKS="portableinstall" /DIR="E:\EvergreenEndpoint"
 ```
 
 `portableinstall` and `regularinstall` are mutually exclusive; `regularinstall` is the default.
 
-The install directory has to be writable by the account that runs UniGetUI, or portable mode
+The install directory has to be writable by the account that runs Evergreen Endpoint Package Manager, or portable mode
 silently falls back, as [described below](#fallback-when-the-folder-is-not-writable). The
 installer defaults to per-user mode (`PrivilegesRequired=lowest`), so without `/DIR` it lands
-in `%LOCALAPPDATA%\Programs\UniGetUI`, which is writable and works. An all-users install, chosen
-in the dialog or with `/ALLUSERS`, lands in `C:\Program Files\UniGetUI` instead, where a
-normally launched UniGetUI cannot create `Settings`.
+in `%LOCALAPPDATA%\Programs\Technicull Solutions\Evergreen Endpoint\Package Manager`, which is writable and works. An all-users install, chosen
+in the dialog or with `/ALLUSERS`, lands in `C:\Program Files\Technicull Solutions\Evergreen Endpoint\Package Manager` instead, where a
+normally launched Evergreen Endpoint Package Manager cannot create `Settings`.
 
 ### By hand
 
-Create an empty file called `ForceUniGetUIPortable` (no extension) beside the executable:
+Create an empty file called `EvergreenEndpoint.portable` beside the executable:
 
 ```powershell
 # Windows
-New-Item -ItemType File -Path "C:\Path\To\UniGetUI\ForceUniGetUIPortable"
+New-Item -ItemType File -Path "C:\Path\To\EvergreenEndpoint\EvergreenEndpoint.portable"
 ```
 
 ```bash
 # macOS / Linux
-touch /path/to/unigetui/ForceUniGetUIPortable
+touch /path/to/evergreen/EvergreenEndpoint.portable
 ```
 
 The Windows `.zip` already ships with the marker, so it is portable out of the box; creating
@@ -64,7 +66,7 @@ check.
 The marker is looked up in the installation root, which is normally the directory holding
 the executable. When the executable sits in an `Avalonia` subdirectory of a recognizable
 install root, the parent directory is used instead, so the marker belongs one level up
-alongside `UniGetUI.exe` and `IntegrityTree.json`.
+alongside the Windows `Evergreen Endpoint Package Manager.exe` and `IntegrityTree.json`.
 
 On macOS the executable lives inside the `.app` bundle, so a marker placed there is discarded
 whenever the bundle is replaced by an update. Re-create it after upgrading.
@@ -92,13 +94,13 @@ Backup settings page always wins over that default.
 Two things deliberately stay put. Elevated secure settings — the toggles that permit CLI
 arguments, custom manager paths and pre/post-operation commands — live under `%ProgramFiles%`
 precisely because writing there needs administrator rights. Moving them into a user-writable
-portable folder would let any process running as the user grant UniGetUI the right to execute
+portable folder would let any process running as the user grant Evergreen Endpoint Package Manager the right to execute
 arbitrary commands, so they stay where they are.
 
 The scratch directory holds files that are rebuilt on demand: the session log, the crash report
 left behind for the next launch, the per-attempt auto-updater log, the WebView2 profile, and the
-`%TEMP%` handed to package-manager subprocesses when UniGetUI runs elevated. Portable mode moves
-all of those inside the portable folder. It is safe to delete while UniGetUI is not running.
+`%TEMP%` handed to package-manager subprocesses when Evergreen Endpoint Package Manager runs elevated. Portable mode moves
+all of those inside the portable folder. It is safe to delete while Evergreen Endpoint Package Manager is not running.
 
 Two macOS-only artifacts still land in the system temporary directory and are not covered by
 this: the single-instance lock file, which the OS releases on exit but does not delete, and the
@@ -118,14 +120,14 @@ Portable mode does not relocate anything owned by a package manager you installe
 WinGet, Scoop, Chocolatey, npm and the rest keep their own state in their usual per-user or
 system locations, and the packages they install are installed normally.
 
-Pinget is the exception, because UniGetUI ships it rather than finding it on the machine. It
+Pinget is the exception, because Evergreen Endpoint Package Manager ships it rather than finding it on the machine. It
 backs the WinGet integration, runs on every WinGet configuration rather than only when selected
 as the CLI, and by default keeps its source cache and downloaded manifests in
 `%LOCALAPPDATA%\Devolutions\Pinget`. A portable copy points it at `<install dir>\Settings\Pinget`
 instead, via the `PINGET_APPROOT` environment variable, so that cache travels with the folder
 rather than accumulating in the user profile. Setting `PINGET_APPROOT` yourself takes precedence.
 
-What does *not* change is which sources it resolves against: UniGetUI also sets
+What does *not* change is which sources it resolves against: Evergreen Endpoint Package Manager also sets
 `PINGET_SOURCE_MODE=auto`, so a portable copy still mirrors the machine's configured WinGet
 sources rather than falling back to a private list. Without that, sources you added to WinGet
 would silently be missing. The cache starts empty in a new portable folder, so the first search
@@ -137,7 +139,7 @@ A portable folder starts empty, so an existing installation's settings are not p
 automatically — they stay in the per-user data directory, untouched.
 
 A new portable folder is marked as awaiting its first run. On the first launch that reaches the
-interface, UniGetUI checks the per-user directory and, if it holds settings, offers a one-time
+interface, Evergreen Endpoint Package Manager checks the per-user directory and, if it holds settings, offers a one-time
 **Import** action in a notification. The mark is recorded in the folder, so a first launch that
 never reaches the interface — a headless run, a command-line invocation, a crash — does not
 consume the offer. An established portable copy is never offered the import, because merging
@@ -146,7 +148,7 @@ another installation's settings into a folder already in use is not what the off
 Accepting copies `Configuration` and `InstallationOptions` into the portable folder; caches are
 skipped because they are rebuilt on demand and are far larger than the settings themselves.
 Nothing is overwritten and nothing is removed from the source, so a per-user installation on the
-same machine keeps working. Restart UniGetUI afterwards for the imported settings to take
+same machine keeps working. Restart Evergreen Endpoint Package Manager afterwards for the imported settings to take
 effect.
 
 Importing, or dismissing the notification, clears the mark. A failed import does not, so it can
@@ -163,19 +165,19 @@ turn a portable copy into a regular one.
 
 | Feature | Consequence when portable |
 | --- | --- |
-| `unigetui://` protocol handler | Deep links and notification-click actions are not routed by the shell. |
-| `.ubundle` file association | Bundle files do not open in UniGetUI on double-click. Pass the path on the command line instead. |
-| Start-at-login entry | UniGetUI does not start with Windows, and `--daemon` is not registered. |
+| `evergreen-endpoint://` protocol handler | Deep links and notification-click actions are not routed by the shell. |
+| `.ubundle` file association | Bundle files do not open in Evergreen Endpoint Package Manager on double-click. Pass the path on the command line instead. |
+| Start-at-login entry | Evergreen Endpoint Package Manager does not start with Windows, and `--daemon` is not registered. |
 | Start menu and desktop shortcuts | Not created. |
 | Optional `uniget` PATH entry | Not added. Run `.\uniget.exe` from the installation folder instead. |
 
 ## Fallback when the folder is not writable
 
-On first use of the data directory, UniGetUI verifies it can create and write inside
+On first use of the data directory, Evergreen Endpoint Package Manager verifies it can create and write inside
 `<install dir>\Settings`. If that fails, for instance on an install under `Program Files`, a
 read-only volume, or a locked-down drive, portable mode is **silently abandoned for that
 session** and the normal per-user directory is used instead. The reason is recorded in the
-**UniGetUI Log** (sidebar menu) as “Could not acces/write path”, spelled with one “s”
+**Evergreen Endpoint Package Manager Log** (sidebar menu) as “Could not acces/write path”, spelled with one “s”
 in the message itself.
 
 Install to a location the running user can write, such as a removable drive or a folder under
@@ -183,6 +185,6 @@ the user profile, if you rely on portable mode.
 
 ## Turning portable mode off
 
-Delete the `ForceUniGetUIPortable` file and restart UniGetUI. The app reverts to the per-user
+Delete the `EvergreenEndpoint.portable` file and restart Evergreen Endpoint Package Manager. The app reverts to the per-user
 data directory; the `Settings` folder is left on disk untouched, so copy anything you want to
 keep out of it first. The check runs once per session, so a restart is required either way.

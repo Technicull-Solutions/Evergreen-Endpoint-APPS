@@ -265,6 +265,10 @@ namespace UniGetUI.PackageEngine.Managers.WingetManager
         public bool ReportedApplicationCurrentlyRunning(int returnCode) =>
             WinGetPkgOperationHelper.ReportedApplicationCurrentlyRunning(returnCode);
 
+        public bool SupportsInteractiveOperation(OperationType operation) =>
+            Capabilities.CanRunInteractively
+            && !(SelectedCliToolKind is WinGetCliToolKind.BundledPinget && operation is OperationType.Update);
+
         public bool HonorsIntegrityCheckSkipWhenElevated =>
             SelectedCliToolKind is WinGetCliToolKind.BundledPinget;
 

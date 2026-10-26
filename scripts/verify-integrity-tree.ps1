@@ -74,7 +74,7 @@ foreach ($entry in $data.GetEnumerator()) {
 if ($FailOnUnexpectedFiles) {
     Get-ChildItem $Path -Recurse -File | ForEach-Object {
         $relativePath = $_.FullName.Substring($Path.Length).TrimStart('\', '/') -replace '\\', '/'
-        if ($relativePath -eq 'IntegrityTree.json') {
+        if ($relativePath -eq 'IntegrityTree.json' -or $relativePath -eq 'EvergreenEndpoint.portable') {
             return
         }
 

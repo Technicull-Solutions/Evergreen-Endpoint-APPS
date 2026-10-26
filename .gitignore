@@ -97,3 +97,9 @@ src/UniGetUI.v3.ncrunchsolution
 # macOS Finder metadata
 .DS_Store
 /src/UniGetUI.Avalonia/Generated Files
+
+# Evergreen administrator and shared configuration build output
+/src/Evergreen.Admin/bin/
+/src/Evergreen.Admin/obj/
+/src/Evergreen.Configuration/bin/
+/src/Evergreen.Configuration/obj/

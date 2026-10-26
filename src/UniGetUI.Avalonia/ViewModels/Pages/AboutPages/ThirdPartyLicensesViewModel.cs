@@ -16,7 +16,7 @@ public class LibraryLicense
 public class ThirdPartyLicensesViewModel : ViewModelBase
 {
     public string LicensesIntro { get; } = CoreTools.Translate(
-        "UniGetUI uses the following libraries. Without them, UniGetUI wouldn't have been possible.");
+        "Evergreen Endpoint | APPS uses the following libraries. Without them, Evergreen Endpoint | APPS wouldn't have been possible.");
 
     public ObservableCollection<LibraryLicense> Licenses { get; } = [];
 

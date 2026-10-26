@@ -140,7 +140,7 @@ internal static class SystemRestartService
             Views.MainWindow.Instance?.ShowRuntimeNotification(
                 CoreTools.Translate("The computer could not be restarted"),
                 CoreTools.Translate(
-                    "UniGetUI could not start the restart. Please restart your computer manually."),
+                    "Evergreen Endpoint | APPS could not start the restart. Please restart your computer manually."),
                 Views.MainWindow.RuntimeNotificationLevel.Error));
     }
 }

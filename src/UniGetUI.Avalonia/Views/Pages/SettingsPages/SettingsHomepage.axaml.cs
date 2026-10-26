@@ -7,7 +7,7 @@ namespace UniGetUI.Avalonia.Views.Pages.SettingsPages;
 public sealed partial class SettingsHomepage : UserControl, ISettingsPage
 {
     public bool CanGoBack => false;
-    public string ShortTitle => CoreTools.Translate("UniGetUI Settings");
+    public string ShortTitle => CoreTools.Translate("Evergreen Endpoint | APPS Settings");
 
     public event EventHandler? RestartRequired { add { } remove { } }
     public event EventHandler<Type>? NavigationRequested;

@@ -137,19 +137,23 @@ def write_windows_assets() -> None:
     )
     save_png(wide, assets / "Wide310x150Logo.png")
 
-    banner = Image.new("RGB", (164, 314), COLORS["deep_forest"])
-    mark = render_svg(DARK_SVG, 132)
-    banner.paste(mark, (16, 28), mark)
-    draw = ImageDraw.Draw(banner)
-    draw.text((18, 190), "EVERGREEN", fill=COLORS["white"], font=font("Lato-Black.ttf", 17))
-    draw.text((18, 213), "ENDPOINT", fill=COLORS["white"], font=font("Lato-Black.ttf", 17))
-    draw.text((18, 252), "PACKAGE", fill=COLORS["mint"], font=font("Lato-Bold.ttf", 12))
-    draw.text((18, 270), "MANAGER", fill=COLORS["mint"], font=font("Lato-Bold.ttf", 12))
+    write_installer_assets()
+
+
+def write_installer_assets() -> None:
+    """Compose the approved icon and APPS wordmark at 4x installer resolution."""
+    scale = 4
+    banner = Image.new("RGB", (164 * scale, 314 * scale), COLORS["deep_forest"])
+    mark = render_svg(DARK_SVG, 132 * scale)
+    banner.paste(mark, (16 * scale, 28 * scale), mark)
+    with Image.open(APP_BRAND / "EEA-Logo-Text_Light-Alternate@2x.png") as source:
+        wordmark = source.convert("RGBA")
+    width = 140 * scale
+    height = round(wordmark.height * width / wordmark.width)
+    wordmark = wordmark.resize((width, height), Image.Resampling.LANCZOS)
+    banner.paste(wordmark, ((banner.width - width) // 2, 196 * scale), wordmark)
     save_png(banner, INSTALLER_ASSETS / "installer-banner.png")
-    save_png(
-        render_svg(DARK_SVG, 256),
-        INSTALLER_ASSETS / "evergreen-package-manager-256.png",
-    )
+    save_png(render_svg(DARK_SVG, 256), INSTALLER_ASSETS / "evergreen-package-manager-256.png")
 
 
 def write_tray_status_assets() -> None:

@@ -40,7 +40,7 @@ public partial class ContributorEntry : ObservableObject
 public class ContributorsViewModel : ViewModelBase
 {
     public string ThanksText { get; } = CoreTools.Translate(
-        "UniGetUI wouldn't have been possible without the help of the contributors. Thank you all 🥳");
+        "Evergreen Endpoint | APPS wouldn't have been possible without the help of the contributors. Thank you all 🥳");
 
     public ObservableCollection<ContributorEntry> ContributorList { get; } = [];
 

@@ -9,14 +9,14 @@ $repo = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $installerExtras = Join-Path $repo 'InstallerExtras'
 $run = Join-Path $ArtifactDirectory ("path-validation-" + [guid]::NewGuid().ToString('N'))
 $null = New-Item -ItemType Directory -Path $run -Force
-$testKey = "Software\Devolutions\UniGetUI\InstallerPathTests\" + [guid]::NewGuid().ToString('N')
+$testKey = "Software\Technicull Solutions\Evergreen Endpoint\Package Manager\InstallerPathTests\" + [guid]::NewGuid().ToString('N')
 $registry = [Microsoft.Win32.RegistryKey]::OpenBaseKey(
     [Microsoft.Win32.RegistryHive]::CurrentUser, [Microsoft.Win32.RegistryView]::Registry64)
 $restrictedKeys = @()
 $previousRoots = @()
 # Keep AppId below Inno's 57-character CRC-shortening threshold so the seeded
 # prior-choice key has exactly the same name that the fixture looks up.
-$taskAppId = 'UniGetUI-PathTasks-' + [guid]::NewGuid().ToString('N')
+$taskAppId = 'Evergreen-PathTasks-' + [guid]::NewGuid().ToString('N')
 $previousKey = "Software\Microsoft\Windows\CurrentVersion\Uninstall\${taskAppId}_is1"
 function Restore-TestAcl($Restricted) {
     $acl = [Security.AccessControl.RegistrySecurity]::new()
@@ -26,7 +26,7 @@ function Restore-TestAcl($Restricted) {
 try {
     & $Compiler /Q "/DTestRegistryKey=$testKey" "/DTestOutput=$run" (Join-Path $installerExtras 'AddToPath.Tests.iss')
     if ($LASTEXITCODE -ne 0) { throw "PATH harness compile failed ($LASTEXITCODE)" }
-    $test = Start-Process (Join-Path $run 'PathTests.exe') -ArgumentList @(
+    $test = Start-Process (Join-Path $run 'PathTests.exe') -WindowStyle Hidden -ArgumentList @(
         '/VERYSILENT', '/SUPPRESSMSGBOXES', "/LOG=`"$run\PathTests.log`""
     ) -Wait -PassThru
     # InitializeSetup returns false intentionally; rely on the assertion report, not exit 1.
@@ -71,7 +71,7 @@ try {
         $acl.AddAccessRule($rule)
         $key.SetAccessControl($acl)
     }
-    $aclTest = Start-Process (Join-Path $run 'PathTests.exe') -ArgumentList @(
+    $aclTest = Start-Process (Join-Path $run 'PathTests.exe') -WindowStyle Hidden -ArgumentList @(
         '/VERYSILENT', '/SUPPRESSMSGBOXES', "/LOG=`"$run\PathTests-acl.log`"", '/ACLTEST'
     ) -Wait -PassThru
     $report = Get-Content (Join-Path $run 'PathTests-acl.result.txt') -Raw
@@ -89,7 +89,7 @@ try {
     Write-Host "PASS: 3 explicit access-denied failures; all original values/types intact (exit $($aclTest.ExitCode))"
 
     # Reuse the production task declarations and the exact alias startup helpers.
-    # The fixture cancels on its tasks page, never installs or calls UpdateUnigetPath.
+    # The fixture cancels on its tasks page, never installs or calls UpdateEvergreenPath.
     $script = [IO.File]::ReadAllText((Join-Path $repo 'UniGetUI.iss'))
     $tasks = [regex]::Match($script, '(?ms)^\[Tasks\]\r?\n(?<tasks>.*?)(?=^\[)')
     if (-not $tasks.Success) { throw 'Cannot locate production task declarations' }
@@ -101,7 +101,7 @@ try {
     foreach ($view in @([Microsoft.Win32.RegistryView]::Registry32, [Microsoft.Win32.RegistryView]::Registry64)) {
         $previousRoots += [Microsoft.Win32.RegistryKey]::OpenBaseKey([Microsoft.Win32.RegistryHive]::CurrentUser, $view)
     }
-    $entry = 'C:\UniGetUI PATH Test'
+    $entry = 'C:\Evergreen Endpoint PATH Test'
     $ownerName = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData(
         [Text.Encoding]::Unicode.GetBytes($entry.ToLowerInvariant()))).ToLowerInvariant()
     $cases = @(
@@ -168,7 +168,7 @@ try {
         $reportFile = Join-Path $run 'PathTaskTests.result.txt'
         if (Test-Path $reportFile) { Remove-Item $reportFile }
         $logFile = Join-Path $run ("task-" + $case.Name + '.log')
-        $taskTest = Start-Process (Join-Path $run 'PathTaskTests.exe') -ArgumentList (
+        $taskTest = Start-Process (Join-Path $run 'PathTaskTests.exe') -WindowStyle Hidden -ArgumentList (
             @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/SP-', "/LOG=`"$logFile`"") + $case.Args
         ) -Wait -PassThru
         $report = Get-Content $reportFile -Raw
@@ -232,11 +232,11 @@ try {
     $payload = Join-Path $fixtureRoot 'unigetui_bin'
     $icons = Join-Path $fixtureRoot 'src\SharedAssets\Assets\Images'
     $null = New-Item -ItemType Directory -Path $extras, $payload, $icons -Force
-    foreach ($pattern in @('*.iss', '*.png', 'ForceUniGetUIPortable')) {
+    foreach ($pattern in @('*.iss', '*.png', 'EvergreenEndpoint.portable')) {
         Get-ChildItem (Join-Path $installerExtras $pattern) -File | Copy-Item -Destination $extras
     }
     Copy-Item (Join-Path $repo 'src\SharedAssets\Assets\Images\icon.ico') $icons
-    foreach ($name in @('UniGetUI.exe', 'uniget.exe', 'IntegrityTree.json')) {
+    foreach ($name in @('Evergreen Endpoint Package Manager.exe', 'evergreen.exe', 'IntegrityTree.json')) {
         [IO.File]::WriteAllText((Join-Path $payload $name), 'isolated compiler fixture, not executable')
     }
     [IO.File]::WriteAllText((Join-Path $extras 'netcorecheck_x64.exe'), 'isolated compiler fixture')

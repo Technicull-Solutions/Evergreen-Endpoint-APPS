@@ -16,7 +16,7 @@ namespace UniGetUI.Avalonia.Infrastructure;
 /// shell will only surface toasts for that AUMID once a Start Menu shortcut carrying the
 /// same AUMID exists; the installer writes that property on its Start Menu shortcut. Toast
 /// activation (button clicks) is intentionally not wired — clicking the toast launches
-/// the app with its <c>unigetui://</c> deep-link so the single-instance handler can
+/// the app with its <c>evergreen-endpoint://</c> deep-link so the single-instance handler can
 /// foreground the window, which keeps this dependency-free.
 /// </remarks>
 internal static class Win32ToastNotifier

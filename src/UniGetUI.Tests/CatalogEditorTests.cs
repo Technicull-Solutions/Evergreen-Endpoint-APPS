@@ -24,6 +24,23 @@ public class CatalogEditorTests : IDisposable
 
     public CatalogEditorTests() => Directory.CreateDirectory(_directory);
 
+    [Fact]
+    public async Task PackagedPilotCatalogLoadsThroughTheSharedEmployeeAndAdminContract()
+    {
+        DirectoryInfo? root = new(AppContext.BaseDirectory);
+        while (root is not null && !File.Exists(Path.Combine(root.FullName, "UPSTREAM.json")))
+            root = root.Parent;
+        Assert.NotNull(root);
+        string sample = Path.Combine(root.FullName, "package", "Catalog", "SoftwareCatalog.example.json");
+        var catalogs = await SoftwareCatalog.LoadAsync(sample);
+        Assert.NotEmpty(catalogs);
+        Assert.All(catalogs, catalog => Assert.NotEmpty(catalog.Packages));
+        string json = await File.ReadAllTextAsync(sample);
+        string formatted = Evergreen.Admin.AdminWorkspace.FormatLibrary(json);
+        Assert.Equal(catalogs.Sum(catalog => catalog.Packages.Length),
+            Evergreen.Configuration.SoftwareLibrary.Parse(formatted).Sum(catalog => catalog.Packages.Length));
+    }
+
     private static CatalogEntry Entry(string source = "winget") => new()
     {
         Name = "Claude",

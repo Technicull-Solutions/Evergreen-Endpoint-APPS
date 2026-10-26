@@ -37,6 +37,9 @@ Get-ChildItem $Path -Recurse -File | ForEach-Object {
 
     # Skip the output file itself
     if ($relativePath -eq $OutputFileName) { return }
+    # A root-level, presence-only mode switch is intentionally user-removable.
+    # Executables and nested files with the same name remain covered normally.
+    if ($relativePath -eq 'EvergreenEndpoint.portable') { return }
 
     if (-not $MinOutput) {
         Write-Host " - Computing SHA256 of $relativePath..."

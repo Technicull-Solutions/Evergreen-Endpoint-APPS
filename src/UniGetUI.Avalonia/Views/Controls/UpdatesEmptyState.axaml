@@ -1,0 +1,57 @@
+<UserControl x:Class="UniGetUI.Avalonia.Views.Controls.UpdatesEmptyState"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:t="using:UniGetUI.Avalonia.MarkupExtensions"
+             xmlns:vm="using:UniGetUI.Avalonia.ViewModels.Pages"
+             xmlns:automation="clr-namespace:Avalonia.Automation;assembly=Avalonia.Controls"
+             x:DataType="vm:PackagesPageViewModel">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <FontFamily x:Key="CompletionBrandFont">avares://UniGetUI/Assets/Fonts#Lato</FontFamily>
+            <SolidColorBrush x:Key="CompletionGoldBrush" Color="#D69B2D"/>
+            <SolidColorBrush x:Key="CompletionForestBrush" Color="#0D3F30"/>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="CompletionHeadingBrush" Color="#176B4D"/>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="CompletionHeadingBrush" Color="#79CDB0"/>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <StackPanel Margin="24" Spacing="20" MaxWidth="480">
+        <!-- Interim completion illustration: the canonical mark with a status adornment.
+             Replace this Canvas with the final brand artwork when supplied. -->
+        <Canvas Width="208" Height="184" HorizontalAlignment="Center"
+              IsVisible="{Binding ShowPackageIllustrations}"
+              IsHitTestVisible="False" automation:AutomationProperties.AccessibilityView="Raw">
+            <Border Canvas.Left="34" Canvas.Top="20" Width="140" Height="140" CornerRadius="8"
+                    Background="{StaticResource CompletionForestBrush}"
+                    BorderBrush="{StaticResource CompletionGoldBrush}" BorderThickness="1.5">
+                <Image Width="108" Height="108" Stretch="Uniform"
+                       RenderOptions.BitmapInterpolationMode="HighQuality"
+                       Source="avares://UniGetUI/Assets/Brand/evergreen-endpoint-apps-logo-light-512.png"/>
+            </Border>
+            <Border Canvas.Left="150" Canvas.Top="132" Width="40" Height="40" CornerRadius="20"
+                    Background="{StaticResource CompletionGoldBrush}">
+                <Viewbox Width="20" Height="20">
+                    <Path Data="M 2,10 L 8,16 L 19,3"
+                          Stroke="{StaticResource CompletionForestBrush}"
+                          StrokeThickness="2.8" StrokeLineCap="Round" StrokeJoin="Round"/>
+                </Viewbox>
+            </Border>
+            <Path Canvas.Left="6" Canvas.Top="32" Data="M 8,0 L 10,6 L 16,8 L 10,10 L 8,16 L 6,10 L 0,8 L 6,6 Z"
+                  Fill="{StaticResource CompletionGoldBrush}"/>
+            <Path Canvas.Left="184" Canvas.Top="28" Data="M 5,0 L 6.5,3.5 L 10,5 L 6.5,6.5 L 5,10 L 3.5,6.5 L 0,5 L 3.5,3.5 Z"
+                  Fill="{StaticResource CompletionGoldBrush}"/>
+            <Ellipse Canvas.Left="8" Canvas.Top="120" Width="5" Height="5"
+                     Fill="{DynamicResource CompletionHeadingBrush}" Opacity="0.6"/>
+        </Canvas>
+        <TextBlock x:Name="CompletionMessage" Text="{t:Translate Text='Your apps are up to date!'}"
+                   FontFamily="{StaticResource CompletionBrandFont}" FontSize="30" FontWeight="Bold"
+                   Foreground="{DynamicResource CompletionHeadingBrush}"
+                   TextAlignment="Center" TextWrapping="Wrap"
+                   HorizontalAlignment="Center"/>
+    </StackPanel>
+</UserControl>

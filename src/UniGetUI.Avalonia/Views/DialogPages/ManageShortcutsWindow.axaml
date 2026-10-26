@@ -36,7 +36,7 @@
         <!-- ── Header: Reset list button ── -->
         <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="8">
 
-            <TextBlock Text="{t:Translate Text='Here you can change what UniGetUI does with the shortcuts your packages create.'}"
+            <TextBlock Text="{t:Translate Text='Here you can change what Evergreen Endpoint | APPS does with the shortcuts your packages create.'}"
                        TextWrapping="Wrap"
                        FontWeight="Bold"
                        VerticalAlignment="Center"
@@ -93,7 +93,7 @@
 
                     <TextBlock Grid.Row="0" TextWrapping="Wrap" Opacity="0.75">
                         <TextBlock.Text>
-                            <t:Translate Text="Checking a shortcut will make UniGetUI delete it if it gets created on a future upgrade. Unchecking it will keep the shortcut intact"/>
+                            <t:Translate Text="Checking a shortcut will make Evergreen Endpoint | APPS delete it if it gets created on a future upgrade. Unchecking it will keep the shortcut intact"/>
                         </TextBlock.Text>
                     </TextBlock>
 

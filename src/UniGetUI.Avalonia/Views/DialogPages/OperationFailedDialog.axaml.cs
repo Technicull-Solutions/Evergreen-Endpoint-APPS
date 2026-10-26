@@ -28,6 +28,11 @@ public partial class OperationFailedDialog : UniGetUI.Avalonia.Views.DialogPages
                 "Please see the Command-line Output or refer to the Operation History for further information about the issue."
             );
 
+        if (operation is PackageOperation { SuggestInteractiveRetry: true })
+            HeaderContent.Text += "\n\n" + CoreTools.Translate(
+                "The installer failed and may need your input. Close the app, including its system tray icon, then retry interactively to see any installer messages."
+            );
+
         PopulateOutput();
         // Line brushes are baked per theme; recolor so they follow a live theme switch.
         ActualThemeVariantChanged += (_, _) => PopulateOutput();
@@ -91,6 +96,15 @@ public partial class OperationFailedDialog : UniGetUI.Avalonia.Views.DialogPages
         string defaultRetryMode = AbstractOperation.RetryMode.Retry;
         string defaultRetryLabel = CoreTools.Translate("Retry");
 
+        if (operation is PackageOperation { SuggestInteractiveRetry: true } pkgOp
+            && PackageOperation.CanRetryInteractively(pkgOp))
+        {
+            defaultRetryMode = AbstractOperation.RetryMode.Retry_Interactive;
+            defaultRetryLabel = CoreTools.Translate("Retry interactively");
+            retryOptions.Insert(0, MenuItem(CoreTools.Translate("Retry"),
+                () => { operation.Retry(AbstractOperation.RetryMode.Retry); Close(); }));
+        }
+
         if (retryOptions.Count == 0)
             return SimpleRetryButton(operation, defaultRetryMode, defaultRetryLabel);
 
@@ -127,7 +141,7 @@ public partial class OperationFailedDialog : UniGetUI.Avalonia.Views.DialogPages
             retryOptions.Add(MenuItem(CoreTools.Translate("Retry as administrator"),
                 () => { operation.Retry(AbstractOperation.RetryMode.Retry_AsAdmin); Close(); }));
 
-        if (!pkgOp.Options.InteractiveInstallation && caps.CanRunInteractively)
+        if (PackageOperation.CanRetryInteractively(pkgOp) && !pkgOp.SuggestInteractiveRetry)
             retryOptions.Add(MenuItem(CoreTools.Translate("Retry interactively"),
                 () => { operation.Retry(AbstractOperation.RetryMode.Retry_Interactive); Close(); }));
 

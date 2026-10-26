@@ -1,7 +1,7 @@
-# UniGetUI Terminal UI
+# Evergreen Endpoint Package Manager Terminal UI
 
 The terminal UI lets you search, install, update and remove software without opening the
-UniGetUI desktop window. It is included with UniGetUI; no separate terminal application or
+Evergreen Endpoint Package Manager desktop window. It is included with Evergreen Endpoint Package Manager; no separate terminal application or
 package is needed.
 
 It uses the same package managers, settings, installation options, ignored updates, bundles
@@ -11,34 +11,35 @@ apply. Use [demo mode](#try-it-without-changing-your-computer) to explore safely
 
 ## Getting started
 
-Install UniGetUI using the [installation guide](../README.md#installation). You do not need
+Install Evergreen Endpoint Package Manager using the [installation guide](../README.md#installation). You do not need
 to build it from source to use the terminal UI.
 
-If `uniget` is on your `PATH`, open a terminal and run:
+On Windows, if `evergreen` is on your `PATH`, open a terminal and run:
 
 ```shell
-uniget tui
+evergreen tui
 ```
 
-Otherwise, use the launcher included with your installation:
+Examples below use the Windows `evergreen` command. On Linux and macOS, use the existing
+`uniget` launcher instead. Use the launcher included with your installation:
 
 | Platform | How to start |
 | --- | --- |
-| Windows | Open PowerShell in the UniGetUI installation folder and run `.\uniget.exe tui`. |
+| Windows | Open PowerShell in the Evergreen Endpoint Package Manager installation folder and run `.\evergreen.exe tui`. |
 | Linux | Installed `.deb` and `.rpm` packages provide `uniget tui`. From an extracted archive, open its folder and run `./uniget tui`. |
 | macOS | After installing in Applications, run `/Applications/UniGetUI.app/Contents/MacOS/uniget tui`. From an extracted archive, run `./uniget tui` in its folder. |
 
-On Windows, selecting **Add to PATH** during installation lets you use `uniget` from any
+On Windows, selecting **Add to PATH** during installation lets you use `evergreen` from any
 folder. Open a new terminal after installation. Portable installations do not change `PATH`;
 run the launcher from the portable folder. See [the CLI guide](CLI.md#quick-start) for more
 launch options and [portable mode](PORTABLE.md) for portable installation details.
 
-**In PowerShell, use `uniget.exe`, not `UniGetUI.exe` directly.** The launcher keeps PowerShell
-waiting while you use the TUI. If you need to launch `UniGetUI.exe` itself, run this from its
+**In PowerShell, use `evergreen.exe`.** The launcher keeps PowerShell
+waiting while you use the TUI. To launch the desktop executable itself, run this from its
 installation folder:
 
 ```powershell
-Start-Process -FilePath .\UniGetUI.exe -ArgumentList 'tui' -NoNewWindow -Wait
+Start-Process -FilePath ".\Evergreen Endpoint Package Manager.exe" -ArgumentList 'tui' -NoNewWindow -Wait
 ```
 
 At startup, a version banner and `Initializing UniGetUI engine (loading package managers)...`
@@ -50,13 +51,13 @@ Press **F1** for help at any time and **Ctrl+Q** to quit.
 ## Try it without changing your computer
 
 Demo mode provides sample packages so you can try searching, installing, updating and
-uninstalling without calling real package managers or changing your normal UniGetUI settings:
+uninstalling without calling real package managers or changing your normal Evergreen Endpoint Package Manager settings:
 
 ```shell
-uniget tui --fake-data
+evergreen tui --fake-data
 ```
 
-If `uniget` is not on your `PATH`, use the same platform-specific launcher as above, followed
+If the launcher is not on your `PATH`, use the same platform-specific launcher as above, followed
 by `tui --fake-data`.
 
 The screen displays **FAKE DATA** throughout the session. Packages and operations are
@@ -69,7 +70,7 @@ To keep your demo settings and sample package changes between sessions, choose a
 folder and reuse it:
 
 ```shell
-uniget tui --fake-data-dir "my-tui-demo"
+evergreen tui --fake-data-dir "my-tui-demo"
 ```
 
 Without a chosen folder, each launch uses a new temporary sandbox.
@@ -89,7 +90,7 @@ support **Ctrl+1** through **Ctrl+9**.
 | 5 Operations | Follow installation progress and output, cancel operations, or retry failures. |
 | 6 Managers | Check package manager status, enable or disable managers, and manage package sources. |
 | 7 Settings | Change preferences, default installation options, update behavior, backups and scheduled maintenance. |
-| 8 Logs | Read and export UniGetUI and package manager logs. |
+| 8 Logs | Read and export Evergreen Endpoint Package Manager and package manager logs. |
 | 9 History | Review previous operations, view their logs, or run them again. |
 
 Use **Tab** and **Shift+Tab** to move between controls. **F10** opens the menu bar; use the
@@ -140,7 +141,7 @@ Supported bundle formats are `.ubundle`, `.json`, `.yaml` and `.xml`. You can al
 existing bundle when starting the TUI:
 
 ```shell
-uniget tui "my-packages.ubundle"
+evergreen tui "my-packages.ubundle"
 ```
 
 Review any bundle security warnings before confirming installation.
@@ -188,11 +189,11 @@ Solarized Dark, Solarized Light, One Dark, Tokyo Night and Catppuccin Mocha.
 Use **High contrast** if you need stronger separation between text, controls and backgrounds.
 Older 16-colour consoles display approximate theme colours.
 
-For a temporary theme, use `--theme <id>`. Run `uniget tui --help` to see the theme IDs.
+For a temporary theme, use `--theme <id>`. Run `evergreen tui --help` to see the theme IDs.
 
 ## Startup options
 
-Add these options after `uniget tui`:
+Add these options after `evergreen tui`:
 
 | Option | What it does |
 | --- | --- |
@@ -207,7 +208,7 @@ Add these options after `uniget tui`:
 For example, open the Updates page to review available updates:
 
 ```shell
-uniget tui --page updates
+evergreen tui --page updates
 ```
 
 **Use `--updateapps` only when you intend to update all available packages.** Unlike
@@ -215,7 +216,7 @@ uniget tui --page updates
 Your saved automatic-update preferences still apply without this option.
 
 Settings import, export and individual setting changes can also be run without opening the
-interactive screen. Use `uniget tui --help` for their syntax.
+interactive screen. Use `evergreen tui --help` for their syntax.
 
 ## Differences from the desktop app
 
@@ -223,7 +224,7 @@ Most package-management tasks are available in both interfaces. The terminal UI 
 progress and notifications within the terminal rather than using a tray icon or system
 notifications. Settings that only affect the desktop window are labelled **(desktop app)**.
 
-The TUI does not update UniGetUI itself. Install application updates through the desktop app
+The TUI does not update Evergreen Endpoint Package Manager itself. Install application updates through the desktop app
 or your usual installation method; the **Help** menu links to the release page.
 The Devolutions Agent policy inspector and editor are available only in the desktop app.
 
@@ -231,8 +232,8 @@ The Devolutions Agent policy inspector and editor are available only in the desk
 
 | Problem | What to try |
 | --- | --- |
-| `uniget` is not recognized | Open a new terminal after adding UniGetUI to `PATH`, or run the launcher from the installation folder. |
-| PowerShell shows another prompt while the TUI starts, or reports "The parameter is incorrect" | Use `.\uniget.exe tui`, or the explicit `Start-Process` command above. Do not launch `.\UniGetUI.exe tui` directly from an interactive PowerShell prompt. |
+| The launcher is not recognized | Open a new terminal after adding Evergreen Endpoint Package Manager to `PATH`, or run the launcher from the installation folder. |
+| PowerShell shows another prompt while the TUI starts, or reports "The parameter is incorrect" | Use `.\evergreen.exe tui`, or the explicit `Start-Process` command above. Do not launch `.\"Evergreen Endpoint Package Manager.exe" tui` directly from an interactive PowerShell prompt. |
 | The startup screen stays on "loading package managers" | Initialization must finish before the interactive screen appears. If startup fails, keep the error message for troubleshooting. |
 | A package manager is unavailable or a package action is missing | Check **Managers** for its status and enabled state. Available actions depend on the manager and platform. |
 | Alt shortcuts do not work | Use **F10** and the arrow keys for menus. On macOS Terminal, enable **Settings > Profiles > Keyboard > Use Option as Meta key**. |
@@ -243,5 +244,5 @@ Run the TUI in an interactive terminal, not with its input or output redirected 
 pipeline.
 
 For more help, press **F1** or use the **Help** menu. When reporting a problem, include your
-UniGetUI version, operating system, terminal application, and the error or relevant logs.
+Evergreen Endpoint Package Manager version, operating system, terminal application, and the error or relevant logs.
 **Help > About** provides terminal diagnostics, and **Logs** lets you export logs for review.

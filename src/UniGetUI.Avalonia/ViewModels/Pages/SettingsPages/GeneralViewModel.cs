@@ -23,8 +23,7 @@ public partial class GeneralViewModel : ViewModelBase
         if (visual is null || TopLevel.GetTopLevel(visual) is not Window owner) return;
         var dialog = new TelemetryDialog();
         await dialog.ShowDialog(owner);
-        if (dialog.Result.HasValue)
-            CoreSettings.Set(CoreSettings.K.DisableTelemetry, !dialog.Result.Value);
+        CoreSettings.Set(CoreSettings.K.DisableTelemetry, true);
     }
 
     [RelayCommand]
@@ -66,7 +65,7 @@ public partial class GeneralViewModel : ViewModelBase
         if (visual is null || TopLevel.GetTopLevel(visual) is not { } topLevel) return;
         var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            SuggestedFileName = CoreTools.Translate("UniGetUI Settings") + ".json",
+            SuggestedFileName = CoreTools.Translate("Evergreen Endpoint | APPS Settings") + ".json",
             FileTypeChoices = [new FilePickerFileType("Settings JSON") { Patterns = ["*.json"] }],
         });
         if (file is null) return;
@@ -93,7 +92,7 @@ public partial class GeneralViewModel : ViewModelBase
         try { CoreSettings.ResetSettings(); }
         catch (Exception ex) { Logger.Error(ex); }
         AccessibilityAnnouncementService.Announce(
-            CoreTools.Translate("UniGetUI settings were reset"),
+            CoreTools.Translate("Evergreen Endpoint | APPS settings were reset"),
             AutomationLiveSetting.Assertive);
         OnRestartRequired();
     }

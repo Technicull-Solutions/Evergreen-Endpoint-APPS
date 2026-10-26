@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using UniGetUI.Avalonia.Infrastructure;
 using UniGetUI.Avalonia.ViewModels.Pages;
 using UniGetUI.Avalonia.Views;
+using UniGetUI.Avalonia.Views.Controls;
 using UniGetUI.Core.Data;
 using UniGetUI.Core.Logging;
 using UniGetUI.Core.SettingsEngine;
@@ -43,8 +44,8 @@ public class SoftwareUpdatesPage : AbstractPackagesPage
         DisableAutomaticPackageLoadOnStart = false,
         DisableFilterOnQueryChange = false,
         DisableReload = false,
-        NoPackages_BackgroundText = CoreTools.Translate("Hooray! No updates were found."),
-        NoPackages_ImagePath = "avares://UniGetUI/Assets/Images/Trophee.png",
+        NoPackages_BackgroundText = CoreTools.Translate("Your apps are up to date!"),
+        NoPackages_Content = new UpdatesEmptyState(),
         NoPackages_SourcesText = CoreTools.Translate("Everything is up to date"),
         NoPackages_SubtitleText_Base = CoreTools.Translate("Everything is up to date"),
         MainSubtitle_StillLoading = CoreTools.Translate("Loading packages"),
@@ -358,7 +359,10 @@ public class SoftwareUpdatesPage : AbstractPackagesPage
 
     private static async Task LaunchUninstallFromUpdates(IEnumerable<IPackage> packages)
     {
-        foreach (var pkg in packages)
+        var list = packages.ToList();
+        if (MainWindow.Instance is not { } owner
+            || !await UninstallConfirmationDialog.ConfirmAsync(owner, list)) return;
+        foreach (var pkg in list)
         {
             var opts = await InstallOptionsFactory.LoadApplicableAsync(pkg);
             if (PackageOperation.HasPendingOperation(pkg, OperationType.Uninstall)) continue;
@@ -373,6 +377,8 @@ public class SoftwareUpdatesPage : AbstractPackagesPage
     private static async Task LaunchUninstallThenUpdate(IPackage? package)
     {
         if (package is null || package.Source.IsVirtualManager) return;
+        if (MainWindow.Instance is not { } owner
+            || !await UninstallConfirmationDialog.ConfirmAsync(owner, package)) return;
         var uninstallOpts = await InstallOptionsFactory.LoadApplicableAsync(package);
         var updateOpts = await InstallOptionsFactory.LoadApplicableAsync(package);
         if (PackageOperation.HasPendingOperation(package, OperationType.Update)) return;

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Evergreen Endpoint Admin: package with management controls">
+<rect width="512" height="512" rx="16" fill="#0D3F30"/>
+<g transform="translate(8 0) scale(.82)"><g stroke-linejoin="miter">
+ <path d="M72 288 L256 204 L440 288 L440 362 L256 450 L72 362 Z" fill="#004B39" stroke="#E9B43A" stroke-width="6"/>
+ <path d="M76 290 L256 362 L256 446 L76 360 Z" fill="#009678"/>
+ <path d="M256 362 L436 290 L436 360 L256 446 Z" fill="#79CDB0"/>
+ <path d="M82 288 L256 212 L430 288 L256 362 Z" fill="#004B39" stroke="#FFFFFF" stroke-width="6"/>
+ <path d="M72 288 L72 362 L256 450 L440 362 L440 288" fill="none" stroke="#E9B43A" stroke-width="6"/>
+ <path d="M256 364 V446" fill="none" stroke="#79CDB0" stroke-width="1"/>
+ <path d="M190 78 H322 V210 H378 L256 332 L134 210 H190 Z" fill="#CA9427"/>
+ <path d="M256 78 H322 V210 H378 L256 332 Z" fill="#F4C34F"/>
+ <path d="M190 78 H322 V210 H378 L256 332 L134 210 H190 Z" fill="none" stroke="#FFFFFF" stroke-width="6"/>
+</g></g>
+<rect x="308" y="312" width="188" height="184" rx="16" fill="#D69B2D" stroke="#0D3F30" stroke-width="12"/>
+<g stroke="#17211D" stroke-width="14" stroke-linecap="round" fill="none">
+<path d="M340 358 H464 M340 404 H464 M340 450 H464"/>
+<path d="M374 344 V372 M432 390 V418 M386 436 V464" stroke-width="20"/>
+</g></svg>

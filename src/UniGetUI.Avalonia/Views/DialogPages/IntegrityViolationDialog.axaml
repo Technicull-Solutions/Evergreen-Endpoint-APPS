@@ -15,11 +15,11 @@
           RowSpacing="12">
 
         <StackPanel Grid.Row="0" Spacing="8">
-            <TextBlock Text="{t:Translate UniGetUI or some of its components are missing or corrupt. It is strongly recommended to reinstall UniGetUI to address the situation.}"
+            <TextBlock Text="{t:Translate Evergreen Endpoint | APPS or some of its components are missing or corrupt. It is strongly recommended to reinstall Evergreen Endpoint | APPS to address the situation.}"
                        TextWrapping="Wrap"
                        FontWeight="SemiBold"
                        Foreground="{DynamicResource StatusWarningForeground}"/>
-            <TextBlock Text="{t:Translate Text='• Refer to the UniGetUI Logs to get more details regarding the affected file(s)'}"
+            <TextBlock Text="{t:Translate Text='• Refer to the Evergreen Endpoint | APPS Logs to get more details regarding the affected file(s)'}"
                        TextWrapping="Wrap"
                        Opacity="0.8"/>
             <TextBlock Text="{t:Translate Text='• Integrity checks can be disabled from the Experimental Settings'}"

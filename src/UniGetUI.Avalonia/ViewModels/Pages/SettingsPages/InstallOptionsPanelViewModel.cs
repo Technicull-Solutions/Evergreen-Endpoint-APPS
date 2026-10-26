@@ -88,8 +88,8 @@ public partial class InstallOptionsPanelViewModel : ViewModelBase
     public string CopyInstallArgsLabel { get; } = CoreTools.Translate("Copy install arguments to update and uninstall");
     public string ResetLabel { get; } = CoreTools.Translate("Reset");
     public string ApplyLabel { get; } = CoreTools.Translate("Apply");
-    public string CliDisabledLabel { get; } = CoreTools.Translate("For security reasons, custom command-line arguments are disabled by default. Go to UniGetUI security settings to change this.");
-    public string GoToSecurityLabel { get; } = CoreTools.Translate("Go to UniGetUI security settings");
+    public string CliDisabledLabel { get; } = CoreTools.Translate("For security reasons, custom command-line arguments are disabled by default. Go to Evergreen Endpoint | APPS security settings to change this.");
+    public string GoToSecurityLabel { get; } = CoreTools.Translate("Go to Evergreen Endpoint | APPS security settings");
 
     public string HeaderText => CoreTools.Translate(
         "The following options will be applied by default each time a {0} package is installed, upgraded or uninstalled.",

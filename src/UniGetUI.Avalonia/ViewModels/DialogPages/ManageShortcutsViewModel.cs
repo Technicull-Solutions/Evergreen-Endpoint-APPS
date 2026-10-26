@@ -76,11 +76,11 @@ public partial class ManageShortcutsViewModel : ObservableObject
 
             if (HasStartMenuRules)
                 return CoreTools.Translate(
-                    "Nothing else to review. Every shortcut UniGetUI knows about is on the Start Menu folders tab."
+                    "Nothing else to review. Every shortcut Evergreen Endpoint | APPS knows about is on the Start Menu folders tab."
                 );
 
             return CoreTools.Translate(
-                "No Start Menu shortcut has been handled by UniGetUI yet. Shortcuts show up here once an install creates them, or once you give a package a folder."
+                "No Start Menu shortcut has been handled by Evergreen Endpoint | APPS yet. Shortcuts show up here once an install creates them, or once you give a package a folder."
             );
         }
     }

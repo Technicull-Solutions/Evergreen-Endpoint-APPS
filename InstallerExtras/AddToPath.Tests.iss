@@ -1,4 +1,4 @@
-; Executable regression harness. NEVER calls UpdateUnigetPath or the real installer.
+; Executable regression harness. NEVER calls UpdateEvergreenPath or the real installer.
 ; Validation runner supplies a unique HKCU test subkey and session artifact directory.
 #ifndef TestRegistryKey
   #error TestRegistryKey must be an isolated test registry subkey
@@ -10,11 +10,11 @@
 #ifdef TestAppId
 AppId={#TestAppId}
 #else
-AppId=UniGetUI-Isolated-Path-Tests
+AppId=Evergreen-Isolated-Path-Tests
 #endif
-AppName=UniGetUI isolated PATH tests
+AppName=Evergreen isolated PATH tests
 AppVersion=1
-DefaultDirName={tmp}\UniGetUI-Path-Tests
+DefaultDirName={tmp}\Evergreen-Path-Tests
 PrivilegesRequired=lowest
 Uninstallable=no
 CreateAppDir=no
@@ -24,8 +24,8 @@ Compression=none
 SetupLogging=yes
 UsePreviousTasks=yes
 [CustomMessages]
-UnigetPathError=PATH error: %1 %2
-UnigetPathBroadcastError=Environment broadcast failed
+EvergreenPathError=PATH error: %1 %2
+EvergreenPathBroadcastError=Environment broadcast failed
 InvalidAddToPathProperty=Invalid installer command line: %1
 InstallType=Installation type
 ShCuts=Shortcuts
@@ -33,7 +33,7 @@ PortInst=Portable install
 RegInst=Regular install
 RegStartMmenuIcon=Start menu shortcut
 RegDesktopIcon=Desktop shortcut
-RegAddToPath=Add the uniget command to PATH
+RegAddToPath=Add the evergreen command to PATH
 #ifdef TestTasksFile
 #include TestTasksFile
 #endif
@@ -43,7 +43,7 @@ RegAddToPath=Add the uniget command to PATH
 
 const
   TestRoot = '{#TestRegistryKey}';
-  TestEntry = 'C:\UniGetUI PATH Test';
+  TestEntry = 'C:\Evergreen Endpoint PATH Test';
 var
   Assertions: Integer;
 
@@ -162,8 +162,8 @@ begin
     CheckValue(TestEnv, Before, Kind);
     CheckOwned(False);
   end;
-  Entry := ExpandConstant('{win}') + '\UniGetUI PATH Test';
-  Before := 'C:\Other; "%SystemRoot%\UniGetUI PATH Test\" ';
+  Entry := ExpandConstant('{win}') + '\Evergreen Endpoint PATH Test';
+  Before := 'C:\Other; "%SystemRoot%\Evergreen Endpoint PATH Test\" ';
   ResetPath(Before, PathRegExpandSz);
   PathUpdate(HKCU, TestEnv, TestOwners, Entry, True);
   CheckValue(TestEnv, Before, PathRegExpandSz);
@@ -277,6 +277,58 @@ begin
   end;
 end;
 
+procedure TestOwnershipMigration;
+var
+  LegacyOwners, Name, OtherName, RecordValue, Pending: String;
+  Failed: Boolean;
+begin
+  LegacyOwners := TestRoot + '\LegacyOwners';
+  Name := TestOwnerName(TestEntry);
+  OtherName := TestOwnerName('C:\Other Product');
+  ResetPath('C:\Keep;' + TestEntry, PathRegSz);
+  PathWrite(HKCU, LegacyOwners, Name, 'O' + TestEntry, PathRegSz);
+  PathWrite(HKCU, LegacyOwners, OtherName, 'OC:\Other Product', PathRegSz);
+  PathMigrateOwnership(HKCU, LegacyOwners, TestOwners, TestEntry, False);
+  CheckOwned(False);
+  AssertPath(RegValueExists(HKCU64, LegacyOwners, Name),
+    'unconfirmed legacy ownership is not adopted');
+  PathMigrateOwnership(HKCU, LegacyOwners, TestOwners, TestEntry, True);
+  CheckOwned(True);
+  AssertPath(not RegValueExists(HKCU64, LegacyOwners, Name), 'matching legacy record moved');
+  AssertPath(RegQueryStringValue(HKCU64, LegacyOwners, OtherName, RecordValue) and
+    (RecordValue = 'OC:\Other Product'), 'other product ownership preserved');
+  UpdatePath(False);
+  CheckValue(TestEnv, 'C:\Keep', PathRegSz);
+  CheckOwned(False);
+  // Recover a crash after the copy but before deleting the legacy record.
+  ResetPath('C:\Keep;' + TestEntry, PathRegSz);
+  PathWrite(HKCU, LegacyOwners, Name, 'O' + TestEntry, PathRegSz);
+  PathWrite(HKCU, TestOwners, Name, 'O' + TestEntry, PathRegSz);
+  PathMigrateOwnership(HKCU, LegacyOwners, TestOwners, TestEntry, True);
+  CheckOwned(True);
+  AssertPath(not RegValueExists(HKCU64, LegacyOwners, Name), 'migration retry is idempotent');
+  CheckValue(TestEnv, 'C:\Keep;' + TestEntry, PathRegSz);
+  // Preserve the pending journal through migration, then recover the owned append.
+  ResetPath('C:\Keep;' + TestEntry, PathRegSz);
+  Pending := 'P' + GetSHA256OfUnicodeString('C:\Keep') +
+    GetSHA256OfUnicodeString('C:\Keep;' + TestEntry) + TestEntry;
+  PathWrite(HKCU, LegacyOwners, Name, Pending, PathRegSz);
+  PathMigrateOwnership(HKCU, LegacyOwners, TestOwners, TestEntry, True);
+  UpdatePath(False);
+  CheckValue(TestEnv, 'C:\Keep', PathRegSz);
+  CheckOwned(False);
+  // A record under the selected hash must still identify the same directory.
+  ResetPath('C:\Keep', PathRegSz);
+  PathWrite(HKCU, LegacyOwners, Name, 'OC:\Other Product', PathRegSz);
+  Failed := False;
+  try PathMigrateOwnership(HKCU, LegacyOwners, TestOwners, TestEntry, True);
+  except Failed := True; end;
+  AssertPath(Failed, 'mismatched legacy directory is rejected');
+  CheckOwned(False);
+  AssertPath(RegValueExists(HKCU64, LegacyOwners, Name), 'mismatched legacy record preserved');
+  CheckValue(TestEnv, 'C:\Keep', PathRegSz);
+end;
+
 procedure TestFailures;
 var
   Failed: Boolean;
@@ -353,7 +405,7 @@ begin
     StartMenu := WizardIsTaskSelected('regularinstall\startmenuicon');
     Desktop := WizardIsTaskSelected('regularinstall\desktopicon');
     TaskReport := 'BeforePath=' + IntToStr(Ord(WizardIsTaskSelected('regularinstall\addtopath'))) + #13#10;
-    ApplyUnigetPathTaskAlias; // Same task-page hook as the production installer.
+    ApplyEvergreenPathTaskAlias; // Same task-page hook as the production installer.
     AssertPath(WizardIsTaskSelected('regularinstall') = Regular, 'alias preserves regular choice');
     AssertPath(WizardIsTaskSelected('portableinstall') = Portable, 'alias preserves portable choice');
     AssertPath(WizardIsTaskSelected('regularinstall\startmenuicon') = StartMenu, 'alias preserves Start menu task');
@@ -364,7 +416,7 @@ begin
       'Portable=' + IntToStr(Ord(Portable)) + #13#10 +
       'StartMenu=' + IntToStr(Ord(StartMenu)) + #13#10 +
       'Desktop=' + IntToStr(Ord(Desktop)) + #13#10 +
-      'Alias=' + IntToStr(Ord(UnigetPathAliasPresent)) + #13#10;
+      'Alias=' + IntToStr(Ord(EvergreenPathAliasPresent)) + #13#10;
     // Exercise the production regular/portable gate, but with isolated keys ONLY.
     if Regular then
       PathUpdate(HKCU, TestRoot + '\TaskEnvironment', TestRoot + '\TaskOwners', TestEntry, PathSelected);
@@ -373,7 +425,7 @@ begin
       // Simulate a subsequent interactive checkbox edit. Startup must not reapply.
       if PathSelected then WizardSelectTasks('!regularinstall\addtopath')
       else WizardSelectTasks('regularinstall\addtopath');
-      ApplyUnigetPathTaskAlias;
+      ApplyEvergreenPathTaskAlias;
       AssertPath(WizardIsTaskSelected('regularinstall\addtopath') <> PathSelected,
         'interactive checkbox edit wins over startup alias');
       if PathSelected then WizardSelectTasks('regularinstall\addtopath')
@@ -404,7 +456,7 @@ var
 begin
   Result := False; // Tests only; NEVER install files or register an uninstaller.
 #ifdef TestTasksFile
-  Result := InitializeUnigetPathTaskAlias;
+  Result := InitializeEvergreenPathTaskAlias;
   if not Result then
   begin
     TaskReport := 'REJECTED: invalid ADDTOPATH';
@@ -424,6 +476,7 @@ begin
       TestPreexistingAndEdited;
       TestAbsentEmptyAndScopes;
       TestInterruptedOperations;
+      TestOwnershipMigration;
       TestFailures;
       // Leave two fixture values for independent .NET RegistryKey verification.
       PathWrite(HKCU, TestRoot + '\CheckSz', 'Path', '%SystemRoot%; "C:\Keep\" ;;', PathRegSz);

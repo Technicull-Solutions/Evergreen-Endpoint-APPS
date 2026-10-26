@@ -39,6 +39,14 @@ shield, check, monogram, or a newly drawn variant.
 
 Use Lato for supplied wordmarks and Segoe UI Variable/Segoe UI for the Windows interface.
 
+The Updates completion message uses bundled, unmodified Lato Regular and Bold from
+`src/UniGetUI.Avalonia/Assets/Fonts/`, including its SIL Open Font License. Its message is
+“Your apps are up to date!” using Evergreen in light mode and the mark's mint (`#79CDB0`)
+in dark mode, with gold (`#D69B2D`) accents. The interim completion illustration combines
+the canonical package mark on an r8 tile with a small status badge and no circular outline;
+it does not replace the application icon. Replace the illustration in `UpdatesEmptyState.axaml`
+when final artwork is supplied.
+
 Regenerate the raster, ICO, Windows tile, and installer assets with:
 
 ```powershell
@@ -47,3 +55,18 @@ python scripts/brand/generate-evergreen-endpoint-package-manager-assets.py
 
 The design-time generator requires Pillow and `resvg-py`. These are not application runtime
 dependencies.
+
+## Portable administrator identity
+
+**Evergreen Endpoint | ADMIN** retains the canonical package symbol and adds a gold
+management-controls badge. This derivative identifies the separate authoring utility;
+it does not replace the APPS symbol. Its forest tile has r8 corners at 256 logical pixels.
+`evergreen-endpoint-admin.svg` is the generated vector, and `src/Evergreen.Admin/Assets/`
+contains the PNG and multi-resolution ICO used for the executable, window, and taskbar.
+Regenerate them with `python scripts/brand/generate-admin-assets.py` (Pillow, `resvg-py`, and
+`fonttools`). The same generator produces `evergreen-endpoint-admin-logo-light.svg` and
+`evergreen-endpoint-admin-logo-dark.svg` plus PNGs in the Admin assets folder. The SVG
+wordmarks outline the bundled Lato glyphs so they do not require an installed font.
+The portable Admin ZIP includes these alternate logos and the ICO in its `Brand/` folder.
+The administrator shell uses the same palette, Lato wordmark, and Segoe UI interface fonts,
+with dedicated standalone styles to avoid loading the employee package engine.

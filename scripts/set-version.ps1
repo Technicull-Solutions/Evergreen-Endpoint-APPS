@@ -7,34 +7,48 @@
 .PARAMETER Version
     Evergreen release version, e.g. "0.1.0" or a manually selected dated release version.
     A four-part version (X.X.X.X) is derived automatically for assembly info.
+
+.PARAMETER BuildNumber
+    Explicit build number. When omitted, increments scripts/BuildNumber.
 #>
 
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)]
-    [string] $Version
+    [ValidatePattern('^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$')]
+    [string] $Version,
+
+    [ValidateRange(1, 65535)]
+    [int] $BuildNumber
 )
 
 $ErrorActionPreference = 'Stop'
 
 $RepoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
 
-# Derive the four-part Windows version from the manually supplied release version.
+# Validate before changing any files. Windows version components are unsigned 16-bit values.
 $CleanVersion = ($Version -Split '-')[0]   # strip prerelease tag
 $Parts = $CleanVersion -Split '\.'
-while ($Parts.Count -lt 4) { $Parts += '0' }
-$FourPartVersion = ($Parts[0..3]) -Join '.'
-
-Write-Host "Version name  : $Version"
-Write-Host "Assembly ver  : $FourPartVersion"
+if ($Parts | Where-Object { [long]$_ -gt 65535 }) { throw 'Windows version components must not exceed 65535.' }
+if ($Parts | Where-Object { $_ -match '^0\d' }) { throw 'Version components must not have leading zeros.' }
+if ($Version.Contains('-')) {
+    $Labels = ($Version -split '-', 2)[1] -split '\.'
+    if (@($Labels | Where-Object { -not $_ -or $_ -match '^0\d+$' }).Count -gt 0) { throw 'Invalid SemVer prerelease identifier.' }
+}
 
 # --- Bump build number ---
 $BuildNumberFile = Join-Path $PSScriptRoot "BuildNumber"
-$BuildNumber = 0
-if (Test-Path $BuildNumberFile) {
-    $BuildNumber = [int](Get-Content $BuildNumberFile -Raw).Trim()
+if (-not $PSBoundParameters.ContainsKey('BuildNumber')) {
+    $BuildNumber = 0
+    if (Test-Path $BuildNumberFile) {
+        $BuildNumber = [int](Get-Content $BuildNumberFile -Raw).Trim()
+    }
+    $BuildNumber++
 }
-$BuildNumber++
+if ($BuildNumber -lt 1 -or $BuildNumber -gt 65535) { throw 'Build number must be between 1 and 65535.' }
+$FourPartVersion = "$CleanVersion.$BuildNumber"
+Write-Host "Version name  : $Version"
+Write-Host "Windows ver   : $FourPartVersion"
 Set-Content $BuildNumberFile $BuildNumber
 Write-Host "Build number  : $BuildNumber"
 
@@ -98,5 +112,23 @@ foreach ($ManifestPath in $ManifestPaths) {
         Set-Content $ManifestPath $content -Encoding utf8BOM -NoNewline
     }
 }
+
+# Keep the owned update metadata in the same build-number series. Never advertise
+# a previous build's installer as a new version; release assets are attached separately.
+$ProductInfoPath = Join-Path $RepoRoot 'update/productinfo.json'
+$ProductInfo = Get-Content -LiteralPath $ProductInfoPath -Raw | ConvertFrom-Json
+$Product = $ProductInfo.'TechnicullSolutions.EvergreenEndpointPackageManager'
+$ChannelName = if ($Version.Contains('-')) { 'Beta' } else { 'Current' }
+if ($null -eq $Product.$ChannelName) {
+    $Product.$ChannelName = [pscustomobject]@{ Version = ''; BuildVersion = ''; BuildNumber = 0; Files = @() }
+}
+$Channel = $Product.$ChannelName
+if ($Channel.Version -ne $Version -or $Channel.BuildNumber -ne $BuildNumber) {
+    $Channel.Files = @()
+}
+$Channel.Version = $Version
+$Channel.BuildVersion = [string]$BuildNumber
+$Channel.BuildNumber = $BuildNumber
+$ProductInfo | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $ProductInfoPath
 
 Write-Host "Version stamped successfully."

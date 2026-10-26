@@ -214,6 +214,13 @@ public partial class SoftwareCatalogViewModel : ViewModelBase
             SelectedCatalog = Catalogs.FirstOrDefault(c => string.Equals(c.Id, selectedId, StringComparison.OrdinalIgnoreCase))
                 ?? Catalogs.FirstOrDefault();
         }
+        catch (IOException ex) when (ex is FileNotFoundException or DirectoryNotFoundException)
+        {
+            SelectedCatalog = null;
+            Catalogs.Clear();
+            Packages.Clear();
+            ErrorMessage = CoreTools.Translate("Your organization has not published a software library yet. Use Search apps to browse configured sources, or ask your administrator to deploy the library.");
+        }
         catch (Exception ex)
         {
             Logger.Error("Could not load the software catalog.");

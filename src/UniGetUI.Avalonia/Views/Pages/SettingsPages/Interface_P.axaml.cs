@@ -38,19 +38,12 @@ public sealed partial class Interface_P : UserControl, ISettingsPage
         ThemeSelector.ShowAddedItems();
         ThemeSelector.ValueChanged += (_, _) => App.ApplyTheme(CoreSettings.GetValue(CoreSettings.K.PreferredTheme));
 
-        StartupPageSelector.AddItem(CoreTools.Translate("Default"), "default");
-        StartupPageSelector.AddItem(CoreTools.Translate("Discover Packages"), "discover");
-        StartupPageSelector.AddItem(CoreTools.Translate("Software Updates"), "updates");
-        StartupPageSelector.AddItem(CoreTools.Translate("Installed Packages"), "installed");
-        StartupPageSelector.AddItem(CoreTools.Translate("Package Bundles"), "bundles");
-        if (CoreSettings.Get(CoreSettings.K.EnableSoftwareCatalog))
-        {
-            StartupPageSelector.AddItem(CoreTools.Translate("Software Catalog"), "catalog");
-            StartupPageSelector.AddItem(CoreTools.Translate("Catalog Editor"), "catalog-editor");
-        }
-        StartupPageSelector.AddItem(CoreTools.Translate("Settings"), "settings");
+        StartupPageSelector.AddItem(CoreTools.Translate("Apps"), "default");
+        StartupPageSelector.AddItem(CoreTools.Translate("Search apps"), "discover");
+        StartupPageSelector.AddItem(CoreTools.Translate("Updates"), "updates");
+        StartupPageSelector.AddItem(CoreTools.Translate("Installed"), "installed");
         StartupPageSelector.SettingName = CoreSettings.K.StartupPage;
-        StartupPageSelector.Text = CoreTools.Translate("UniGetUI startup page:");
+        StartupPageSelector.Text = CoreTools.Translate("Evergreen Endpoint | APPS startup page:");
         StartupPageSelector.ShowAddedItems();
 
         NavMenuModeSelector.AddItem(CoreTools.Translate("Automatic"), "auto");

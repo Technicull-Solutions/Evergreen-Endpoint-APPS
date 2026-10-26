@@ -3,7 +3,6 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Consolonia;
 using Consolonia.Controls.DataGrid;
-using Consolonia.ManagedWindows;
 using Consolonia.Themes;
 using UniGetUI.Tui.Infrastructure;
 using UniGetUI.Tui.Theme;
@@ -32,7 +31,6 @@ internal sealed class App : Application
         // construction. ModernTheme is the truecolor base; TurboVision is the 16-colour fallback.
         Styles.Add(rgb ? new ModernTheme() : new TurboVisionTheme());
         Styles.Add(new AutoDataGridStyles());
-        Styles.Add(new AutoManagedWindowStyles());
 
         // Colours come from the TUI theme (--theme for this session, else the saved one), which overrides
         // Consolonia's theme resources and picks the matching Light/Dark variant.

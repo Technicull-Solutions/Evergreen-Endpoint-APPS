@@ -1,12 +1,8 @@
 blank_issues_enabled: false
-
 contact_links:
-  - name: 📦 ISSUES INSTALLING/UPDATING A PACKAGE
-    url: https://github.com/Devolutions/UniGetUI
-    about: PLEASE READ THIS BEFORE CREATING AN ISSUE RELATED TO A SPECIFIC PACKAGE
-  - name: 🔒 Security issue or vulnerability
-    url: https://devolutions.net/security/
-    about: Found a security issue? Please report it via the Devolutions security page
-  - name: 📧 Contact us directly, in private
-    url: https://devolutions.net/contact/
-    about: Please use only for private inquiries that should not be posted publicly
+  - name: Package installation or update help
+    url: https://github.com/Technicull-Solutions/PackageManager/blob/main/README.md
+    about: Check the Evergreen product scope and documentation before reporting a package issue.
+  - name: Security reporting
+    url: https://github.com/Technicull-Solutions/PackageManager/blob/main/SECURITY.md
+    about: Read the reporting policy before sharing vulnerability details.

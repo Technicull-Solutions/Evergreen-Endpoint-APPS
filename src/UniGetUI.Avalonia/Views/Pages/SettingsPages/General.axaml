@@ -22,7 +22,7 @@
             <settings:ComboboxCard x:Name="LanguageSelector"
                                    CornerRadius="8"/>
 
-            <settings:TranslatedTextBlock Text="UniGetUI updater"
+            <settings:TranslatedTextBlock Text="Evergreen Endpoint | APPS updater"
                                           FontSize="14"
                                           FontWeight="SemiBold"
                                           Margin="44,32,4,8"
@@ -37,13 +37,13 @@
 
             <settings:CheckboxCard x:Name="EnableUniGetUIBetaCard"
                                    SettingName="EnableUniGetUIBeta"
-                                   Text="{t:Translate Install prerelease versions of UniGetUI}"
+                                   Text="{t:Translate Install prerelease versions of Evergreen Endpoint | APPS}"
                                    CornerRadius="0"
                                    BorderThickness="1,0,1,1"/>
 
             <settings:CheckboxCard x:Name="ReleaseNotesOnUpdateCard"
                                    SettingName="DisableReleaseNotesOnUpdate"
-                                   Text="{t:Translate Show the release notes after UniGetUI is updated}"
+                                   Text="{t:Translate Show the release notes after Evergreen Endpoint | APPS is updated}"
                                    CornerRadius="0,0,8,8"
                                    BorderThickness="1,0,1,1"/>
 
@@ -70,10 +70,10 @@
                                    SettingName="RedactUsernameInLog"
                                    CornerRadius="8"
                                    Text="{t:Translate Hide my username from the logs}"
-                                   WarningText="{t:Translate Text='Replaces your username with **** in the logs. Restart UniGetUI to also hide it from already-recorded entries.'}"
+                                   WarningText="{t:Translate Text='Replaces your username with **** in the logs. Restart Evergreen Endpoint | APPS to also hide it from already-recorded entries.'}"
                                    StateChangedCommand="{Binding ToggleRedactUsernameCommand}"/>
 
-            <settings:TranslatedTextBlock Text="Manage UniGetUI settings"
+            <settings:TranslatedTextBlock Text="Manage Evergreen Endpoint | APPS settings"
                                           FontSize="14"
                                           FontWeight="SemiBold"
                                           Margin="44,32,4,8"
@@ -96,7 +96,7 @@
 
             <settings:ButtonCard x:Name="ResetSettingsCard"
                                  CornerRadius="0,0,8,8"
-                                 Text="{t:Translate Reset UniGetUI}"
+                                 Text="{t:Translate Reset Evergreen Endpoint | APPS}"
                                  ButtonText="{t:Translate Reset UniGetUI}"
                                  Command="{Binding ResetSettingsCommand}"
                                  CommandParameter="{Binding $self}"/>

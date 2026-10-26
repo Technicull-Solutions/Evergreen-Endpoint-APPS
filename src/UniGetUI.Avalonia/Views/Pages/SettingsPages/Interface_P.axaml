@@ -25,7 +25,7 @@
             <settings:CheckboxCard x:Name="UseSystemUIFontCard"
                                    SettingName="UseSystemUIFont"
                                    Text="{t:Translate Use the font configured in Windows instead of the default interface font}"
-                                   WarningText="{t:Translate Restart UniGetUI to apply this change}"
+                                   WarningText="{t:Translate Restart Evergreen Endpoint | APPS to apply this change}"
                                    StateChangedCommand="{Binding ShowRestartRequiredCommand}"
                                    CornerRadius="0"
                                    BorderThickness="1,0,1,1"
@@ -51,7 +51,7 @@
             <settings:CheckboxCard x:Name="InterfaceRenderingCard"
                                    SettingName="DisableAutoSoftwareRenderingOnGpuLessHosts"
                                    Text="{t:Translate Automatically switch to software rendering when Windows has no hardware GPU}"
-                                   WarningText="{t:Translate Restart UniGetUI to apply this change}"
+                                   WarningText="{t:Translate Restart Evergreen Endpoint | APPS to apply this change}"
                                    StateChangedCommand="{Binding ShowRestartRequiredCommand}"
                                    CornerRadius="8"
                                    IsVisible="{Binding IsWindows}"/>
@@ -59,7 +59,7 @@
             <Border Height="16"/>
 
              <StackPanel x:Name="SystemTraySection" Orientation="Vertical">
-                <settings:TranslatedTextBlock Text="UniGetUI on the background and system tray"
+                <settings:TranslatedTextBlock Text="Evergreen Endpoint | APPS on the background and system tray"
                                               FontSize="14"
                                               FontWeight="SemiBold"
                                               Margin="44,32,4,8"
@@ -67,7 +67,7 @@
 
                 <settings:CheckboxCard x:Name="DisableSystemTrayCard"
                                        SettingName="DisableSystemTray"
-                                       Text="{t:Translate Close UniGetUI to the system tray}"
+                                       Text="{t:Translate Close Evergreen Endpoint | APPS to the system tray}"
                                        StateChangedCommand="{Binding RefreshSystemTrayCommand}"
                                        CornerRadius="8,8,0,0"/>
 
@@ -75,7 +75,7 @@
                                      CornerRadius="0,0,8,8"
                                      BorderThickness="1,0,1,1"
                                      IsVisible="{Binding IsWindows}"
-                                     Text="{t:Translate Manage UniGetUI autostart behaviour}"
+                                     Text="{t:Translate Manage Evergreen Endpoint | APPS autostart behaviour}"
                                      ButtonText="{t:Translate Open}"
                                      Command="{Binding EditAutostartSettingsCommand}"/>
             </StackPanel>
@@ -95,7 +95,7 @@
             <settings:CheckboxCard x:Name="PackageIllustrationsCard"
                                    SettingName="DisablePackageIllustrations"
                                    Text="{t:Translate Show illustrations on package lists}"
-                                   WarningText="{t:Translate Restart UniGetUI to apply this change}"
+                                   WarningText="{t:Translate Restart Evergreen Endpoint | APPS to apply this change}"
                                    StateChangedCommand="{Binding ShowRestartRequiredCommand}"
                                    CornerRadius="0"
                                    BorderThickness="1,0,1,1"/>
@@ -103,7 +103,7 @@
             <settings:CheckboxCard x:Name="InstallerHostColumnCard"
                                    SettingName="ShowInstallerHostColumn"
                                    Text="{t:Translate Show the installer host on package lists}"
-                                   WarningText="{t:Translate Restart UniGetUI to apply this change}"
+                                   WarningText="{t:Translate Restart Evergreen Endpoint | APPS to apply this change}"
                                    StateChangedCommand="{Binding ShowRestartRequiredCommand}"
                                    CornerRadius="0"
                                    BorderThickness="1,0,1,1"/>
@@ -111,7 +111,7 @@
             <settings:CheckboxCard x:Name="DownloadSizeColumnCard"
                                    SettingName="ShowDownloadSizeColumn"
                                    Text="{t:Translate Show the download size on package lists}"
-                                   WarningText="{t:Translate Restart UniGetUI to apply this change}"
+                                   WarningText="{t:Translate Restart Evergreen Endpoint | APPS to apply this change}"
                                    StateChangedCommand="{Binding ShowRestartRequiredCommand}"
                                    CornerRadius="0"
                                    BorderThickness="1,0,1,1"/>

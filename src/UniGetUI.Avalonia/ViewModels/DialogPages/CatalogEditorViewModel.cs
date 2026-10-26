@@ -116,7 +116,7 @@ public partial class CatalogEditorViewModel : ViewModelBase
         foreach (var package in packages)
         {
             if (catalog.Packages.Any(p => p.Matches(package))) continue;
-            catalog.Packages.Add(CatalogEntry.FromPackage(package));
+            catalog.Packages.Add(CatalogPackageAdapter.FromPackage(package));
             added++;
         }
         Message = CoreTools.Translate("{0} packages added to catalog {1}. Save the catalog to keep your changes.", added, catalog.Name);
@@ -348,7 +348,7 @@ public partial class CatalogEditorViewModel : ViewModelBase
             foreach (var package in packages)
             {
                 if (SearchResults.Any(p => p.Matches(package))) continue;
-                SearchResults.Add(CatalogEntry.FromPackage(package));
+                SearchResults.Add(CatalogPackageAdapter.FromPackage(package));
             }
             Message = CoreTools.Translate("{0} packages found", SearchResults.Count);
         }

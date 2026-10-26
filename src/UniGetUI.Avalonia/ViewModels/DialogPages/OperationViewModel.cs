@@ -46,6 +46,8 @@ public sealed partial class OperationViewModel : ViewModelBase
     /// <summary>Flyout for the "…" button; rebuilt each time the operation status changes.</summary>
     public MenuFlyout OpMenu { get; } = new();
     private OperationStatus? _menuState;
+    private bool _interactiveRecoveryOffered;
+    private static bool _interactiveRecoveryDialogOpen;
 
     // ── Bindable properties ───────────────────────────────────────────────────
     [ObservableProperty] private string _title;
@@ -304,7 +306,7 @@ public sealed partial class OperationViewModel : ViewModelBase
                     OpMenu.Items.Add(Item("Retry as administrator", "uac.svg", true,
                         () => Operation.Retry(AbstractOperation.RetryMode.Retry_AsAdmin)));
 
-                if (!pkgOp.Options.InteractiveInstallation && caps.CanRunInteractively)
+                if (PackageOperation.CanRetryInteractively(pkgOp))
                     OpMenu.Items.Add(Item("Retry interactively", "interactive.svg", true,
                         () => Operation.Retry(AbstractOperation.RetryMode.Retry_Interactive)));
 
@@ -361,6 +363,34 @@ public sealed partial class OperationViewModel : ViewModelBase
             is IClassicDesktopStyleApplicationLifetime { MainWindow: Window mw } ? mw : null;
 
     // ── Button / details actions ──────────────────────────────────────────────
+    public async Task OfferInteractiveRecoveryAsync()
+    {
+        // Background updates stay unattended. Other failed cards retain their details
+        // action while one recovery dialog is open, avoiding a stack of batch prompts.
+        if (_interactiveRecoveryOffered || _interactiveRecoveryDialogOpen
+            || Operation.IsBackgroundOperation
+            || Operation.Status is not OperationStatus.Failed
+            || Operation is not PackageOperation { SuggestInteractiveRetry: true } packageOp
+            || !PackageOperation.CanRetryInteractively(packageOp)
+            || GetMainWindow() is not { IsVisible: true } mainWindow)
+            return;
+
+        _interactiveRecoveryOffered = true;
+        _interactiveRecoveryDialogOpen = true;
+        try
+        {
+            await new OperationFailedDialog(Operation).ShowDialog(mainWindow);
+        }
+        catch (Exception ex)
+        {
+            UniGetUI.Core.Logging.Logger.Error(ex);
+        }
+        finally
+        {
+            _interactiveRecoveryDialogOpen = false;
+        }
+    }
+
     private void ButtonClick()
     {
         if (Operation.Status is OperationStatus.Running or OperationStatus.InQueue)

@@ -402,7 +402,7 @@ public partial class BackupViewModel : ViewModelBase, IDisposable
     [RelayCommand]
     private static void MoreDetails()
     {
-        CoreTools.Launch("https://devolutions.net/unigetui");
+        CoreTools.Launch("https://github.com/Technicull-Solutions/PackageManager");
     }
 
     public void Dispose()

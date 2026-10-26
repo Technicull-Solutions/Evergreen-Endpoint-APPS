@@ -38,6 +38,42 @@ public sealed class ManagedPackageManagerConfigurationTests : IDisposable
         Assert.True(ManagedPackageManagerConfiguration.IsManagerEnabled("PowerShell"));
         Assert.True(ManagedPackageManagerConfiguration.IsManagerEnabled("PowerShell7"));
         Assert.Null(ManagedPackageManagerConfiguration.IsManagerEnabled("TestManager"));
+        Assert.Equal(3, ManagedPackageManagerConfiguration.MaximumConcurrentUninstalls);
+    }
+
+    [Theory]
+    [InlineData(1, 1)]
+    [InlineData(7, 7)]
+    [InlineData(100, 100)]
+    [InlineData(0, 1)]
+    [InlineData(-1, 1)]
+    [InlineData(101, 1)]
+    public void UninstallLimitUsesJsonWithConservativeInvalidValueHandling(int value, int expected)
+    {
+        File.WriteAllText(_configurationPath, "{\"schemaVersion\":1,\"maximumConcurrentUninstalls\":" + value + ",\"managers\":{}}");
+        ManagedPackageManagerConfiguration.Reload();
+        Assert.Equal(expected, ManagedPackageManagerConfiguration.MaximumConcurrentUninstalls);
+    }
+
+    [Theory]
+    [InlineData(0, false)]
+    [InlineData(1, true)]
+    [InlineData(3, true)]
+    [InlineData(4, false)]
+    [InlineData(160, false)]
+    public void UninstallSelectionsMustFitTheEffectiveLimit(int count, bool allowed) =>
+        Assert.Equal(allowed, ManagedPackageManagerConfiguration.IsUninstallSelectionAllowed(count));
+
+    [Theory]
+    [InlineData(2, 2)]
+    [InlineData(8, 8)]
+    [InlineData(0, 1)]
+    public void PolicyUninstallLimitOverridesJson(int policy, int expected)
+    {
+        File.WriteAllText(_configurationPath, """{"schemaVersion":1,"maximumConcurrentUninstalls":5,"managers":{}}""");
+        ManagedPackageManagerConfiguration.TEST_PolicyOverride = new() { MaximumConcurrentUninstalls = policy };
+        ManagedPackageManagerConfiguration.Reload();
+        Assert.Equal(expected, ManagedPackageManagerConfiguration.MaximumConcurrentUninstalls);
     }
 
     [Theory]

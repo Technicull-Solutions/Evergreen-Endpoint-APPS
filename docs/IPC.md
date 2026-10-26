@@ -1,13 +1,13 @@
-# UniGetUI background IPC API
+# Evergreen Endpoint Package Manager background IPC API
 
-This file documents the **local automation API** used by the UniGetUI CLI.
+This file documents the **local automation API** used by the Evergreen Endpoint Package Manager CLI.
 
 - For the public command-line interface built on top of this API, see [CLI.md](CLI.md).
 - This API is designed for **local automation**, not for remote exposure.
 
 ## Overview
 
-UniGetUI exposes a local HTTP API over one of two transports:
+Evergreen Endpoint Package Manager exposes a local HTTP API over one of two transports:
 
 - **Named-pipe transport** (default)
   - Windows: Windows named pipe
@@ -32,11 +32,11 @@ On non-Windows, a relative named-pipe name such as `UniGetUI.IPC` resolves to:
 /tmp/UniGetUI.IPC
 ```
 
-An absolute path may also be supplied on non-Windows. On Windows, absolute pipe paths are rejected and UniGetUI falls back to the default pipe name.
+An absolute path may also be supplied on non-Windows. On Windows, absolute pipe paths are rejected and Evergreen Endpoint Package Manager falls back to the default pipe name.
 
 ## Server-side configuration
 
-These options are read when UniGetUI starts its IPC API server.
+These options are read when Evergreen Endpoint Package Manager starts its IPC API server.
 
 | Argument | Environment variable | Meaning |
 | --- | --- | --- |
@@ -58,7 +58,7 @@ These options are read by the CLI and `IpcClient`.
 
 When the client does **not** receive an explicit transport override:
 
-1. UniGetUI loads persisted endpoint registrations from the user configuration directory.
+1. Evergreen Endpoint Package Manager loads persisted endpoint registrations from the user configuration directory.
 2. Registrations are ordered with this preference:
    1. headless sessions first
    2. newest persisted session first
@@ -78,7 +78,7 @@ When the client **does** receive an explicit override:
 
 Authentication details:
 
-- UniGetUI generates a per-session token at API startup.
+- Evergreen Endpoint Package Manager generates a per-session token at API startup.
 - That token is persisted with the endpoint registration metadata.
 - `IpcClient` automatically appends `token=<value>` to authenticated requests.
 
@@ -86,7 +86,7 @@ Authentication details:
 
 - The default design is **local-only automation**.
 - TCP mode binds to `localhost`, not all interfaces.
-- On non-Windows named-pipe transport, UniGetUI applies Unix socket mode:
+- On non-Windows named-pipe transport, Evergreen Endpoint Package Manager applies Unix socket mode:
 
 ```text
 user-read + user-write
@@ -94,7 +94,7 @@ user-read + user-write
 
 That is effectively `0600`-style same-user access on the socket file.
 
-- On Windows named-pipe transport, UniGetUI uses Kestrel named-pipe hosting and does not expose a filesystem socket path.
+- On Windows named-pipe transport, Evergreen Endpoint Package Manager uses Kestrel named-pipe hosting and does not expose a filesystem socket path.
 
 ## Error model
 
@@ -157,7 +157,7 @@ All request bodies use **camelCase** JSON.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `launchBrowser` | boolean | Whether UniGetUI should try to open the verification URL automatically |
+| `launchBrowser` | boolean | Whether Evergreen Endpoint Package Manager should try to open the verification URL automatically |
 
 #### Cloud backup request body
 
@@ -334,7 +334,7 @@ relocations they recorded are left alone, and are managed by the folder endpoint
 ### Start Menu folders
 
 A folder rule names the subfolder of the current user's Start Menu `Programs` directory where a
-package should keep its shortcuts. UniGetUI re-applies it after every install and upgrade, and
+package should keep its shortcuts. Evergreen Endpoint Package Manager re-applies it after every install and upgrade, and
 deletes the relocated shortcuts when the package is uninstalled. `package` is the package
 identity, `manager\PackageId` (for example `winget\Python.Python.3.13`); the manager segment is
 lower-cased. `folder` must be a subfolder of that directory, so an absolute path, a `..` segment
@@ -411,8 +411,8 @@ packages this machine is waiting on a restart for. See
 ## Pending machine restarts
 
 Some installers finish successfully but only take effect after the machine reboots (WinGet
-`0x8A150109`/`0x8A15010B`, Chocolatey `3010`/`1641`). UniGetUI records those packages and keeps the
-record until the machine has actually rebooted — closing and reopening UniGetUI does not clear it.
+`0x8A150109`/`0x8A15010B`, Chocolatey `3010`/`1641`). Evergreen Endpoint Package Manager records those packages and keeps the
+record until the machine has actually rebooted — closing and reopening Evergreen Endpoint Package Manager does not clear it.
 
 These fields expose it, so a fleet tool can tell which machines are waiting on a restart and why:
 
@@ -437,7 +437,7 @@ These failures are intentional and surfaced as HTTP `400` with a descriptive mes
 
 ## Practical testing tip
 
-If you want to inspect the IPC API manually with generic tools such as `curl`, the easiest route is to start UniGetUI in **TCP mode**:
+If you want to inspect the IPC API manually with generic tools such as `curl`, the easiest route is to start Evergreen Endpoint Package Manager in **TCP mode**:
 
 ```powershell
 UniGetUI.exe --headless --ipc-api-transport tcp --ipc-api-port 7058

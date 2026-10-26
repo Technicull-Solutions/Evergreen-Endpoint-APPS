@@ -46,7 +46,7 @@ public class UserAvatarViewModel : ViewModelBase, IDisposable
         _lifetimeToken = _lifetimeCancellation.Token;
         LoginCommand = new AsyncRelayCommand(LoginAsync);
         LogoutCommand = new MvvmRelayCommand(Logout);
-        MoreDetailsCommand = new MvvmRelayCommand(() => CoreTools.Launch("https://devolutions.net/unigetui"));
+        MoreDetailsCommand = new MvvmRelayCommand(() => CoreTools.Launch("https://github.com/Technicull-Solutions/PackageManager"));
         GitHubAuthService.AuthStatusChanged += OnAuthStatusChanged;
         _ = RefreshAsync();
     }

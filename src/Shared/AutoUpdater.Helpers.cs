@@ -50,6 +50,13 @@ internal static class AutoUpdaterHelpers
         int availableBuildNumber
     )
     {
+        if (SemanticVersion.TryParse(currentVersion, out SemanticVersion currentSemantic)
+            && SemanticVersion.TryParse(availableVersion, out SemanticVersion availableSemantic))
+        {
+            int comparison = availableSemantic.CompareTo(currentSemantic);
+            return comparison > 0 || comparison == 0 && availableBuildNumber > currentBuildNumber;
+        }
+
         Version current = ParseVersionOrFallback(currentVersion, new Version(0, 0, 0));
         Version available = ParseVersionOrFallback(availableVersion, new Version(0, 0, 0));
         int releaseComparison = available.CompareTo(current);

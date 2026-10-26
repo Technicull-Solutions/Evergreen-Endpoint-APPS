@@ -42,7 +42,7 @@ public sealed partial class General : UserControl, ISettingsPage
                 entry.Key == "default" ? systemLanguageLabel : entry.Value,
                 entry.Key, false);
         LanguageSelector.SettingName = CoreSettings.K.PreferredLanguage;
-        LanguageSelector.Text = CoreTools.Translate("UniGetUI display language:");
+        LanguageSelector.Text = CoreTools.Translate("Evergreen Endpoint | APPS display language:");
         LanguageSelector.ShowAddedItems();
         LanguageSelector.ValueChanged += (s, e) => RestartRequired?.Invoke(s, e);
         LanguageSelector.Description = BuildTranslatorDescription();
@@ -65,7 +65,7 @@ public sealed partial class General : UserControl, ISettingsPage
         };
         link.Bind(TextBlock.ForegroundProperty, link.GetResourceObservable("AccentTextFillColorPrimaryBrush"));
         link.Activated += (_, _) =>
-            CoreTools.Launch("https://github.com/Devolutions/UniGetUI/blob/main/TRANSLATION.md");
+            CoreTools.Launch("https://github.com/Technicull-Solutions/PackageManager/blob/main/TRANSLATION.md");
 
         var panel = new StackPanel { Orientation = Orientation.Horizontal };
         panel.Children.Add(label);

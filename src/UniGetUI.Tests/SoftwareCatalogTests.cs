@@ -226,9 +226,9 @@ public class SoftwareCatalogTests
     }
 
     [Fact]
-    public void CatalogFileLivesInTheGlobalDirectory()
+    public void CatalogFileLivesInTheOwnedMachineDirectory()
     {
-        Assert.Equal(Path.Combine(CoreData.UniGetUIGlobalDirectory, "SoftwareCatalog.json"), SoftwareCatalog.FilePath);
+        Assert.Equal(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Technicull Solutions", "Evergreen Endpoint", "Package Manager", "SoftwareCatalog.json"), SoftwareCatalog.FilePath);
     }
 
     private static string CatalogJson(string packages, string id = "tools", string name = "Tools") =>
@@ -349,9 +349,9 @@ public class SoftwareCatalogTests
     }
 
     [Fact]
-    public void ExperimentalCatalogOptionIsSearchable()
+    public void LibraryDoesNotRequireAnExperimentalOption()
     {
-        Assert.Contains(
+        Assert.DoesNotContain(
             global::UniGetUI.Avalonia.Infrastructure.SettingsSearchIndex.Search("software catalog"),
             result => result.Anchor == "SoftwareCatalogCard");
     }
@@ -589,12 +589,12 @@ public class SoftwareCatalogTests
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
-    public void EmployeePageCycleExcludesAdministrativeAndCatalogPages(bool enabled)
+    public void EmployeePageCycleIncludesAppsAndExcludesAdministration(bool enabled)
     {
         Assert.Equal(PageType.Updates, MainWindowViewModel.GetNextPage(PageType.Discover, enabled));
         Assert.Equal(PageType.Installed, MainWindowViewModel.GetNextPage(PageType.Updates, enabled));
         Assert.Equal(PageType.OperationHistory, MainWindowViewModel.GetNextPage(PageType.Installed, enabled));
-        Assert.Equal(PageType.Discover, MainWindowViewModel.GetNextPage(PageType.OperationHistory, enabled));
+        Assert.Equal(PageType.Catalog, MainWindowViewModel.GetNextPage(PageType.OperationHistory, enabled));
         Assert.Equal(PageType.Discover, MainWindowViewModel.GetNextPage(PageType.Catalog, enabled));
         Assert.Equal(PageType.Installed, MainWindowViewModel.GetPreviousPage(PageType.Settings, enabled));
     }

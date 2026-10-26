@@ -32,7 +32,8 @@ public enum TEL_OP_RESULT
 
 public static class TelemetryHandler
 {
-    private const string OpenSearchUrl = "https://telemetry2.devolutions.net:9200";
+    // No Evergreen telemetry service is configured. Tests supply an in-memory transport.
+    private static readonly string? OpenSearchUrl = null;
     private static string _openSearchUsername = "";
     private static string _openSearchPassword = "";
     private static bool _credentialsWarningLogged;
@@ -46,7 +47,8 @@ public static class TelemetryHandler
 
     private static bool CredentialsConfigured()
     {
-        if (!string.IsNullOrEmpty(_openSearchUsername)
+        if ((!string.IsNullOrEmpty(OpenSearchUrl) || TestSendAsyncOverride is not null)
+            && !string.IsNullOrEmpty(_openSearchUsername)
             && !_openSearchUsername.EndsWith("_UNSET")
             && !string.IsNullOrEmpty(_openSearchPassword)
             && !_openSearchPassword.EndsWith("_UNSET"))
@@ -54,7 +56,7 @@ public static class TelemetryHandler
 
         if (!_credentialsWarningLogged)
         {
-            Logger.Warn("[Telemetry] OpenSearch credentials are not configured — telemetry is disabled for this build.");
+            Logger.Warn("[Telemetry] Telemetry service or credentials are not configured — telemetry is disabled for this build.");
             _credentialsWarningLogged = true;
         }
 
@@ -282,7 +284,7 @@ public static class TelemetryHandler
                 Encoding.UTF8.GetBytes($"{_openSearchUsername}:{_openSearchPassword}"));
 
             using var content = new StringContent(sb.ToString(), Encoding.UTF8, "application/x-ndjson");
-            using var request = new HttpRequestMessage(HttpMethod.Post, $"{OpenSearchUrl}/{fullIndex}/_bulk")
+            using var request = new HttpRequestMessage(HttpMethod.Post, $"{OpenSearchUrl ?? "https://telemetry.invalid"}/{fullIndex}/_bulk")
             {
                 Content = content,
             };
@@ -359,7 +361,7 @@ public static class TelemetryHandler
                 Encoding.UTF8.GetBytes($"{_openSearchUsername}:{_openSearchPassword}"));
 
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
-            using var request = new HttpRequestMessage(HttpMethod.Post, $"{OpenSearchUrl}/{fullIndex}/_doc")
+            using var request = new HttpRequestMessage(HttpMethod.Post, $"{OpenSearchUrl ?? "https://telemetry.invalid"}/{fullIndex}/_doc")
             {
                 Content = content,
             };

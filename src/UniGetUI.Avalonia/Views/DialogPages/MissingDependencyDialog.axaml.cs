@@ -47,9 +47,9 @@ public partial class MissingDependencyDialog : UniGetUI.Avalonia.Views.DialogPag
             + (total > 1 ? $" ({current}/{total})" : "");
 
         DescBlock.Text = CoreTools.Translate(
-            "UniGetUI requires {0} to operate, but it was not found on your system.", dep.Name);
+            "Evergreen Endpoint | APPS requires {0} to operate, but it was not found on your system.", dep.Name);
         InfoBlock.Text = CoreTools.Translate(
-            "Click on Install to begin the installation process. If you skip the installation, UniGetUI may not work as expected.");
+            "Click on Install to begin the installation process. If you skip the installation, Evergreen Endpoint | APPS may not work as expected.");
         CommandInfoBlock.Text = OperatingSystem.IsWindows()
             ? CoreTools.Translate(
                 "Alternatively, you can also install {0} by running the following command in a Windows PowerShell prompt:",
@@ -318,9 +318,9 @@ public partial class MissingDependencyDialog : UniGetUI.Avalonia.Views.DialogPag
         else
         {
             InfoBlock.Text = CoreTools.Translate(
-                "{0} has been installed successfully. It is recommended to restart UniGetUI to finish the installation",
+                "{0} has been installed successfully. It is recommended to restart Evergreen Endpoint | APPS to finish the installation",
                 _dep.Name);
-            SetButtonLabel(InstallButton, CoreTools.Translate("Restart UniGetUI"));
+            SetButtonLabel(InstallButton, CoreTools.Translate("Restart Evergreen Endpoint | APPS"));
             SetButtonLabel(SkipButton, CoreTools.Translate("Restart later"));
         }
     }

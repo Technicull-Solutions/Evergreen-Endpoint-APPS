@@ -55,6 +55,9 @@
         <Style Selector="Border#ModalSurface">
             <Setter Property="Background" Value="{DynamicResource AppDialogBackground}"/>
         </Style>
+        <Style Selector="Border#ModalSurface.operation-failed-dialog">
+            <Setter Property="Background" Value="{DynamicResource AppWindowBackground}"/>
+        </Style>
         <Style Selector="Border#ModalSurface.about-dialog">
             <Setter Property="Background" Value="{DynamicResource AboutDialogBodyBackground}"/>
         </Style>

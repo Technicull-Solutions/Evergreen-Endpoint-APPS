@@ -107,7 +107,15 @@ public static class AvaloniaOperationRegistry
             _ = RunElevationCleanupAsync();
 
             op.MainThread().ContinueWith(
-                _ => RecordOperationHistory(op, StatusStringFor(op.Status)),
+                completedRun =>
+                {
+                    RecordOperationHistory(op, StatusStringFor(op.Status));
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        if (OperationViewModels.Contains(vm))
+                            _ = vm.OfferInteractiveRecoveryAsync();
+                    });
+                },
                 TaskScheduler.Default);
         };
     }

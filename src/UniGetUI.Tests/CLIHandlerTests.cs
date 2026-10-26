@@ -65,10 +65,10 @@ public sealed class CLIHandlerTests : IDisposable
     }
 
     [Theory]
-    [InlineData("unigetui://show")]
-    [InlineData("unigetui:show")]
-    [InlineData("UNIGETUI://Show")]
-    [InlineData("unigetui:")]
+    [InlineData("evergreen-endpoint://show")]
+    [InlineData("evergreen-endpoint:show")]
+    [InlineData("EVERGREEN-ENDPOINT://Show")]
+    [InlineData("evergreen-endpoint:")]
     public void ProtocolLaunch_DropsArgumentsInjectedAlongsideTheUri(string uri)
     {
         string[] sanitized = SharedPreUiCommandDispatcher.IgnoreArgumentsInjectedIntoProtocolLaunch(
@@ -99,7 +99,7 @@ public sealed class CLIHandlerTests : IDisposable
 
         string[] injected =
         [
-            "unigetui://show",
+            "evergreen-endpoint://show",
             SharedPreUiCommandDispatcher.ImportSettingsArgument,
             pocPath,
         ];
@@ -124,7 +124,7 @@ public sealed class CLIHandlerTests : IDisposable
         [
             ["--import-settings", "settings.json"],
             ["--daemon"],
-            ["unigetui://show"],
+            ["evergreen-endpoint://show"],
             [],
         ];
 
@@ -141,7 +141,7 @@ public sealed class CLIHandlerTests : IDisposable
     public void ProtocolLaunch_InjectedArgumentsDoNotReachProcessArgumentConsumers()
     {
         string[] sanitized = SharedPreUiCommandDispatcher.IgnoreArgumentsInjectedIntoProtocolLaunch(
-            ["unigetui://show", "--updateapps", "--import-settings", "poc.json"]
+            ["evergreen-endpoint://show", "--updateapps", "--import-settings", "poc.json"]
         );
 
         CoreData.SetSanitizedProcessArguments(sanitized);
@@ -149,7 +149,7 @@ public sealed class CLIHandlerTests : IDisposable
 
         Assert.DoesNotContain("--updateapps", published);
         Assert.DoesNotContain("--import-settings", published);
-        Assert.Contains("unigetui://show", published);
+        Assert.Contains("evergreen-endpoint://show", published);
         Assert.Equal(Environment.GetCommandLineArgs()[0], published[0]);
     }
 

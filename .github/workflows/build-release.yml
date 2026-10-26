@@ -1,4 +1,4 @@
-name: Build and Release
+name: Legacy upstream release (not for Evergreen)
 
 on:
   workflow_dispatch:
@@ -27,6 +27,8 @@ env:
 
 jobs:
   preflight:
+    # The maintained Evergreen pipeline is test-release.yml. Never publish via upstream services.
+    if: github.repository == 'Devolutions/UniGetUI'
     name: Preflight
     runs-on: ubuntu-latest
     outputs:
@@ -85,6 +87,7 @@ jobs:
           echo "::notice::DryRun: $DryRun"
 
   build:
+    if: github.repository == 'Devolutions/UniGetUI'
     name: Build & Sign (${{ matrix.platform }})
     runs-on: windows-latest
     needs: [preflight]
@@ -218,8 +221,8 @@ jobs:
           if (-not (Test-Path "unigetui_bin/UniGetUI.exe")) {
             throw "Windows app host was not produced at unigetui_bin/UniGetUI.exe"
           }
-          if (-not (Test-Path -LiteralPath "unigetui_bin/uniget.exe" -PathType Leaf)) {
-            throw "NativeAOT CLI launcher was not staged for win-$Platform at unigetui_bin/uniget.exe"
+          if (-not (Test-Path -LiteralPath "unigetui_bin/evergreen.exe" -PathType Leaf)) {
+            throw "NativeAOT CLI launcher was not staged for win-$Platform at unigetui_bin/evergreen.exe"
           }
 
           # The elevated policy-write helper is authenticated by exact path at runtime, and it must
@@ -229,16 +232,7 @@ jobs:
             throw "Elevated policy helper was not staged at unigetui_bin/Assets/Utilities/UniGetUI.PolicyElevator.exe"
           }
 
-          $MaxShippedPdbSizeBytes = 1MB
-          $PdbsToRemove = Get-ChildItem "unigetui_bin" -Filter "*.pdb" -File -Recurse | Where-Object {
-            $_.Length -gt $MaxShippedPdbSizeBytes
-          }
-
-          if ($PdbsToRemove.Count -gt 0) {
-            $RemovedPdbBytes = ($PdbsToRemove | Measure-Object -Property Length -Sum).Sum
-            $PdbsToRemove | Remove-Item -Force
-            Write-Host ("Removed {0} oversized PDBs above {1:N2} MiB ({2:N2} MiB total)." -f $PdbsToRemove.Count, ($MaxShippedPdbSizeBytes / 1MB), ($RemovedPdbBytes / 1MB))
-          }
+          ./scripts/remove-package-symbols.ps1 -Path unigetui_bin
 
       - name: Code-sign binaries
         if: ${{ fromJSON(needs.preflight.outputs.dry-run) == false }}
@@ -350,7 +344,7 @@ jobs:
 
           # Zip
           Compress-Archive -Path "unigetui_bin/*" -DestinationPath "output/UniGetUI.$Platform.zip" -CompressionLevel Optimal
-          Compress-Archive -Path "InstallerExtras/ForceUniGetUIPortable" -DestinationPath "output/UniGetUI.$Platform.zip" -Update
+          Compress-Archive -Path "InstallerExtras/EvergreenEndpoint.portable" -DestinationPath "output/UniGetUI.$Platform.zip" -Update
 
           # Installer is created in output during the previous step
 
@@ -401,6 +395,7 @@ jobs:
           Remove-Item "unigetui_bin" -Recurse -Force -ErrorAction SilentlyContinue
 
   build-avalonia:
+    if: github.repository == 'Devolutions/UniGetUI'
     name: Build (${{ matrix.name }})
     runs-on: ${{ matrix.os }}
     needs: [preflight]
@@ -761,7 +756,7 @@ jobs:
     name: Publish GitHub Release
     runs-on: ubuntu-latest
     needs: [preflight, build, build-avalonia]
-    if: ${{ fromJSON(needs.preflight.outputs.skip-publish) == false }}
+    if: ${{ github.repository == 'Devolutions/UniGetUI' && fromJSON(needs.preflight.outputs.skip-publish) == false }}
     environment: ${{ needs.preflight.outputs.package-env }}
     permissions:
       contents: write
@@ -939,7 +934,7 @@ jobs:
     name: Consolidated Size Report
     runs-on: ubuntu-latest
     needs: [preflight, build, build-avalonia]
-    if: always() && needs.build.result != 'cancelled' && needs.build-avalonia.result != 'cancelled'
+    if: always() && github.repository == 'Devolutions/UniGetUI' && needs.build.result != 'cancelled' && needs.build-avalonia.result != 'cancelled'
 
     steps:
       - name: Download artifacts

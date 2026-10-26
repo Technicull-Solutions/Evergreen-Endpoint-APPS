@@ -33,6 +33,15 @@ namespace UniGetUI.Core.Logging.Tests
         }
 
         [Fact]
+        public void EvergreenPortableMarkerUsesTheExistingPortableSettingsDirectory()
+        {
+            File.WriteAllText(Path.Combine(_testRoot, "EvergreenEndpoint.portable"), string.Empty);
+            string? resolved = AppPaths.ResolvePortableDataDirectory(_testRoot);
+            Assert.Equal(Path.Join(_testRoot, "Settings"), resolved);
+            Assert.False(File.Exists(Path.Combine(_testRoot, "ForceUniGetUIPortable")));
+        }
+
+        [Fact]
         public void ResolvePortableDataDirectoryReturnsSettingsFolderWhenMarked()
         {
             File.WriteAllText(Path.Combine(_testRoot, "ForceUniGetUIPortable"), string.Empty);

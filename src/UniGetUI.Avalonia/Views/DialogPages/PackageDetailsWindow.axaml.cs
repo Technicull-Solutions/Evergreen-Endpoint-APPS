@@ -42,7 +42,7 @@ public partial class PackageDetailsWindow : UniGetUI.Avalonia.Views.DialogPages.
     private const double ScreenshotSnapStopDistance = 0.35;
     private const double ScreenshotSnapStopVelocity = 6.0;
     private const double ScreenshotMaximumFrameTime = 1.0 / 30.0;
-    private const string ContributeUrl = "https://github.com/Devolutions/UniGetUI";
+    private const string ContributeUrl = "https://github.com/Technicull-Solutions/PackageManager";
 
     private enum LayoutMode { Unset, Normal, Wide }
     private enum GestureAxis { Undecided, Horizontal, Vertical }

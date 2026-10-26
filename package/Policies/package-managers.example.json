@@ -1,5 +1,6 @@
 {
   "schemaVersion": 1,
+  "maximumConcurrentUninstalls": 3,
   "managers": {
     "WinGet": {
       "enabled": true,

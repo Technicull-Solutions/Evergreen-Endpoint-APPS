@@ -14,7 +14,7 @@ internal sealed class TuiShellNUnitTests : TuiE2ETestBase
     public async Task ShellRendersTabsFakeBadgeAndMenuBar()
     {
         await ResetAsync(TuiPageIds.Discover);
-        await WaitForTextAsync("UniGetUI", "[FAKE DATA]", " 1 Discover ", " 2 Updates (", " 3 Installed ", " 9 History ",
+        await WaitForTextAsync("Evergreen Endpoint Package Manager", "[FAKE DATA]", " 1 Discover ", " 2 Updates (", " 3 Installed ", " 8 History ",
             "Alt+1-9  Pages", "F10  Menu", "Ctrl+Q  Quit");
 
         await Key(Avalonia.Input.Key.F10);
@@ -25,14 +25,14 @@ internal sealed class TuiShellNUnitTests : TuiE2ETestBase
         await WaitForNoTextAsync("Open existing bundle");
 
         // Focus lives in the page, so a plain digit is not a page jump any more.
-        await Key(Avalonia.Input.Key.D9, RawModifiers.Alt);
+        await Key(Avalonia.Input.Key.D8, RawModifiers.Alt);
         await WaitForTextAsync("Operation history");
         await WaitUntilAsync(() => Window.CurrentPageId == TuiPageIds.History, "the History tab");
 
         // About is a dialog over the current page, not a page with its own tab.
         await Key(Avalonia.Input.Key.H, RawModifiers.Alt);
         await RunMenuItemAsync("About");
-        await WaitForDialogAsync("About UniGetUI TUI");
+        await WaitForDialogAsync("About Evergreen Endpoint Package Manager TUI");
         await WaitForTextAsync("Terminal Diagnostics", "FAKE DATA MODE");
         NUnit.Framework.Assert.That(Window.CurrentPageId, Is.EqualTo(TuiPageIds.History));
         await Key(Avalonia.Input.Key.Escape);
@@ -154,7 +154,7 @@ internal sealed class TuiShellNUnitTests : TuiE2ETestBase
 
         await Key(Avalonia.Input.Key.H, RawModifiers.Alt);
         await RunMenuItemAsync("About");
-        await WaitForDialogAsync("About UniGetUI TUI");
+        await WaitForDialogAsync("About Evergreen Endpoint Package Manager TUI");
         await WaitForNoTextAsync("Open existing bundle");
         await Key(Avalonia.Input.Key.Escape);
         await WaitForNoDialogAsync();

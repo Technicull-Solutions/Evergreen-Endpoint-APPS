@@ -168,14 +168,14 @@ internal static partial class MacOsNotificationBridge
             {
                 title = CoreTools.Translate("Desktop shortcut created");
                 message = CoreTools.Translate(
-                    "UniGetUI has detected a new desktop shortcut that can be deleted automatically.")
+                    "Evergreen Endpoint | APPS has detected a new desktop shortcut that can be deleted automatically.")
                     + "\n" + shortcuts[0].Split('/')[^1];
             }
             else
             {
                 title = CoreTools.Translate("{0} desktop shortcuts created", shortcuts.Count);
                 message = CoreTools.Translate(
-                    "UniGetUI has detected {0} new desktop shortcuts that can be deleted automatically.",
+                    "Evergreen Endpoint | APPS has detected {0} new desktop shortcuts that can be deleted automatically.",
                     shortcuts.Count);
             }
             DeliverNotification(title, message, MainWindow.RuntimeNotificationLevel.Success);

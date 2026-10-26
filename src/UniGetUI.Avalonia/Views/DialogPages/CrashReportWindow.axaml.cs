@@ -1,14 +1,12 @@
-using System.Net.Http;
-using System.Text;
-using System.Text.Json.Nodes;
 using Avalonia.Controls;
+using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
-using UniGetUI.Core.Data;
+using UniGetUI.Core.Logging;
 using UniGetUI.Core.Tools;
 
 namespace UniGetUI.Avalonia.Views.DialogPages;
 
-internal sealed partial class CrashReportWindow : UniGetUI.Avalonia.Views.DialogPages.ImmersiveDialog
+internal sealed partial class CrashReportWindow : ImmersiveDialog
 {
     private readonly string _crashReport;
 
@@ -17,49 +15,27 @@ internal sealed partial class CrashReportWindow : UniGetUI.Avalonia.Views.Dialog
         _crashReport = crashReport;
         InitializeComponent();
         CrashReportText.Text = crashReport;
-        DontSendButton.Content = CoreTools.Translate("Don't Send");
-        SendButton.Content = CoreTools.Translate("Send Report");
+        DontSendButton.Content = CoreTools.Translate("Close");
+        SendButton.Content = CoreTools.Translate("Copy report and open issues");
     }
 
     private async void SendReport_Click(object? sender, RoutedEventArgs e)
     {
-        SendButton.IsEnabled = false;
-        DontSendButton.IsEnabled = false;
-        SendButton.Content = CoreTools.Translate("Sending…");
-
-        string email = EmailBox.Text?.Trim() ?? string.Empty;
-        string details = DetailsBox.Text?.Trim() ?? string.Empty;
-
-        await Task.Run(() => SendReport(_crashReport, email, details));
-
-        Close();
+        try
+        {
+            string details = DetailsBox.Text?.Trim() ?? string.Empty;
+            string report = string.IsNullOrEmpty(details) ? _crashReport : $"{details}\n\n{_crashReport}";
+            if (TopLevel.GetTopLevel(this)?.Clipboard is { } clipboard)
+                await clipboard.SetTextAsync(report);
+            // Open a blank issue form: logs and identifying data are never put in a URL or uploaded.
+            CoreTools.Launch("https://github.com/Technicull-Solutions/PackageManager/issues/new/choose");
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn(ex);
+            SendButton.Content = CoreTools.Translate("Could not copy report");
+        }
     }
 
     private void DontSend_Click(object? sender, RoutedEventArgs e) => Close();
-
-    private static void SendReport(string errorBody, string email, string message)
-    {
-        try
-        {
-            var node = new JsonObject
-            {
-                ["email"] = email,
-                ["message"] = message,
-                ["errorMessage"] = errorBody,
-                ["productInfo"] = $"UniGetUI {CoreData.VersionName} (Build {CoreData.BuildNumber})"
-            };
-
-            using var client = new HttpClient(CoreTools.GenericHttpClientParameters);
-            client.Timeout = TimeSpan.FromSeconds(10);
-            using var content = new StringContent(
-                node.ToJsonString(), Encoding.UTF8, "application/json");
-            client.PostAsync(
-                "https://cloud.devolutions.net/api/senderrormessage", content)
-                .GetAwaiter().GetResult();
-        }
-        catch
-        {
-            // Network failures must not prevent the window from closing.
-        }
-    }
 }

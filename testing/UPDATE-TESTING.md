@@ -1,176 +1,40 @@
-# UniGetUI Auto-Update Testing Guide (ProductInfo-only path)
+# Evergreen application-update testing
 
-This guide validates the ProductInfo-only auto-update flow that reads from `productinfo.json`.
+Evergreen uses its owned ProductInfo channel. It does not fall back to an upstream update service.
 
-UniGetUI no longer falls back to the legacy updater logic. If the ProductInfo lookup fails, the update check fails.
+## Sources of truth
 
-## Files used
+- Metadata: [update/productinfo.json](../update/productinfo.json)
+- Product key: `TechnicullSolutions.EvergreenEndpointPackageManager`
+- Default URL: `https://raw.githubusercontent.com/Technicull-Solutions/PackageManager/main/update/productinfo.json`
+- Windows updater policy: `HKLM\Software\Policies\Technicull Solutions\Evergreen Endpoint\Package Manager\Updater`
+- Implementation: [AvaloniaAutoUpdater.cs](../src/UniGetUI.Avalonia/Infrastructure/AvaloniaAutoUpdater.cs)
+- Release validation: [Windows Test Release](../.github/workflows/test-release.yml)
 
-- `testing/productinfo.unigetui.test.json`
-- Test artifacts expected by that file:
-	- `UniGetUI.Installer.x64.exe`
-	- `UniGetUI.Installer.arm64.exe`
-	- `UniGetUI.x64.zip`
-	- `UniGetUI.arm64.zip`
+Do not configure or remove another product's registry keys, files, or update metadata when testing Evergreen.
 
-## What is being tested
+## Unsigned device-testing releases
 
-- Default updater source is ProductInfo-based.
-- Product key lookup for `Devolutions.UniGetUI`.
-- Architecture-aware installer selection (`x64`/`arm64`, `exe` preferred).
-- Hash validation (enabled by default).
-- Debug-only override behavior via registry keys under `HKLM\Software\Devolutions\UniGetUI`.
+The current test installers are unsigned. Download and install them manually from [Evergreen releases](https://github.com/Technicull-Solutions/PackageManager/releases). Do not advertise an unsigned installer as a trusted automatic update or disable validation to make it install automatically.
 
-## Release vs Debug behavior
+The owned metadata may contain no installer files while automatic-update signing is unavailable. This is not a production automatic-update channel. Updating its version/build values does not configure signing or deploy trusted update assets.
 
-- Release builds honor only `UpdaterProductInfoUrl` from `HKLM\Software\Devolutions\UniGetUI`.
-- Release builds ignore `UpdaterProductKey` and all validation-bypass flags.
-- Debug builds can read updater overrides from `HKLM\Software\Devolutions\UniGetUI` for local testing.
-- Dangerous validation bypasses are for Debug/dev testing only:
-	- `UpdaterAllowUnsafeUrls`
-	- `UpdaterSkipHashValidation`
-	- `UpdaterSkipSignerThumbprintCheck`
-	- `UpdaterDisableTlsValidation`
+The release workflow exercises fresh installation, same-version reinstallation, packaged NativeAOT startup, protocol activation, portable installation, and uninstall. When a previous published installer exists, it also installs that release, upgrades it, and checks the installed executable against the tested current executable. These tests run only on disposable GitHub-hosted Windows runners.
 
-## 1) Host the test files locally
+## Validate version and build information
 
-From repository root:
+Use `scripts/set-version.ps1` to stamp the intended version and build. It updates the application, installer inputs, and owned ProductInfo values together. Packaging rejects mismatched metadata.
+
+The sidebar compares the running build with `scripts/BuildNumber` on this repository's main branch. Release-channel build values must not overwrite this comparison. A stale channel from an older version must not report a fictional number of main-branch builds behind.
+
+Run the relevant regression tests from the repository root:
 
 ```powershell
-Push-Location testing
-python -m http.server 8080
-Pop-Location
+dotnet test src/UniGetUI.Windows.slnx --filter "FullyQualifiedName~AutoUpdaterTests|FullyQualifiedName~BuildFreshnessTests|FullyQualifiedName~ReleaseStampTests" /p:Platform=x64
 ```
 
-Make sure these URLs are reachable:
+## Signed automatic-update validation
 
-- `http://127.0.0.1:8080/productinfo.unigetui.test.json`
-- `http://127.0.0.1:8080/UniGetUI.Installer.x64.exe`
-- `http://127.0.0.1:8080/UniGetUI.Installer.arm64.exe`
+Use an isolated environment and an explicitly configured, organization-owned source containing trusted signed artifacts. Preserve HTTPS, architecture selection, installer hashes, publisher/signature checks, and downgrade protection. Release builds ignore developer validation bypasses. Follow the current source and [release skill](../.agents/skills/evergreen-release/SKILL.md) for supported policy inputs.
 
-## 2) Configure updater overrides (test mode)
-
-These steps apply to a Debug build only.
-
-Run in PowerShell:
-
-```powershell
-$regPath = 'HKLM:\Software\Devolutions\UniGetUI'
-New-Item -Path $regPath -Force | Out-Null
-
-# Point updater to local productinfo
-Set-ItemProperty -Path $regPath -Name 'UpdaterProductInfoUrl' -Value 'http://127.0.0.1:8080/productinfo.unigetui.test.json'
-
-# Product key inside productinfo JSON
-Set-ItemProperty -Path $regPath -Name 'UpdaterProductKey' -Value 'Devolutions.UniGetUI'
-
-# Allow local http URL and local domain for package downloads
-Set-ItemProperty -Path $regPath -Name 'UpdaterAllowUnsafeUrls' -Type DWord -Value 1
-
-# Keep hash validation enabled for normal test pass
-Set-ItemProperty -Path $regPath -Name 'UpdaterSkipHashValidation' -Type DWord -Value 0
-
-# Keep signer thumbprint validation enabled for normal test pass
-Set-ItemProperty -Path $regPath -Name 'UpdaterSkipSignerThumbprintCheck' -Type DWord -Value 0
-
-# Optional only for HTTPS cert troubleshooting in test environments
-Set-ItemProperty -Path $regPath -Name 'UpdaterDisableTlsValidation' -Type DWord -Value 0
-```
-
-## 3) Trigger update check in UniGetUI
-
-1. Launch UniGetUI.
-2. Go to **Settings → General**.
-3. Click **Check for updates**.
-
-Expected result:
-
-- Updater reads the local `productinfo.unigetui.test.json`.
-- It picks the correct architecture `exe` installer.
-- Download starts and hash is validated.
-- Update banner/toast appears when update is ready.
-
-## 4) Negative test: hash mismatch protection
-
-Use one of these methods:
-
-- Replace installer file content but keep original hash in JSON, or
-- Edit hash in JSON to an incorrect value.
-
-Expected result:
-
-- Hash validation fails.
-- Update is aborted with installer authenticity error.
-
-## 5) Negative test: block unsafe URLs
-
-Set:
-
-```powershell
-Set-ItemProperty -Path 'HKLM:\Software\Devolutions\UniGetUI' -Name 'UpdaterAllowUnsafeUrls' -Type DWord -Value 0
-```
-
-Expected result with local `http://127.0.0.1` URLs:
-
-- Updater rejects source/download URL as unsafe.
-- No installer launch.
-
-## 6) Negative test: broken ProductInfo source
-
-Use one of these methods:
-
-- Point `UpdaterProductInfoUrl` to a missing URL, or
-- Point `UpdaterProductInfoUrl` to a malformed JSON file, or
-- In a Debug build only, point `UpdaterProductKey` to a non-existent product.
-
-Example:
-
-```powershell
-Set-ItemProperty -Path 'HKLM:\Software\Devolutions\UniGetUI' -Name 'UpdaterProductInfoUrl' -Value 'http://127.0.0.1:8080/does-not-exist.json'
-```
-
-Expected result:
-
-- Productinfo check fails.
-- UniGetUI reports the update-check failure.
-- No fallback source is used.
-
-## 7) Optional: disable signer thumbprint check (test-only)
-
-Use this only if your local installer is unsigned or signed with a non-Devolutions certificate.
-
-```powershell
-Set-ItemProperty -Path 'HKLM:\Software\Devolutions\UniGetUI' -Name 'UpdaterSkipSignerThumbprintCheck' -Type DWord -Value 1
-```
-
-## 8) Release-build hardening check
-
-Run the same registry override setup against a Release build.
-
-Expected result:
-
-- Release build honors `UpdaterProductInfoUrl` only if it still passes normal source validation.
-- Release build ignores `UpdaterProductKey`.
-- Release build ignores validation bypass flags.
-- Updater uses the configured ProductInfo URL and the built-in `Devolutions.UniGetUI` product key.
-
-## 9) Cleanup after testing
-
-Reset to default production behavior:
-
-```powershell
-$regPath = 'HKLM:\Software\Devolutions\UniGetUI'
-Remove-ItemProperty -Path $regPath -Name 'UpdaterProductInfoUrl' -ErrorAction SilentlyContinue
-Remove-ItemProperty -Path $regPath -Name 'UpdaterProductKey' -ErrorAction SilentlyContinue
-Remove-ItemProperty -Path $regPath -Name 'UpdaterAllowUnsafeUrls' -ErrorAction SilentlyContinue
-Remove-ItemProperty -Path $regPath -Name 'UpdaterSkipHashValidation' -ErrorAction SilentlyContinue
-Remove-ItemProperty -Path $regPath -Name 'UpdaterSkipSignerThumbprintCheck' -ErrorAction SilentlyContinue
-Remove-ItemProperty -Path $regPath -Name 'UpdaterDisableTlsValidation' -ErrorAction SilentlyContinue
-```
-
-With all override values removed, UniGetUI uses:
-
-- `https://devolutions.net/productinfo.json`
-- product key `Devolutions.UniGetUI`
-- safety checks enabled
-- hash validation enabled
+Record the exact current and target versions/builds, architecture, signer, hashes, metadata source, and observed outcome. Report unsupported platforms and untested upgrade paths as gaps.

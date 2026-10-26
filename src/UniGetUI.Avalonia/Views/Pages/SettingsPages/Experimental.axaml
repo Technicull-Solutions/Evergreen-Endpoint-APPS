@@ -21,7 +21,7 @@
 
             <settings:CheckboxCard x:Name="BackgroundApiCard"
                                    SettingName="DisableApi"
-                                   Text="{t:Translate Text='Enable background api (UniGetUI Widgets and Sharing, port 7058)'}"
+                                   Text="{t:Translate Text='Enable background api (Evergreen Endpoint | APPS Widgets and Sharing, port 7058)'}"
                                    StateChangedCommand="{Binding ShowRestartRequiredCommand}"
                                    BorderThickness="1,1,1,0"
                                    CornerRadius="8,8,0,0"/>
@@ -54,7 +54,7 @@
                                   SettingName="IconDataBaseURL"
                                   Text="{t:Translate Use a custom icon and screenshot database URL}"
                                   Placeholder="{t:Translate Leave empty for default}"
-                                  HelpUrl="https://github.com/Devolutions/UniGetUI"
+                                  HelpUrl="https://github.com/Technicull-Solutions/PackageManager"
                                   ValueChangedCommand="{Binding ShowRestartRequiredCommand}"
                                   CornerRadius="8"/>
 
@@ -81,11 +81,7 @@
 
             <UserControl Height="16"/>
 
-            <settings:CheckboxCard x:Name="SoftwareCatalogCard" SettingName="EnableSoftwareCatalog"
-                                   Text="{t:Translate Enable Software Catalog}"
-                                   WarningText="{t:Translate Requires a machine-wide SoftwareCatalog.json file and an application restart.}"
-                                   StateChangedCommand="{Binding ShowRestartRequiredCommand}"
-                                   CornerRadius="8"/>
+
 
         </StackPanel>
     </ScrollViewer>

@@ -10,7 +10,7 @@ namespace UniGetUI.Avalonia.ViewModels;
 
 public partial class SidebarViewModel : ViewModelBase
 {
-    public bool SoftwareCatalogEnabled { get; } = Settings.Get(Settings.K.EnableSoftwareCatalog);
+    public bool SoftwareCatalogEnabled { get; } = true;
 
     // ─── Badge properties ─────────────────────────────────────────────────────
     [ObservableProperty]

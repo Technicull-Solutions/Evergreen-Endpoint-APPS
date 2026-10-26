@@ -110,7 +110,7 @@
             <settings:SecureCheckboxCard x:Name="AdminRestrictionsOpsCard"
                                          SettingName="AllowCLIArguments"
                                          Text="{t:Translate Allow custom command-line arguments}"
-                                         WarningText="{t:Translate Text='Custom command-line arguments can change the way in which programs are installed, upgraded or uninstalled, in a way UniGetUI cannot control. Using custom command-lines can break packages. Proceed with caution.'}"
+                                         WarningText="{t:Translate Text='Custom command-line arguments can change the way in which programs are installed, upgraded or uninstalled, in a way Evergreen Endpoint | APPS cannot control. Using custom command-lines can break packages. Proceed with caution.'}"
                                          StateChangedCommand="{Binding RefreshCLIStateCommand}"
                                          CornerRadius="8,8,0,0"/>
 

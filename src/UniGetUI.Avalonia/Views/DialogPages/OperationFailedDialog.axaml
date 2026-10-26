@@ -9,29 +9,44 @@
         MaxHeight="490"
         MinHeight="300"
         TitleMargin="24,0,0,0"
-        Background="{DynamicResource AppDialogBackground}">
+        Background="{DynamicResource AppWindowBackground}">
 
     <dialogs:ImmersiveDialog.Styles>
-        <!-- Keep the old dialog geometry, but let the standard WinUI-like Button/SplitButton
-             resources own normal, hover, pressed and border states. -->
-        <Style Selector="Button.operation-dialog-action">
+        <!-- Keep both halves of Retry and the Close button on the Evergreen palette. -->
+        <Style Selector="Button.operation-dialog-action, SplitButton.operation-dialog-action">
             <Setter Property="Height" Value="32"/>
             <Setter Property="MinWidth" Value="0"/>
             <Setter Property="CornerRadius" Value="4"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="{DynamicResource AccentFillColorDefaultBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentFillColorDefaultBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextOnAccentFillColorPrimaryBrush}"/>
         </Style>
-        <Style Selector="SplitButton.operation-dialog-action">
-            <Setter Property="Height" Value="32"/>
-            <Setter Property="MinWidth" Value="0"/>
-            <Setter Property="CornerRadius" Value="4"/>
-            <Setter Property="FontSize" Value="14"/>
+        <Style Selector="Button.operation-dialog-action:pointerover /template/ ContentPresenter,
+                         SplitButton.operation-dialog-action /template/ Button:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AccentFillColorSecondaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentFillColorSecondaryBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextOnAccentFillColorPrimaryBrush}"/>
+        </Style>
+        <Style Selector="Button.operation-dialog-action:pressed /template/ ContentPresenter,
+                         SplitButton.operation-dialog-action /template/ Button:pressed /template/ ContentPresenter,
+                         SplitButton.operation-dialog-action:flyout-open /template/ Button /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AccentFillColorTertiaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentFillColorTertiaryBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextOnAccentFillColorSecondaryBrush}"/>
+        </Style>
+        <Style Selector="Button.operation-dialog-action:disabled /template/ ContentPresenter,
+                         SplitButton.operation-dialog-action:disabled /template/ Button /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AccentFillColorDisabledBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentFillColorDisabledBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorDisabledBrush}"/>
         </Style>
     </dialogs:ImmersiveDialog.Styles>
 
     <Grid RowDefinitions="Auto,*,Auto"
-          Background="{DynamicResource AppDialogBackground}">
+          Background="{DynamicResource AppWindowBackground}">
 
         <!-- ── Header ── -->
         <Border Grid.Row="0" Padding="24,8,24,12">
@@ -45,7 +60,7 @@
                 Margin="24,0,24,24"
                 CornerRadius="6"
                 ClipToBounds="True"
-                Background="{DynamicResource AppWindowBackground}">
+                Background="{DynamicResource LogBodyBackground}">
             <controls:LogTextEditor x:Name="OutputText"
                                     automation:AutomationProperties.AccessibilityView="Raw"/>
         </Border>

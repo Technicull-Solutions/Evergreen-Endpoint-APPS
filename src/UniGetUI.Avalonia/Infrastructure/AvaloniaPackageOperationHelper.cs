@@ -290,7 +290,7 @@ internal static class AvaloniaPackageOperationHelper
 
             MainWindow.Instance?.ShowBanner(
                 CoreTools.Translate("WinGet was repaired successfully"),
-                CoreTools.Translate("It is recommended to restart UniGetUI after WinGet has been repaired"),
+                CoreTools.Translate("It is recommended to restart Evergreen Endpoint | APPS after WinGet has been repaired"),
                 MainWindow.RuntimeNotificationLevel.Success);
 
             _ = UpgradablePackagesLoader.Instance.ReloadPackages();

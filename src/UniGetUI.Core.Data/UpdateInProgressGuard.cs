@@ -7,7 +7,8 @@ namespace UniGetUI.Core.Data
     public static class UpdateInProgressGuard
     {
         // MUST match the marker name written by UniGetUI.iss. The file holds the installer's PID.
-        public const string MarkerFileName = ".unigetui-update-in-progress";
+        public const string MarkerFileName = ".evergreen-endpoint-update-in-progress";
+        private const string LegacyMarkerFileName = ".unigetui-update-in-progress";
 
         public static bool IsUpdateInProgress()
         {
@@ -42,8 +43,12 @@ namespace UniGetUI.Core.Data
         // Active only while the installer that wrote the PID is still running, so the guard tracks
         // the real copy window (any duration) and self-heals if the installer dies without cleanup.
         private static bool MarkerIsActive(string directory, Func<int, bool> isProcessRunning)
+            => MarkerIsActive(directory, MarkerFileName, isProcessRunning)
+                || MarkerIsActive(directory, LegacyMarkerFileName, isProcessRunning);
+
+        private static bool MarkerIsActive(string directory, string markerName, Func<int, bool> isProcessRunning)
         {
-            string marker = Path.Combine(directory, MarkerFileName);
+            string marker = Path.Combine(directory, markerName);
             if (!File.Exists(marker))
                 return false;
 

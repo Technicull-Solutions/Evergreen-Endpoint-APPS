@@ -271,6 +271,12 @@ public sealed class AutoUpdaterTests
     [InlineData("0.1.0", 3, "0.1.0", 3, false)]
     [InlineData("0.1.0", 5, "0.2.0", 1, true)]
     [InlineData("0.2.0", 1, "0.1.0", 99, false)]
+    [InlineData("0.2.0", 4, "0.2.1-rc.1", 5, true)]
+    [InlineData("0.2.1-rc.1", 5, "0.2.1-rc.2", 6, true)]
+    [InlineData("0.2.1-rc.2", 6, "0.2.1-rc.1", 7, false)]
+    [InlineData("0.2.1-rc.1", 5, "0.2.1", 6, true)]
+    [InlineData("0.2.1", 6, "0.2.1-rc.2", 7, false)]
+    [InlineData("0.2.1-rc.1", 5, "0.2.1-rc.1", 6, true)]
     public void IsUpdateAvailable_UsesReleaseVersionThenMonotonicBuild(
         string currentVersion,
         int currentBuild,

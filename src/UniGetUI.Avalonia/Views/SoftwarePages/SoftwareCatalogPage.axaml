@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:automation="clr-namespace:Avalonia.Automation;assembly=Avalonia.Controls"
              xmlns:vm="using:UniGetUI.Avalonia.ViewModels.Pages"
-             xmlns:models="using:UniGetUI.Avalonia.Models"
+             xmlns:models="using:Evergreen.Configuration"
              xmlns:controls="using:UniGetUI.Avalonia.Views.Controls"
              xmlns:t="using:UniGetUI.Avalonia.MarkupExtensions"
              x:DataType="vm:SoftwareCatalogViewModel">
@@ -111,7 +111,7 @@
                               VerticalAlignment="Center" HorizontalAlignment="Center"
                               Path="avares://UniGetUI/Assets/Symbols/catalog.svg"/>
             <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="0">
-                <TextBlock Text="{t:Translate Software Catalog}"
+                <TextBlock Text="{t:Translate Apps}"
                            HorizontalAlignment="Left"
                            FontSize="28"
                            FontWeight="SemiBold"
@@ -321,7 +321,7 @@
                 <DataGrid IsVisible="{Binding IsListView}" ItemsSource="{Binding Packages}"
                           AutoGenerateColumns="False" IsReadOnly="True" CanUserSortColumns="False"
                           CanUserResizeColumns="True" CanUserReorderColumns="True" GridLinesVisibility="None"
-                          RowHeight="48" automation:AutomationProperties.Name="{t:Translate Software Catalog}">
+                          RowHeight="48" automation:AutomationProperties.Name="{t:Translate Apps}">
                     <DataGrid.Columns>
                         <DataGridTemplateColumn Header="{t:Translate Package Name}" Width="2*">
                             <DataGridTemplateColumn.CellTemplate>

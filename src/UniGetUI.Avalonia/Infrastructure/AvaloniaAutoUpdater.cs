@@ -69,11 +69,6 @@ internal static partial class AvaloniaAutoUpdater
     public static event Action<string>? UpdateAvailable;
 
     /// <summary>
-    /// Fired on the UI thread when release metadata reports the monotonic build number on main.
-    /// </summary>
-    public static event Action<int>? LatestBuildObserved;
-
-    /// <summary>
     /// Fired on the UI thread to surface progress/result of an update check or
     /// install attempt to the UI banner.  Mirrors the verbose feedback the WinUI
     /// AutoUpdater shows in its <c>InfoBar</c>.
@@ -399,10 +394,6 @@ internal static partial class AvaloniaAutoUpdater
             }
 
             UpdateCandidate candidate = await GetUpdateCandidateAsync(overrides);
-            if (candidate.BuildNumber > 0)
-            {
-                Dispatcher.UIThread.Post(() => LatestBuildObserved?.Invoke(candidate.BuildNumber));
-            }
             LogUpdateInfo(
                 $"Auto-updater source '{candidate.SourceName}' returned version {candidate.VersionName}, build {candidate.BuildVersion} (upgradable={candidate.IsUpgradable})"
             );

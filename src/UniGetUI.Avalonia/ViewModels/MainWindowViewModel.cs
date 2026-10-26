@@ -429,7 +429,7 @@ public partial class MainWindowViewModel : ViewModelBase
         RegisterBannerToast(TelemetryWarner);
         RegisterBannerToast(PortableImportBanner);
 
-        CatalogEditor = Sidebar.SoftwareCatalogEnabled ? new CatalogEditorViewModel() : null;
+        CatalogEditor = null;
         DiscoverPage = new DiscoverSoftwarePage(CatalogEditor);
         UpdatesPage = new SoftwareUpdatesPage();
         InstalledPage = new InstalledPackagesPage();
@@ -494,9 +494,6 @@ public partial class MainWindowViewModel : ViewModelBase
             UpdatesBanner.IsClosable = true;
             UpdatesBanner.IsOpen = true;
         });
-
-        AvaloniaAutoUpdater.LatestBuildObserved += latestBuildNumber =>
-            Dispatcher.UIThread.Post(() => Sidebar.UpdateBuildFreshness(latestBuildNumber));
 
         AvaloniaAutoUpdater.StatusChanged += status => Dispatcher.UIThread.Post(() =>
         {
@@ -655,19 +652,16 @@ public partial class MainWindowViewModel : ViewModelBase
     // ─── Navigation ──────────────────────────────────────────────────────────
     public void LoadDefaultPage()
     {
-        PageType type = Settings.GetValue(Settings.K.StartupPage) switch
-        {
-            "discover" => PageType.Discover,
-            "updates" => PageType.Updates,
-            "installed" => PageType.Installed,
-            "bundles" => PageType.Discover,
-            "catalog" when Sidebar.SoftwareCatalogEnabled => PageType.Catalog,
-            "catalog-editor" when Sidebar.SoftwareCatalogEnabled => PageType.CatalogEditor,
-            "settings" => PageType.Discover,
-            _ => UpgradablePackagesLoader.Instance is { } l && l.Count() > 0 ? PageType.Updates : PageType.Discover,
-        };
-        NavigateTo(type);
+        NavigateTo(ResolveStartupPage(Settings.GetValue(Settings.K.StartupPage)));
     }
+
+    internal static PageType ResolveStartupPage(string startupPage) => startupPage switch
+    {
+        "discover" => PageType.Discover,
+        "updates" => PageType.Updates,
+        "installed" => PageType.Installed,
+        _ => PageType.Catalog,
+    };
 
     private void ReleaseWebViewPage(Control? leftPage)
     {
@@ -698,7 +692,7 @@ public partial class MainWindowViewModel : ViewModelBase
         };
 
     public static PageType GetNextPage(PageType type) =>
-        GetNextPage(type, Settings.Get(Settings.K.EnableSoftwareCatalog));
+        GetNextPage(type, true);
 
     internal static PageType GetNextPage(PageType type, bool _) =>
         type switch
@@ -706,7 +700,7 @@ public partial class MainWindowViewModel : ViewModelBase
             PageType.Discover => PageType.Updates,
             PageType.Updates => PageType.Installed,
             PageType.Installed => PageType.OperationHistory,
-            PageType.OperationHistory => PageType.Discover,
+            PageType.OperationHistory => PageType.Catalog,
             PageType.Bundles => PageType.Discover,
             PageType.Catalog => PageType.Discover,
             PageType.CatalogEditor => PageType.Discover,
@@ -716,17 +710,17 @@ public partial class MainWindowViewModel : ViewModelBase
         };
 
     public static PageType GetPreviousPage(PageType type) =>
-        GetPreviousPage(type, Settings.Get(Settings.K.EnableSoftwareCatalog));
+        GetPreviousPage(type, true);
 
     internal static PageType GetPreviousPage(PageType type, bool _) =>
         type switch
         {
-            PageType.Discover => PageType.OperationHistory,
+            PageType.Discover => PageType.Catalog,
             PageType.Updates => PageType.Discover,
             PageType.Installed => PageType.Updates,
             PageType.OperationHistory => PageType.Installed,
             PageType.Bundles => PageType.Installed,
-            PageType.Catalog => PageType.Installed,
+            PageType.Catalog => PageType.OperationHistory,
             PageType.CatalogEditor => PageType.Installed,
             PageType.Settings => PageType.Installed,
             PageType.Managers => PageType.Installed,
@@ -752,13 +746,13 @@ public partial class MainWindowViewModel : ViewModelBase
             return true;
         }
 
-        if (newPage_t is PageType.Catalog or PageType.CatalogEditor && !Sidebar.SoftwareCatalogEnabled)
+        if (newPage_t is PageType.CatalogEditor)
         {
-            Logger.Warn("Software Catalog navigation was rejected because the experimental feature is disabled.");
             MainWindow.Instance?.ShowBanner(
-                CoreTools.Translate("Software Catalog is disabled"),
-                    CoreTools.Translate("Enable Software Catalog in Experimental settings and developer options, then restart Evergreen Endpoint | APPS."),
-                MainWindow.RuntimeNotificationLevel.Error);
+                CoreTools.Translate("Managed by your organization"),
+                CoreTools.Translate("Use Evergreen Endpoint Admin to edit and export your software library."),
+                MainWindow.RuntimeNotificationLevel.Informational);
+            Sidebar.SelectNavButtonForPage(_currentPage);
             return false;
         }
         if (newPage_t is PageType.About) { _ = ShowAboutDialog(); return true; }
@@ -842,11 +836,11 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private static string GetPageAnnouncement(PageType pageType) => pageType switch
     {
-        PageType.Discover => CoreTools.Translate("Apps"),
+        PageType.Discover => CoreTools.Translate("Search apps"),
         PageType.Updates => CoreTools.Translate("Updates"),
         PageType.Installed => CoreTools.Translate("Installed"),
         PageType.Bundles => CoreTools.Translate("Package Bundles"),
-        PageType.Catalog => CoreTools.Translate("Software Catalog"),
+        PageType.Catalog => CoreTools.Translate("Apps"),
         PageType.CatalogEditor => CoreTools.Translate("Catalog Editor"),
         PageType.Settings => CoreTools.Translate("Settings"),
         PageType.Managers => CoreTools.Translate("Package Managers"),

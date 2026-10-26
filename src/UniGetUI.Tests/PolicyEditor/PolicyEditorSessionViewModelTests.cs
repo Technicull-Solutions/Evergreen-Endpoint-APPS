@@ -1509,7 +1509,8 @@ public class PolicyEditorSessionViewModelTests
         Assert.True(viewModel.IsDirty);
 
         document.Description = null;
-        Assert.True(viewModel.IsDirty);
+        // With zero debounce the background comparison can finish before this thread resumes.
+        // Assert the settled result rather than racing the scheduler's transient state.
         await viewModel.WaitForStructuredDirtyAnalysisAsync();
 
         Assert.False(viewModel.IsDirty);

@@ -7,11 +7,11 @@ namespace UniGetUI.Avalonia.ViewModels.Pages.SettingsPages.PolicyEditor;
 /// <summary>Shared localized help used by tooltips and accessibility descriptions.</summary>
 public static class PolicyEditorHelp
 {
-    public static string StructuredMode => T("Use guided fields to edit the policy. Values managed by UniGetUI or Devolutions Agent are shown read-only.");
+    public static string StructuredMode => T("Use guided fields to edit the policy. Values managed by Evergreen Endpoint | APPS or Devolutions Agent are shown read-only.");
     public static string RawMode => T("Edit the complete policy as JSON. Use this view for review or fields not shown in the guided editor; invalid JSON must be corrected before returning.");
     public static string PolicyId => T("Permanent identifier used in policy history and diagnostics, not a display name. Use 1 to 128 characters starting with a letter or number; then use letters, numbers, '.', '_', ':' or '-', for example contoso-policy.");
     public static string Publisher => T("Organization or administrator responsible for this policy. Use a name that users can recognize when reviewing policy details.");
-    public static string PolicyFormatVersion => T("Policy document version supported by UniGetUI and Devolutions Agent. It is read-only and is different from the policy revision.");
+    public static string PolicyFormatVersion => T("Policy document version supported by Evergreen Endpoint | APPS and Devolutions Agent. It is read-only and is different from the policy revision.");
     public static string ServerVersion => T("Version of Devolutions Agent that supplied this policy information. Use it when comparing behavior or troubleshooting compatibility.");
     public static string Revision => T("Change number assigned by Devolutions Agent when the policy is saved. It increases independently of the policy document version.");
     public static string Published => T("Date and time when Devolutions Agent last committed this policy revision.");
@@ -32,7 +32,7 @@ public static class PolicyEditorHelp
     public static string MoveRule => T("Move the rule to change its evaluation order. Moving a rule can change which Allow or Deny decision wins.");
     public static string DeleteRule => T("Remove this rule from the policy. The removal takes effect when the policy is saved.");
     public static string RuleId => T("Permanent identifier used in decision logs, not a display name. Use 1 to 128 characters starting with a letter or number; then use letters, numbers, '.', '_', ':' or '-', for example allow-winget-updates.");
-    public static string Priority => T("Shows this rule's evaluation position. Use Move up or Move down to change it; UniGetUI assigns the underlying priority automatically.");
+    public static string Priority => T("Shows this rule's evaluation position. Use Move up or Move down to change it; Evergreen Endpoint | APPS assigns the underlying priority automatically.");
     public static string Decision => T("Choose Allow to permit a matching request or Deny to block it. Changing a Deny rule to Allow starts high-impact request characteristics at No, so the rule matches normal verified requests without extra capabilities. Changing those characteristics back to Does not matter broadens what the Allow rule can match. Disabled rules have no effect.");
     public static string RuleReason => T("Optional administrator-facing explanation recorded with the rule's decision. Describe why the request is allowed or denied.");
     public static string Operations => T("Limit this rule to package installs, updates, or removals. Leave all choices clear to include every operation.");
@@ -82,13 +82,13 @@ public static class PolicyEditorHelp
     public static string CopyCanonicalJson => T("Copy the complete active-policy JSON for review, diagnostics, or comparison.");
     public static string RefreshPolicy => T("Reload the policy state and active policy details from Devolutions Agent.");
     public static string AgentWriteCapability => T("Whether Devolutions Agent allows policy files to be changed. Read-only means the Agent configuration or policy location prevents changes.");
-    public static string AppWriteAvailability => T("Whether this UniGetUI installation can safely request policy changes. Available requires both Agent permission and a trusted administrator helper.");
+    public static string AppWriteAvailability => T("Whether this Evergreen Endpoint | APPS installation can safely request policy changes. Available requires both Agent permission and a trusted administrator helper.");
     public static string AppWriteReason => T("Explains the Agent restriction or local installation condition that prevents policy changes.");
     public static string ElevationRequired => T("Whether saving policy changes requires Windows administrator approval.");
     public static string EditPolicy => T("Open the active policy for editing. The policy ID remains locked so this updates the same policy.");
     public static string CreatePolicy => T("Create the first policy for the configured location. New policies start with Deny as the default and no rules.");
     public static string ReplaceIdentity => T("Replace the active policy with a different policy ID. Use only when intentionally creating a new policy identity.");
-    public static string ManagementState => T("Current policy state: Active is usable, Missing means no policy file exists, and Invalid means an administrator must correct or replace the protected policy file outside UniGetUI.");
+    public static string ManagementState => T("Current policy state: Active is usable, Missing means no policy file exists, and Invalid means an administrator must correct or replace the protected policy file outside Evergreen Endpoint | APPS.");
     public static string ConfiguredPath => T("Location where Devolutions Agent reads and writes the policy file. Change this location in Agent configuration, not here.");
     public static string PathSource => T("Shows whether Devolutions Agent is using its default policy location or an explicitly configured location.");
 

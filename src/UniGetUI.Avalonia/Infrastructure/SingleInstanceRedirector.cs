@@ -24,7 +24,7 @@ internal static class SingleInstanceRedirector
     // sun_path). The descriptive Windows name overflows that, so non-Windows uses a short stable hash.
     private static string BuildPipeName()
     {
-        string name = $"UniGetUI_Pipe_{CoreData.MainWindowIdentifier}_{Environment.UserName}";
+        string name = $"EvergreenEndpointApps_Pipe_{CoreData.MainWindowIdentifier}_{Environment.UserName}";
         if (OperatingSystem.IsWindows())
             return name;
 

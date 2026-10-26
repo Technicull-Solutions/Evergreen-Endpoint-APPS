@@ -47,7 +47,7 @@ internal static class SharedPreUiCommandDispatcher
     private const string EnableSecureSettingForUserArgument = SecureSettings.Args.ENABLE_FOR_USER;
     private const string DisableSecureSettingForUserArgument = SecureSettings.Args.DISABLE_FOR_USER;
 
-    internal const string ProtocolLaunchScheme = "unigetui:";
+    internal const string ProtocolLaunchScheme = "evergreen-endpoint:";
 
     public static string[] IgnoreArgumentsInjectedIntoProtocolLaunch(string[] args)
     {

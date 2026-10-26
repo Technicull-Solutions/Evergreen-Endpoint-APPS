@@ -65,16 +65,17 @@ $ErrorActionPreference = 'Stop'
 # --- Install tools if requested ---
 if ($Install) {
     Write-Host "Installing code-signing tools..." -ForegroundColor Cyan
-    dotnet tool install --global AzureSignTool 2>$null
-    Install-Module -Name Devolutions.Authenticode -Force -Scope CurrentUser 2>$null
-
-    # Trust test code-signing CA
-    $TestCertsUrl = "https://raw.githubusercontent.com/Devolutions/devolutions-authenticode/master/data/certs"
-    $CaCertPath = Join-Path $env:TEMP "authenticode-test-ca.crt"
-    Invoke-WebRequest -Uri "$TestCertsUrl/authenticode-test-ca.crt" -OutFile $CaCertPath
-    Import-Certificate -FilePath $CaCertPath -CertStoreLocation "cert:\LocalMachine\Root" | Out-Null
-    Remove-Item $CaCertPath -ErrorAction SilentlyContinue
+    if (-not (Get-Command AzureSignTool -ErrorAction SilentlyContinue)) {
+        dotnet tool install --global AzureSignTool
+        if ($LASTEXITCODE -ne 0) { throw 'AzureSignTool installation failed.' }
+    }
+    # Signing uses the configured publisher certificate. Never modify machine trust stores
+    # or import a test root to make a release appear trusted.
     Write-Host "Code-signing tools installed."
+}
+
+if (-not (Get-Command AzureSignTool -ErrorAction SilentlyContinue)) {
+    throw 'AzureSignTool is not installed. Use -Install or install it before signing.'
 }
 
 $SignParams = @(

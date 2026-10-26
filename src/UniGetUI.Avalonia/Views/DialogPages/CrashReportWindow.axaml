@@ -3,7 +3,7 @@
         xmlns:dialogs="using:UniGetUI.Avalonia.Views.DialogPages"
         xmlns:t="using:UniGetUI.Avalonia.MarkupExtensions"
         x:Class="UniGetUI.Avalonia.Views.DialogPages.CrashReportWindow"
-        Title="{t:Translate UniGetUI – Crash Report}"
+        Title="{t:Translate Evergreen Endpoint | APPS – Crash Report}"
         MaxWidth="800"
         MinWidth="500"
         MaxHeight="580"
@@ -15,19 +15,12 @@
 
             <!-- Title + description -->
             <StackPanel Spacing="4">
-                <TextBlock Text="{t:Translate UniGetUI has crashed}"
+                <TextBlock Text="{t:Translate Evergreen Endpoint | APPS has crashed}"
                            FontSize="28"
                            FontWeight="SemiBold"/>
-                <TextBlock Text="{t:Translate Text='Help us fix this by sending a crash report to Devolutions. All fields below are optional.'}"
+                <TextBlock Text="{t:Translate Text='Review the report before sharing it. Copy it and open an Evergreen issue; no report is uploaded automatically.'}"
                            Opacity="0.7"
                            TextWrapping="Wrap"/>
-            </StackPanel>
-
-            <!-- Email field -->
-            <StackPanel Spacing="4">
-                <TextBlock Text="{t:Translate Text='Email (optional)'}" FontSize="12" Opacity="0.7"/>
-                <TextBox x:Name="EmailBox"
-                         PlaceholderText="{t:Translate Text='your@email.com'}"/>
             </StackPanel>
 
             <!-- Additional details field -->

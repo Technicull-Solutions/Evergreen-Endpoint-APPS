@@ -2,7 +2,8 @@ namespace UniGetUI.Core.Logging
 {
     public static class AppPaths
     {
-        private const string PortableMarkerFileName = "ForceUniGetUIPortable";
+        private const string PortableMarkerFileName = "EvergreenEndpoint.portable";
+        private const string LegacyPortableMarkerFileName = "ForceUniGetUIPortable";
         private const string PortableDataDirectoryName = "Settings";
         private const string PortablePermissionTestFileName = "PermissionTestFile";
         private const string PortableScratchDirectoryName = "Temp";
@@ -16,6 +17,27 @@ namespace UniGetUI.Core.Logging
         private static string? __installation_directory;
         private static volatile bool __portable_mode_resolved;
         private static string? __portable_data_directory;
+
+        /// <summary>
+        /// Selects private portable state for a standalone application before settings or logging
+        /// initialize. Unlike marker-based compatibility mode, an unwritable directory is an error.
+        /// This does not relocate or grant access to administrator-owned configuration.
+        /// </summary>
+        public static void InitializePortableApplicationData(string directory)
+        {
+            if (!Path.IsPathFullyQualified(directory))
+                throw new ArgumentException("Portable application data requires an absolute path.", nameof(directory));
+            lock (PortableModeLock)
+            {
+                if (__portable_mode_resolved)
+                    throw new InvalidOperationException("Application data has already been resolved.");
+                Directory.CreateDirectory(directory);
+                using (new FileStream(Path.Combine(directory, $".write-test-{Guid.NewGuid():N}"),
+                    FileMode.CreateNew, FileAccess.Write, FileShare.None, 1, FileOptions.DeleteOnClose)) { }
+                __portable_data_directory = Path.GetFullPath(directory);
+                __portable_mode_resolved = true;
+            }
+        }
 
         [ThreadStatic]
         private static bool __resolving_portable_mode;
@@ -142,7 +164,8 @@ namespace UniGetUI.Core.Logging
 
         public static string? ResolvePortableDataDirectory(string installationDirectory)
         {
-            if (!File.Exists(Path.Join(installationDirectory, PortableMarkerFileName)))
+            if (!File.Exists(Path.Join(installationDirectory, PortableMarkerFileName))
+                && !File.Exists(Path.Join(installationDirectory, LegacyPortableMarkerFileName)))
             {
                 return null;
             }

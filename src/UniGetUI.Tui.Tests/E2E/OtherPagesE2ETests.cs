@@ -241,129 +241,13 @@ internal sealed class OtherPagesE2ETests : TuiE2ETestBase
     }
 
     [Test]
-    public async Task Managers_DisableAManager_HidesItsPackages()
+    public async Task Managers_AreExcludedFromEndpointNavigation()
     {
-        await ResetAsync(TuiPageIds.Managers);
-        await WaitForTextAsync("Package managers", "Enable Scoop", "Scoop is enabled and ready to go", "Cargo was not found");
-        await EnterPage();
-        await FocusFieldAsync("Enable Scoop");
-        await Key(K.Space);
-        await WaitUntilAsync(() => InstalledPackagesLoader.Instance.Packages.All(p => p.Manager.Name != "Scoop") && !InstalledPackagesLoader.Instance.IsLoading,
-            "Scoop packages to disappear");
-        await WaitForTextAsync("Disabled");
-        await Key(K.Space);
-        await WaitUntilAsync(() => InstalledPackagesLoader.Instance.Packages.Any(p => p.Manager.Name == "Scoop"), "Scoop packages to come back");
-    }
-
-    [Test]
-    public async Task Managers_ScoopCleanup_RunsAsATrackedOperation()
-    {
-        await ResetAsync(TuiPageIds.Managers);
-        await OpenScoopSettingsAsync();
-        await FocusFieldAsync("Run cleanup and clear cache");
-        await Key(K.Enter);
-        await WaitForDialogAsync("Run cleanup and clear cache");
-        await PressButtonAsync("Continue");
-
-        var op = await WaitForScoopOperationAsync("Run cleanup and clear cache");
-        await WaitForSuccessAsync(op);
-        NAssert.That(await OnUi(() => op.GetOutput().Select(l => l.Item1).ToList()), Does.Contain("Cleaning Scoop cache..."));
-        NAssert.That(Window.CurrentPageId, Is.EqualTo(TuiPageIds.Operations));
-    }
-
-    [Test]
-    public async Task Managers_ScoopUninstall_NeedsBothConfirmations()
-    {
-        await ResetAsync(TuiPageIds.Managers);
-        await OpenScoopSettingsAsync();
-
-        // Cancelling the second, "ALL YOUR SCOOP PACKAGES…" warning starts nothing.
-        await FocusFieldAsync("Uninstall Scoop (and its packages)");
-        await Key(K.Enter);
-        await WaitForDialogAsync("Uninstall Scoop");
-        await PressButtonAsync("Continue");
-        await WaitForTextAsync("ALL YOUR SCOOP PACKAGES WILL BE PERMANENTLY DELETED.");
-        await PressButtonAsync("Cancel");
-        await WaitUntilAsync(() => TuiModal.Top?.Title.StartsWith("Scoop settings", StringComparison.Ordinal) == true, "back to Scoop settings");
-        NAssert.That(await OnUi(() => TuiOperationRegistry.Snapshot().Count), Is.Zero);
-
-        await FocusFieldAsync("Uninstall Scoop (and its packages)");
-        await Key(K.Enter);
-        await WaitForDialogAsync("Uninstall Scoop");
-        await PressButtonAsync("Continue");
-        await WaitForTextAsync("ALL YOUR SCOOP PACKAGES WILL BE PERMANENTLY DELETED.");
-        await PressButtonAsync("Uninstall Scoop");
-        var op = await WaitForScoopOperationAsync("Uninstall Scoop");
-        await WaitForSuccessAsync(op);
-    }
-
-    private async Task WaitForSuccessAsync(UniGetUI.PackageOperations.AbstractOperation op)
-    {
-        await WaitUntilAsync(() => op.Status is UniGetUI.PackageEngine.Enums.OperationStatus.Succeeded or UniGetUI.PackageEngine.Enums.OperationStatus.Failed,
-            "the operation to finish");
-        NAssert.That(op.Status, Is.EqualTo(UniGetUI.PackageEngine.Enums.OperationStatus.Succeeded),
-            string.Join("\n", await OnUi(() => op.GetOutput().Select(l => l.Item1).ToList())));
-    }
-
-    private async Task OpenScoopSettingsAsync()
-    {
-        await WaitForTextAsync("Package managers", "Scoop is enabled and ready to go");
-        await EnterPage();
-        await FocusFieldAsync("Scoop settings");
-        await Key(K.Enter);
-        await WaitForDialogAsync("Scoop settings");
-    }
-
-    private async Task<UniGetUI.PackageOperations.AbstractOperation> WaitForScoopOperationAsync(string title)
-    {
-        await WaitUntilAsync(() => TuiOperationRegistry.Snapshot().Any(o => o.Metadata.Title == title), $"the \"{title}\" operation");
-        return await OnUi(() => TuiOperationRegistry.Snapshot().First(o => o.Metadata.Title == title));
-    }
-
-    [Test]
-    public async Task Managers_SourcesAreReadOnly()
-    {
-        await ResetAsync(TuiPageIds.Managers);
-        await EnterPage();
-        await FocusFieldAsync("WinGet settings");
-        await Key(K.Enter);
-        await WaitForDialogAsync("WinGet settings");
-        await WaitForTextAsync(
-            "Configured sources",
-            "Sources are configured by your organization",
-            "msstore"
-        );
-    }
-
-    [Test]
-    public async Task Managers_DefaultInstallOptions_ApplyToNewInstalls()
-    {
-        await ResetAsync(TuiPageIds.Managers);
-        await EnterPage();
-        await FocusFieldAsync("Scoop settings");
-        await Key(K.Enter);
-        await WaitForDialogAsync("Scoop settings");
-        await FocusFieldAsync("Change default options");
-        await Key(K.Enter);
-        await WaitForDialogAsync("Default installation options for Scoop");
-        await FocusFieldAsync("Installation scope");
-        await Key(K.Right);
-        NAssert.That(await FocusedTextAsync(), Does.Contain("User | Local"));
-        await PressButtonAsync("Save");
-        await WaitForDialogAsync("Scoop settings");
-        await Key(K.Escape);
-        await WaitForNoDialogAsync();
-
-        await OnUi(() => Window.NavigateTo(TuiPageIds.Discover));
-        await EnterPage();
-        await Type("litware-fzf");
-        await Key(K.Enter);
-        await WaitForTextAsync("litware-fzf");
-        await Key(K.Down);
-        await Type("i");
-        await WaitForOperationsToFinishAsync();
-        NAssert.That(State.Installed.Single(p => p.Id == "litware-fzf").Scope, Is.EqualTo("user"));
-        await UniGetUI.PackageEngine.PackageClasses.InstallOptionsFactory.SaveForManagerAsync(new UniGetUI.PackageEngine.Serializable.InstallOptions(), TuiEngine.FindManager("Scoop")!);
+        await ResetAsync(TuiPageIds.Discover);
+        await WaitForTextAsync("Discover Packages");
+        NAssert.That(TuiPageIds.All, Does.Not.Contain(TuiPageIds.Managers));
+        await OnUi(() => Window.NavigateTo(TuiPageIds.Managers));
+        NAssert.That(Window.CurrentPageId, Is.EqualTo(TuiPageIds.Discover));
     }
 
     [Test]
@@ -382,7 +266,7 @@ internal sealed class OtherPagesE2ETests : TuiE2ETestBase
         await WaitUntilAsync(() => !Settings.Get(Settings.K.DisableSelectingUpdatesByDefault), "the setting to be restored");
 
         await Key(K.PageDown);
-        await WaitForTextAsync("Notification preferences", "Enable UniGetUI notifications");
+        await WaitForTextAsync("Notification preferences", "Enable Evergreen Endpoint | APPS notifications");
         await Key(K.PageDown);
         await Key(K.PageDown);
         await WaitForTextAsync("Package operation preferences", "Choose how many operations should be performed in parallel");
@@ -503,7 +387,7 @@ internal sealed class OtherPagesE2ETests : TuiE2ETestBase
     public async Task Logs_ShowsTheAppLog_AndManagerLogs()
     {
         await ResetAsync(TuiPageIds.Logs);
-        await WaitForTextAsync("Logs", "UniGetUI Log", "lines");
+        await WaitForTextAsync("Logs", "Evergreen Endpoint | APPS Log", "lines");
         await EnterPage();
         await Type("l");
         await ChooseAsync("WinGet");
@@ -558,7 +442,7 @@ internal sealed class OtherPagesE2ETests : TuiE2ETestBase
         await WaitForTextAsync("Installed Packages");
         await Key(K.Tab, RawModifiers.Control);
         await WaitForTextAsync("Package Bundles");
-        await Key(K.D7, RawModifiers.Control);
+        await Key(K.D6, RawModifiers.Control);
         await WaitForTextAsync("General preferences");
         await Key(K.D5, RawModifiers.Alt);
         await WaitForTextAsync("No operations are running");

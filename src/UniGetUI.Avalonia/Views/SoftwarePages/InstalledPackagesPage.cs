@@ -391,6 +391,8 @@ public class InstalledPackagesPage : AbstractPackagesPage
     {
         var list = packages.ToList();
         if (list.Count == 0) return;
+        if (MainWindow.Instance is not { } owner
+            || !await UninstallConfirmationDialog.ConfirmAsync(owner, list)) return;
 
         foreach (var pkg in list)
         {
@@ -434,6 +436,8 @@ public class InstalledPackagesPage : AbstractPackagesPage
     private static async Task LaunchUninstallThenReinstall(IPackage? package)
     {
         if (package is null || package.Source.IsVirtualManager) return;
+        if (MainWindow.Instance is not { } owner
+            || !await UninstallConfirmationDialog.ConfirmAsync(owner, package)) return;
         var uninstallOpts = await InstallOptionsFactory.LoadApplicableAsync(package);
         var reinstallOpts = await InstallOptionsFactory.LoadApplicableAsync(package);
         if (PackageOperation.HasPendingOperation(package, OperationType.Install)) return;

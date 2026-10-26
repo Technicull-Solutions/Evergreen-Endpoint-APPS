@@ -95,7 +95,7 @@ public sealed partial class PackageManagerPage : UserControl, ISettingsPage
             CornerRadius = new CornerRadius(4),
             Padding = new Thickness(10, 4, 8, 5),
         };
-        AutomationProperties.SetName(execCombo, CoreTools.Translate("Select the executable to be used. The following list shows the executables found by UniGetUI"));
+        AutomationProperties.SetName(execCombo, CoreTools.Translate("Select the executable to be used. The following list shows the executables found by Evergreen Endpoint | APPS"));
         foreach (var path in manager.FindCandidateExecutableFiles())
             AddExecutablePathItem(execCombo, path);
 
@@ -184,7 +184,7 @@ public sealed partial class PackageManagerPage : UserControl, ISettingsPage
         {
             BorderThickness = new Thickness(1, 0, 1, 0),
             CornerRadius = new CornerRadius(0),
-            Header = CoreTools.Translate("Select the executable to be used. The following list shows the executables found by UniGetUI"),
+            Header = CoreTools.Translate("Select the executable to be used. The following list shows the executables found by Evergreen Endpoint | APPS"),
             Description = execGrid,
             Margin = new Thickness(0, 2, 0, 2),
         };
@@ -452,7 +452,7 @@ public sealed partial class PackageManagerPage : UserControl, ISettingsPage
                 {
                     Text = CoreTools.Translate("WinGet command-line tool"),
                     Description = CoreTools.Translate(
-                        "Choose which command-line tool UniGetUI uses for WinGet operations when the COM API is not used"
+                        "Choose which command-line tool Evergreen Endpoint | APPS uses for WinGet operations when the COM API is not used"
                     ),
                     SettingName = CoreSettings.K.WinGetCliToolPreference,
                     CornerRadius = new CornerRadius(0),
@@ -470,7 +470,7 @@ public sealed partial class PackageManagerPage : UserControl, ISettingsPage
                 {
                     Text = CoreTools.Translate("WinGet COM API"),
                     Description = CoreTools.Translate(
-                        "Choose whether UniGetUI can use the WinGet COM API before falling back to the command-line tool"
+                        "Choose whether Evergreen Endpoint | APPS can use the WinGet COM API before falling back to the command-line tool"
                     ),
                     SettingName = CoreSettings.K.WinGetComApiPolicy,
                     CornerRadius = new CornerRadius(0),

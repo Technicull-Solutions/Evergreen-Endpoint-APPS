@@ -58,7 +58,7 @@
         <Border Grid.Row="1"
                 CornerRadius="8"
                 ClipToBounds="True"
-                Background="{DynamicResource ApplicationPageBackgroundThemeBrush}">
+                Background="{DynamicResource LogBodyBackground}">
             <controls:LogTextEditor x:Name="LogEditor"/>
         </Border>
 

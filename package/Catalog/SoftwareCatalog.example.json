@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "catalogs": [
+    {
+      "id": "pilot",
+      "name": "Pilot apps",
+      "packages": [
+        {
+          "Id": "7zip.7zip",
+          "Name": "7-Zip",
+          "Version": "",
+          "Source": "winget",
+          "ManagerName": "WinGet"
+        },
+        {
+          "Id": "Microsoft.VisualStudioCode",
+          "Name": "Visual Studio Code",
+          "Version": "",
+          "Source": "winget",
+          "ManagerName": "WinGet"
+        }
+      ]
+    }
+  ]
+}

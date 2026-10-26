@@ -24,7 +24,7 @@ public sealed class ShellManagerLaunchModeTests
         "-ExecutionPolicy",
         "Bypass",
         "-File",
-        @"C:\App\Assets\Utilities\unigetui_ps_operation.ps1",
+        @"C:\App\Assets\Utilities\evergreen_ps_operation.ps1",
         "tls12",
     ];
 

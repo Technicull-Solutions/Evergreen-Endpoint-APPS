@@ -14,7 +14,7 @@ namespace UniGetUI.Avalonia.Infrastructure;
 /// Delivers UniGetUI's notifications via native Windows Action-Center toasts using the
 /// UWP <c>Windows.UI.Notifications</c> COM surface, with no Windows App SDK / WinUI
 /// dependency. Toasts are show-only: clicking a toast launches the app through the
-/// <c>unigetui://</c> deep-link (registered by the installer) so the existing
+/// <c>evergreen-endpoint://</c> deep-link (registered by the installer) so the existing
 /// single-instance handler foregrounds the window. The inline action buttons carried
 /// by the old WinRT toasts are intentionally dropped; activation is surfaced via
 /// <see cref="NotificationActivated"/> only when the app is already running and the toast
@@ -29,7 +29,7 @@ internal static class WindowsAppNotificationBridge
     public static event Action<string>? NotificationActivated;
 
     /// <summary>
-    /// Parses a <c>unigetui://&lt;action&gt;</c> launch argument produced by a toast
+    /// Parses a <c>evergreen-endpoint://&lt;action&gt;</c> launch argument produced by a toast
     /// click, returning the encoded action or <c>null</c> if the argument is not a toast
     /// deep-link. Used by the secondary-instance handler to route toast activations.
     /// </summary>
@@ -38,7 +38,7 @@ internal static class WindowsAppNotificationBridge
         if (string.IsNullOrEmpty(arg))
             return null;
 
-        const string prefix = "unigetui://";
+        const string prefix = "evergreen-endpoint://";
         if (!arg.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
             return null;
 
@@ -214,7 +214,7 @@ internal static class WindowsAppNotificationBridge
 
     /// <summary>
     /// Shows a native toast when available, otherwise falls back to the in-app banner.
-    /// The <paramref name="launchAction"/> is encoded into the <c>unigetui://</c> launch
+    /// The <paramref name="launchAction"/> is encoded into the <c>evergreen-endpoint://</c> launch
     /// argument so the single-instance handler can route the activation when the toast
     /// is clicked. Returns <c>true</c> once the notification has been surfaced (toast or
     /// banner), so callers skip their own fallback banner and avoid double-showing.
@@ -238,7 +238,7 @@ internal static class WindowsAppNotificationBridge
             if (Win32ToastNotifier.Show(title, message, launchArg))
             {
                 // Show-only: the launch action fires only when the user clicks the toast, routed via
-                // the unigetui:// deep-link through the single-instance handler. Raising it on show
+                // the evergreen-endpoint:// deep-link through the single-instance handler. Raising it on show
                 // would navigate the app on its own (e.g. yank to Updates the moment updates load).
                 return true;
             }
@@ -264,6 +264,6 @@ internal static class WindowsAppNotificationBridge
 
 #if WINDOWS
     private static string BuildLaunchArgument(string action)
-        => $"unigetui://{action}";
+        => $"evergreen-endpoint://{action}";
 #endif
 }

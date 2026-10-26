@@ -150,7 +150,7 @@ public sealed class CommandLineReachabilityTests
                     "-ExecutionPolicy",
                     "Bypass",
                     "-File",
-                    @"C:\App\Assets\Utilities\unigetui_ps_operation.ps1",
+                    @"C:\App\Assets\Utilities\evergreen_ps_operation.ps1",
                     "tls12"
                 );
             })
@@ -180,7 +180,7 @@ public sealed class CommandLineReachabilityTests
                 "-ExecutionPolicy",
                 "Bypass",
                 "-File",
-                @"C:\App\Assets\Utilities\unigetui_ps_operation.ps1",
+                @"C:\App\Assets\Utilities\evergreen_ps_operation.ps1",
                 "tls12",
                 "Install-Module",
                 "-Name",
@@ -293,7 +293,7 @@ public sealed class CommandLineReachabilityTests
                     "-ExecutionPolicy",
                     "Bypass",
                     "-File",
-                    @"C:\App\Assets\Utilities\unigetui_ps_operation.ps1",
+                    @"C:\App\Assets\Utilities\evergreen_ps_operation.ps1",
                     "tls12",
                     "Install-Module",
                     "-Name",
