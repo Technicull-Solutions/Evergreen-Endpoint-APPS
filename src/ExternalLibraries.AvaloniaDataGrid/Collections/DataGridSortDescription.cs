@@ -125,7 +125,7 @@ namespace Avalonia.Collections
                         if (_internalComparer is IComparer<object> c)
                             _internalComparerTyped = c;
                         else
-                            _internalComparerTyped = Comparer<object>.Create((x, y) => _internalComparer.Compare(x, y));
+                            _internalComparerTyped = Comparer<object>.Create(_internalComparer.Compare);
                     }
 
                     return _internalComparerTyped;

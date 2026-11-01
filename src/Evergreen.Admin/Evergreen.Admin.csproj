@@ -23,8 +23,14 @@
     <Content Include="../UniGetUI.Avalonia/Assets/Fonts/OFL.txt" Link="Assets/Licenses/Lato-OFL.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <PackageReference Include="Avalonia.Desktop" Version="12.0.4" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.4" />
+    <!-- NativeAOT's compiler needs direct roots for assemblies used through the shared
+         package engine; transitive project references alone are not sufficient here. -->
+    <PackageReference Include="Devolutions.Pinget.Core" Version="0.13.0" />
+    <PackageReference Include="PhotoSauce.MagicScaler" Version="0.15.0" />
     <ProjectReference Include="../Evergreen.Configuration/Evergreen.Configuration.csproj" />
     <ProjectReference Include="../UniGetUI.Core.Tools/UniGetUI.Core.Tools.csproj" />
+    <ProjectReference Include="../UniGetUI.PackageEngine.PackageEngine/UniGetUI.PackageEngine.PEInterface.csproj" />
+    <ProjectReference Include="../UniGetUI.PackageEngine.Interfaces/UniGetUI.PackageEngine.Interfaces.csproj" />
     <Compile Include="../SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs" />
   </ItemGroup>
 </Project>

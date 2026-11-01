@@ -40,6 +40,7 @@ public static class AdminLibraryDraft
             ManagerName = entry.ManagerName,
             Source = entry.Source.Trim(),
             Version = entry.Version.Trim(),
+            Icon = string.IsNullOrEmpty(entry.Icon) ? null : entry.Icon,
         };
         if (clean.ManagerName is not ("WinGet" or "PowerShell" or "PowerShell7"))
             throw new JsonException("Select a supported package manager.");

@@ -15,6 +15,7 @@ namespace Evergreen.Admin;
 
 public sealed partial class AdminWindow : Window
 {
+    private readonly IAdminPackageSearch _packageSearch;
     private readonly TextBox _library = Editor(AdminWorkspace.FormatLibrary(AdminWorkspace.EmptyLibrary));
     private readonly TextBox _managers = Editor(AdminWorkspace.FormatManagers(AdminWorkspace.DefaultManagers));
     private readonly TextBlock _status = new() { TextWrapping = TextWrapping.Wrap };
@@ -24,8 +25,9 @@ public sealed partial class AdminWindow : Window
     private bool _dirty;
     private bool _confirmedClose;
 
-    public AdminWindow()
+    public AdminWindow(IAdminPackageSearch? packageSearch = null)
     {
+        _packageSearch = packageSearch ?? new AdminPackageSearch();
         Title = CoreTools.Translate("Evergreen Endpoint | ADMIN");
         Icon = AdminBrandStyles.CreateIcon();
         Width = 1100; Height = 800; MinWidth = 760; MinHeight = 600;

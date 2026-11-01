@@ -140,9 +140,9 @@ public partial class SoftwareCatalogViewModel : ViewModelBase
             _allPackages.Add(tile);
             var manager = FindManager(entry);
             var source = FindSource(entry);
-            if (manager is null || source is null) continue;
-            var package = InstalledPackagesLoader.Instance?.Packages.FirstOrDefault(entry.MatchesInstalled)
-                ?? new Package(entry.Name, entry.Id, entry.Version, source, manager);
+            var package = manager is null || source is null ? null
+                : InstalledPackagesLoader.Instance?.Packages.FirstOrDefault(entry.MatchesInstalled)
+                    ?? new Package(entry.Name, entry.Id, entry.Version, source, manager);
             _ = tile.LoadIconAsync(package);
         }
         UpdateStates();
@@ -436,11 +436,20 @@ public partial class CatalogTileViewModel(CatalogEntry entry) : ViewModelBase
 
     public bool HasCustomIcon => IconBitmap is not null;
 
-    internal async Task LoadIconAsync(IPackage package)
+    internal async Task LoadIconAsync(IPackage? package)
     {
         try
         {
-            var bitmap = await PackageWrapper.LoadSharedIconAsync(package);
+            Bitmap? bitmap = null;
+            if (Entry.Icon is { Length: > 0 } icon)
+            {
+                using var stream = new MemoryStream(CatalogIconData.Decode(icon), writable: false);
+                bitmap = new Bitmap(stream);
+            }
+            else if (package is not null)
+            {
+                bitmap = await PackageWrapper.LoadSharedIconAsync(package);
+            }
             await Dispatcher.UIThread.InvokeAsync(() => IconBitmap = bitmap);
         }
         catch (Exception ex)

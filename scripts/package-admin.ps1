@@ -1,9 +1,26 @@
 [CmdletBinding()]
 param(
     [ValidateSet('x64', 'arm64')][string] $Platform = 'x64',
-    [string] $OutputPath = (Join-Path $PSScriptRoot '..\output')
+    [string] $OutputPath,
+    [string] $DotnetPath = 'dotnet',
+    [string] $NuGetConfigPath
 )
 $ErrorActionPreference = 'Stop'
+if ([string]::IsNullOrWhiteSpace($OutputPath)) {
+    $OutputPath = Join-Path $PSScriptRoot '..\output'
+}
+$ResolvedDotnetCommand = Get-Command $DotnetPath -CommandType Application -ErrorAction Stop
+$DotnetPath = $ResolvedDotnetCommand.Source
+$DotnetDirectory = Split-Path -Parent $DotnetPath
+$env:DOTNET_ROOT = $DotnetDirectory
+if (($env:PATH -split ';') -notcontains $DotnetDirectory) {
+    $env:PATH = "$DotnetDirectory;$env:PATH"
+}
+[string[]] $NuGetConfigArgs = if ([string]::IsNullOrWhiteSpace($NuGetConfigPath)) {
+    @()
+} else {
+    @("/p:RestoreConfigFile=$NuGetConfigPath")
+}
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $Build = (Get-Content -LiteralPath (Join-Path $PSScriptRoot 'BuildNumber') -Raw).Trim()
 $Info = Get-Content -LiteralPath (Join-Path $RepoRoot 'src\SharedAssemblyInfo.cs') -Raw
@@ -12,7 +29,7 @@ if (-not $Version -or $Build -notmatch '^\d+$') { throw 'Invalid release version
 $Stage = Join-Path $RepoRoot "artifacts\admin-$Platform-$Build-$([guid]::NewGuid().ToString('N'))"
 New-Item -ItemType Directory -Path $Stage -Force | Out-Null
 $Project = Join-Path $RepoRoot 'src\Evergreen.Admin\Evergreen.Admin.csproj'
-dotnet publish $Project --configuration Release --runtime "win-$Platform" --self-contained true --nologo /p:Platform=$Platform /p:PublishDir="$Stage\" /p:TrimmerSingleWarn=false /p:ILLinkTreatWarningsAsErrors=true /p:IlcTreatWarningsAsErrors=true
+& $DotnetPath publish $Project @NuGetConfigArgs --configuration Release --runtime "win-$Platform" --self-contained true --nologo /p:Platform=$Platform /p:PublishDir="$Stage\" /p:TrimmerSingleWarn=false /p:ILLinkTreatWarningsAsErrors=true /p:IlcTreatWarningsAsErrors=true
 if ($LASTEXITCODE -ne 0) { throw 'Administrator NativeAOT publish failed.' }
 $Executable = Join-Path $Stage 'Evergreen Endpoint Admin.exe'
 $NativeExecutable = Join-Path $Stage 'Evergreen.Admin.exe'

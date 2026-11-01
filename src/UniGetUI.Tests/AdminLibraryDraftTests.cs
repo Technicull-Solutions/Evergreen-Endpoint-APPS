@@ -47,6 +47,26 @@ public class AdminLibraryDraftTests
     public void InvalidJsonCannotBeReplacedByAGraphicalEdit() =>
         Assert.Throws<JsonException>(() => AdminLibraryDraft.SaveLibrary("{broken", null, "apps", "Apps"));
 
+    [Fact]
+    public void CustomLogoRoundTripsAndInvalidImageDataIsRejected()
+    {
+        byte[] pngHeader = [137, 80, 78, 71, 13, 10, 26, 10];
+        string icon = CatalogIconData.CreateDataUri(pngHeader);
+        CatalogEntry app = new()
+        {
+            Name = "Editor",
+            Id = "Example.Editor",
+            ManagerName = "WinGet",
+            Source = "winget",
+            Icon = icon,
+        };
+        string draft = AdminLibraryDraft.SaveApp(AdminWorkspace.EmptyLibrary, "apps", null, app);
+        Assert.Equal(icon, Assert.Single(Assert.Single(SoftwareLibrary.Parse(draft)).Packages).Icon);
+
+        string invalid = draft.Replace(icon, "data:image/png;base64,AAAA", StringComparison.Ordinal);
+        Assert.Throws<JsonException>(() => SoftwareLibrary.Parse(invalid));
+    }
+
     private static CatalogEntry App(string name, string id, string version) => new()
     {
         Name = name,

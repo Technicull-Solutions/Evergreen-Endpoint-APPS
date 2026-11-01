@@ -29,19 +29,37 @@
 param(
     [string] $Configuration = "Release",
     [string] $Platform = "x64",
-    [string] $OutputPath = (Join-Path $PSScriptRoot ".." "output"),
+    [string] $OutputPath,
     [switch] $SkipTests,
     [switch] $SkipInstaller,
     [switch] $MaxInstallerCompression,
-    [string] $Version
+    [string] $Version,
+    [string] $DotnetPath = "dotnet",
+    [string] $NuGetConfigPath
 )
 
 $ErrorActionPreference = 'Stop'
 
+if ([string]::IsNullOrWhiteSpace($OutputPath)) {
+    $OutputPath = Join-Path (Join-Path $PSScriptRoot "..") "output"
+}
+$ResolvedDotnetCommand = Get-Command $DotnetPath -CommandType Application -ErrorAction Stop
+$DotnetPath = $ResolvedDotnetCommand.Source
+$DotnetDirectory = Split-Path -Parent $DotnetPath
+$env:DOTNET_ROOT = $DotnetDirectory
+if (($env:PATH -split ';') -notcontains $DotnetDirectory) {
+    $env:PATH = "$DotnetDirectory;$env:PATH"
+}
+[string[]] $NuGetConfigArgs = if ([string]::IsNullOrWhiteSpace($NuGetConfigPath)) {
+    @()
+} else {
+    @("/p:RestoreConfigFile=$NuGetConfigPath")
+}
+
 $RepoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
 $SrcDir = Join-Path $RepoRoot "src"
 $WindowsSolution = Join-Path $SrcDir "UniGetUI.Windows.slnx"
-$PublishProject = Join-Path $SrcDir "UniGetUI.Avalonia" "UniGetUI.Avalonia.csproj"
+$PublishProject = Join-Path (Join-Path $SrcDir "UniGetUI.Avalonia") "UniGetUI.Avalonia.csproj"
 $BinDir = Join-Path $RepoRoot "unigetui_bin"
 $BuildPropsPath = Join-Path $SrcDir "Directory.Build.props"
 [xml] $BuildProps = Get-Content $BuildPropsPath
@@ -53,7 +71,16 @@ if ([string]::IsNullOrWhiteSpace($PortableTargetFramework) -or [string]::IsNullO
 }
 
 $TargetFramework = "$PortableTargetFramework-windows$WindowsTargetPlatformVersion"
-$PublishDir = Join-Path $SrcDir "UniGetUI.Avalonia" "bin" $Platform $Configuration $TargetFramework "win-$Platform" "publish"
+$PublishDir = [System.IO.Path]::Combine(
+    $SrcDir,
+    "UniGetUI.Avalonia",
+    "bin",
+    $Platform,
+    $Configuration,
+    $TargetFramework,
+    "win-$Platform",
+    "publish"
+)
 
 # --- Version stamping ---
 if ($Version) {
@@ -78,7 +105,7 @@ if ($Channel.Version -ne $PackageVersion -or $Channel.BuildNumber -ne $StampedBu
 # --- Test ---
 if (-not $SkipTests) {
     Write-Host "`n=== Running tests ===" -ForegroundColor Cyan
-    dotnet test $WindowsSolution --verbosity minimal --nologo --blame-hang-timeout 5m --blame-hang-dump-type none --logger "console;verbosity=normal" --logger "trx;LogFilePrefix=tests" --results-directory (Join-Path $RepoRoot "artifacts/test-results") /p:RestoreIgnoreFailedSources=true /p:Platform=$Platform /p:UseSharedCompilation=false /m:1
+    & $DotnetPath test $WindowsSolution @NuGetConfigArgs --verbosity minimal --nologo --blame-hang-timeout 5m --blame-hang-dump-type none --logger "console;verbosity=normal" --logger "trx;LogFilePrefix=tests" --results-directory (Join-Path $RepoRoot "artifacts/test-results") /p:RestoreIgnoreFailedSources=true /p:Platform=$Platform /p:UseSharedCompilation=false /m:1
     if ($LASTEXITCODE -ne 0) {
         throw "Tests failed with exit code $LASTEXITCODE"
     }
@@ -86,9 +113,9 @@ if (-not $SkipTests) {
 
 # --- Build / Publish ---
 Write-Host "`n=== Publishing $Configuration|$Platform ===" -ForegroundColor Cyan
-dotnet clean $WindowsSolution -v m --nologo /p:Platform=$Platform
+& $DotnetPath clean $WindowsSolution -v m --nologo /p:Platform=$Platform
 
-dotnet publish $PublishProject /noLogo /m:1 /p:Configuration=$Configuration /p:Platform=$Platform -p:RuntimeIdentifier=win-$Platform /p:TrimmerSingleWarn=false /p:ILLinkTreatWarningsAsErrors=true /p:IlcTreatWarningsAsErrors=true --ignore-failed-sources -v m
+& $DotnetPath publish $PublishProject @NuGetConfigArgs /noLogo /m:1 /p:Configuration=$Configuration /p:Platform=$Platform -p:RuntimeIdentifier=win-$Platform /p:TrimmerSingleWarn=false /p:ILLinkTreatWarningsAsErrors=true /p:IlcTreatWarningsAsErrors=true --ignore-failed-sources -v m
 if ($LASTEXITCODE -ne 0) {
     throw "dotnet publish Avalonia failed with exit code $LASTEXITCODE"
 }
@@ -200,17 +227,27 @@ if (-not $SkipInstaller) {
             Set-Content $IssPath $IssContent -NoNewline
         }
     } else {
-        Write-Warning "Inno Setup 6 (ISCC.exe) not found — skipping installer build."
+        Write-Warning "Inno Setup 6 (ISCC.exe) not found - skipping installer build."
     }
 }
 
 # --- Checksums ---
-& (Join-Path $PSScriptRoot 'package-admin.ps1') -Platform $Platform -OutputPath $OutputPath
+& (Join-Path $PSScriptRoot 'package-admin.ps1') -Platform $Platform -OutputPath $OutputPath -DotnetPath $DotnetPath -NuGetConfigPath $NuGetConfigPath
 
 Write-Host "`n=== Checksums ===" -ForegroundColor Cyan
 $ChecksumFile = Join-Path $OutputPath "checksums.$Platform.txt"
 Get-ChildItem $OutputPath -File | Where-Object { $_.Name -notlike "checksums.*.txt" } | ForEach-Object {
-    $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash
+    $stream = [System.IO.File]::OpenRead($_.FullName)
+    try {
+        $sha256 = [System.Security.Cryptography.SHA256]::Create()
+        try {
+            $hash = [System.BitConverter]::ToString($sha256.ComputeHash($stream)).Replace('-', '')
+        } finally {
+            $sha256.Dispose()
+        }
+    } finally {
+        $stream.Dispose()
+    }
     "$hash  $($_.Name)" | Tee-Object -FilePath $ChecksumFile -Append
 }
 

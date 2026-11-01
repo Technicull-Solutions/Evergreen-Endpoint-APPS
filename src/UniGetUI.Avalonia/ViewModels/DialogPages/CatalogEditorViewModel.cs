@@ -285,6 +285,7 @@ public partial class CatalogEditorViewModel : ViewModelBase
                 Version = p.Version,
                 Source = p.Source,
                 ManagerName = p.ManagerName,
+                Icon = p.Icon,
             }).ToArray(),
         }).ToArray();
 

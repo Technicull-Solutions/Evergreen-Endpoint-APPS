@@ -111,7 +111,8 @@ public sealed partial class AdminWindow
         else
         {
             actions.Children.Add(ActionButton(CoreTools.Translate("Back to libraries"), () => { _openLibraryId = null; RefreshLibrary(); FocusLibraryAction(CoreTools.Translate("New library")); return Task.CompletedTask; }));
-            actions.Children.Add(ActionButton(CoreTools.Translate("Add app"), () => EditAppAsync(library, null), primary: true));
+            actions.Children.Add(ActionButton(CoreTools.Translate("Find apps"), () => FindAppsAsync(library), primary: true));
+            actions.Children.Add(ActionButton(CoreTools.Translate("Add manually"), () => EditAppAsync(library, null)));
             actions.Children.Add(ActionButton(CoreTools.Translate("Edit library"), () => EditLibraryAsync(library)));
             actions.Children.Add(ActionButton(CoreTools.Translate("Remove library"), async () =>
             {
@@ -137,7 +138,7 @@ public sealed partial class AdminWindow
 
     private Control LibraryTile(CatalogDefinition library)
     {
-        var button = ActionButton(library.Name, () => { _openLibraryId = library.Id; RefreshLibrary(); FocusLibraryAction(CoreTools.Translate("Add app")); return Task.CompletedTask; });
+        var button = ActionButton(library.Name, () => { _openLibraryId = library.Id; RefreshLibrary(); FocusLibraryAction(CoreTools.Translate("Find apps")); return Task.CompletedTask; });
         button.Classes.Add("libraryTile");
         button.HorizontalAlignment = HorizontalAlignment.Stretch;
         button.HorizontalContentAlignment = HorizontalAlignment.Stretch;
@@ -188,8 +189,9 @@ public sealed partial class AdminWindow
         });
         AutomationProperties.SetName(remove, CoreTools.Translate("Remove {0}", row.App.Name));
         actions.Children.Add(remove);
+        Control symbol = row.App.Icon is { Length: > 0 } icon ? IconImage(icon, 48) : LibrarySymbol();
         var content = new StackPanel { Spacing = 8 };
-        content.Children.Add(TileLayout(LibrarySymbol(), details)); content.Children.Add(actions);
+        content.Children.Add(TileLayout(symbol, details)); content.Children.Add(actions);
         var card = new Border { Child = content, Margin = _libraryView == 2 ? new Thickness(0, 0, 16, 16) : new Thickness(0) };
         card.Classes.Add("card");
         if (_libraryView == 2) card.Width = 260;
@@ -265,6 +267,42 @@ public sealed partial class AdminWindow
                 source.Text = selected switch { "WinGet" => "winget", "PowerShell" or "PowerShell7" => "PSGallery", _ => source.Text };
         };
         var version = DraftField(form, CoreTools.Translate("Version (optional)"), app?.Version ?? "");
+        var logo = new LogoChoice { IconData = app?.Icon ?? "" };
+        var logoPreview = new ContentControl
+        {
+            Content = string.IsNullOrEmpty(logo.IconData) ? LibrarySymbol() : IconImage(logo.IconData, 48),
+            Width = 48,
+            Height = 48,
+        };
+        var logoActions = new WrapPanel();
+        var chooseLogo = new Button { Content = CoreTools.Translate(string.IsNullOrEmpty(logo.IconData) ? "Choose logo" : "Replace logo") };
+        chooseLogo.Click += async (_, _) =>
+        {
+            try
+            {
+                if (TopLevel.GetTopLevel(form) is not Window owner) return;
+                string? selected = await ChooseLogoAsync(owner);
+                if (selected is null) return;
+                logo.IconData = selected;
+                logoPreview.Content = IconImage(selected, 48);
+                chooseLogo.Content = CoreTools.Translate("Replace logo");
+            }
+            catch (System.Text.Json.JsonException ex) { _status.Text = CoreTools.Translate(ex.Message); }
+        };
+        var removeLogo = new Button { Content = CoreTools.Translate("Remove custom logo") };
+        removeLogo.Click += (_, _) =>
+        {
+            logo.IconData = "";
+            logoPreview.Content = LibrarySymbol();
+            chooseLogo.Content = CoreTools.Translate("Choose logo");
+        };
+        logoActions.Children.Add(chooseLogo);
+        logoActions.Children.Add(removeLogo);
+        var logoRow = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*"), ColumnSpacing = 12 };
+        logoRow.Children.Add(logoPreview);
+        Grid.SetColumn(logoActions, 1); logoRow.Children.Add(logoActions);
+        form.Children.Add(new TextBlock { Text = CoreTools.Translate("Custom logo (optional)") });
+        form.Children.Add(logoRow);
         string? result = await EditDraftAsync(app is null ? CoreTools.Translate("Add app") : CoreTools.Translate("Edit app"), form,
             () => AdminLibraryDraft.SaveApp(_library.Text ?? "", library.Id, index, new CatalogEntry
             {
@@ -273,6 +311,7 @@ public sealed partial class AdminWindow
                 ManagerName = manager.SelectedItem as string ?? "",
                 Source = source.Text ?? "",
                 Version = version.Text ?? "",
+                Icon = logo.IconData,
             }));
         if (result is not null)
         {
@@ -326,4 +365,8 @@ public sealed partial class AdminWindow
     }
 
     private sealed record LibraryAppRow(CatalogDefinition Library, CatalogEntry App, int Index);
+    private sealed class LogoChoice
+    {
+        public string IconData { get; set; } = "";
+    }
 }

@@ -358,7 +358,16 @@ public class WindowsProtectedLocationVerifierTests : IDisposable
     {
         string real = CreateLayout("real");
         string link = Path.Combine(_sandbox, "link");
-        Directory.CreateSymbolicLink(link, real);
+        try
+        {
+            Directory.CreateSymbolicLink(link, real);
+        }
+        catch (IOException)
+        {
+            // Creating directory links requires Developer Mode or SeCreateSymbolicLinkPrivilege.
+            // Hosts without either cannot exercise this Windows-specific scenario.
+            return;
+        }
 
         using PolicyElevationLocationVerification verification = new WindowsProtectedLocationVerifier().Verify(
             link,
@@ -378,7 +387,16 @@ public class WindowsProtectedLocationVerifierTests : IDisposable
     {
         string real = CreateLayout("reparse-target");
         string link = Path.Combine(_sandbox, "reparse-link");
-        Directory.CreateSymbolicLink(link, real);
+        try
+        {
+            Directory.CreateSymbolicLink(link, real);
+        }
+        catch (IOException)
+        {
+            // Creating directory links requires Developer Mode or SeCreateSymbolicLinkPrivilege.
+            // Hosts without either cannot exercise this Windows-specific scenario.
+            return;
+        }
 
         using PolicyElevationLocationVerification verification = WindowsProtectedLocationVerifier.InspectObject(
             link,

@@ -45,7 +45,17 @@ Get-ChildItem $Path -Recurse -File | ForEach-Object {
         Write-Host " - Computing SHA256 of $relativePath..."
     }
 
-    $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower()
+    $stream = [System.IO.File]::OpenRead($_.FullName)
+    try {
+        $sha256 = [System.Security.Cryptography.SHA256]::Create()
+        try {
+            $hash = [System.BitConverter]::ToString($sha256.ComputeHash($stream)).Replace('-', '').ToLowerInvariant()
+        } finally {
+            $sha256.Dispose()
+        }
+    } finally {
+        $stream.Dispose()
+    }
     $integrityData[$relativePath] = $hash
 }
 
@@ -56,6 +66,8 @@ foreach ($key in ($integrityData.Keys | Sort-Object)) {
 }
 
 $json = $sorted | ConvertTo-Json -Depth 1
-Set-Content (Join-Path $Path $OutputFileName) $json -Encoding utf8NoBOM -NoNewline
+$outputPath = Join-Path $Path $OutputFileName
+$utf8WithoutBom = New-Object System.Text.UTF8Encoding($false)
+[System.IO.File]::WriteAllText($outputPath, $json, $utf8WithoutBom)
 
 Write-Host "Integrity tree was generated and saved to $Path/$OutputFileName"

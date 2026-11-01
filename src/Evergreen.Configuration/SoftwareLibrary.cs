@@ -34,7 +34,51 @@ public sealed class CatalogEntry
     public required string Source { get; init; }
     [JsonPropertyName("ManagerName")]
     public required string ManagerName { get; init; }
+    [JsonPropertyName("Icon")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public string? Icon { get; init; }
 
+}
+
+public static class CatalogIconData
+{
+    public const int MaximumDecodedBytes = 512 * 1024;
+    private const string PngPrefix = "data:image/png;base64,";
+    private const string JpegPrefix = "data:image/jpeg;base64,";
+
+    public static string CreateDataUri(ReadOnlySpan<byte> bytes)
+    {
+        if (bytes.Length == 0 || bytes.Length > MaximumDecodedBytes)
+            throw new JsonException("Custom app logos must be between 1 byte and 512 KiB.");
+        string mediaType = IsPng(bytes) ? "image/png" : IsJpeg(bytes) ? "image/jpeg"
+            : throw new JsonException("Custom app logos must be PNG or JPEG files.");
+        return $"data:{mediaType};base64,{Convert.ToBase64String(bytes)}";
+    }
+
+    public static byte[] Decode(string? value)
+    {
+        if (string.IsNullOrEmpty(value)) return [];
+        string encoded = value.StartsWith(PngPrefix, StringComparison.Ordinal) ? value[PngPrefix.Length..]
+            : value.StartsWith(JpegPrefix, StringComparison.Ordinal) ? value[JpegPrefix.Length..]
+            : throw new JsonException("Custom app logos must be embedded PNG or JPEG data.");
+        if (encoded.Length > ((MaximumDecodedBytes + 2) / 3) * 4)
+            throw new JsonException("Custom app logos cannot exceed 512 KiB.");
+        byte[] bytes;
+        try { bytes = Convert.FromBase64String(encoded); }
+        catch (FormatException ex) { throw new JsonException("The custom app logo is not valid base64 data.", ex); }
+        if (bytes.Length == 0 || bytes.Length > MaximumDecodedBytes)
+            throw new JsonException("Custom app logos must be between 1 byte and 512 KiB.");
+        bool expectedPng = value.StartsWith(PngPrefix, StringComparison.Ordinal);
+        if ((expectedPng && !IsPng(bytes)) || (!expectedPng && !IsJpeg(bytes)))
+            throw new JsonException("The custom app logo does not match its PNG or JPEG media type.");
+        return bytes;
+    }
+
+    private static bool IsPng(ReadOnlySpan<byte> bytes) => bytes.Length >= 8
+        && bytes[..8].SequenceEqual(new byte[] { 137, 80, 78, 71, 13, 10, 26, 10 });
+
+    private static bool IsJpeg(ReadOnlySpan<byte> bytes) => bytes.Length >= 3
+        && bytes[0] == 0xff && bytes[1] == 0xd8 && bytes[2] == 0xff;
 }
 public static class SoftwareLibrary
 {
@@ -106,6 +150,8 @@ public static class SoftwareLibrary
                     || string.IsNullOrWhiteSpace(entry.Id) || string.IsNullOrWhiteSpace(entry.ManagerName)
                     || string.IsNullOrWhiteSpace(entry.Source) || entry.Version is null)
                     throw new JsonException("Every catalog entry requires Name, Id, ManagerName and Source, with a non-null Version.");
+
+                CatalogIconData.Decode(entry.Icon);
 
                 if (!identities.Add((entry.Id.ToUpperInvariant(), entry.ManagerName.ToUpperInvariant(), entry.Source.ToUpperInvariant())))
                     throw new JsonException($"Duplicate package in catalog {catalog.Id}: {entry.ManagerName}/{entry.Source}/{entry.Id}.");

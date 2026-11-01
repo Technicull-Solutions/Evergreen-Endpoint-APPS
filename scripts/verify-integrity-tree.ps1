@@ -39,7 +39,7 @@ if (-not (Test-Path $IntegrityTreePath -PathType Leaf)) {
 $rawData = Get-Content $IntegrityTreePath -Raw
 
 try {
-    $data = ConvertFrom-Json $rawData -AsHashtable
+    $data = ConvertFrom-Json $rawData
 }
 catch {
     throw "IntegrityTree.json is not valid JSON: $($_.Exception.Message)"
@@ -54,7 +54,14 @@ $mismatchedFiles = New-Object System.Collections.Generic.List[string]
 $unexpectedFiles = New-Object System.Collections.Generic.List[string]
 
 $expectedFiles = @{}
-foreach ($entry in $data.GetEnumerator()) {
+$entries = if ($data -is [System.Collections.IDictionary]) {
+    @($data.GetEnumerator())
+} else {
+    @($data.PSObject.Properties | ForEach-Object {
+        [pscustomobject]@{ Key = $_.Name; Value = $_.Value }
+    })
+}
+foreach ($entry in $entries) {
     $relativePath = [string] $entry.Key
     $expectedHash = [string] $entry.Value
     $expectedFiles[$relativePath] = $true
@@ -65,7 +72,17 @@ foreach ($entry in $data.GetEnumerator()) {
         continue
     }
 
-    $currentHash = (Get-FileHash $fullPath -Algorithm SHA256).Hash.ToLowerInvariant()
+    $stream = [System.IO.File]::OpenRead($fullPath)
+    try {
+        $sha256 = [System.Security.Cryptography.SHA256]::Create()
+        try {
+            $currentHash = [System.BitConverter]::ToString($sha256.ComputeHash($stream)).Replace('-', '').ToLowerInvariant()
+        } finally {
+            $sha256.Dispose()
+        }
+    } finally {
+        $stream.Dispose()
+    }
     if ($currentHash -ne $expectedHash.ToLowerInvariant()) {
         $mismatchedFiles.Add("$relativePath|expected=$expectedHash|got=$currentHash")
     }
@@ -100,5 +117,5 @@ if ($missingFiles.Count -or $mismatchedFiles.Count -or $unexpectedFiles.Count) {
     throw 'Integrity tree validation failed.'
 }
 
-$validatedFileCount = $data.Count
+$validatedFileCount = $entries.Count
 Write-Host "Integrity tree validation succeeded for $validatedFileCount file(s) in $Path"

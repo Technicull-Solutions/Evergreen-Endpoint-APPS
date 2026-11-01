@@ -102,7 +102,7 @@ public class LibraryUiTests
             SetField(form, "Library ID", "design");
             Click(form, "Save to draft");
             Assert.Empty(window.OwnedWindows);
-            Click(window, "Add app");
+            Click(window, "Add manually");
             form = Assert.Single(window.OwnedWindows);
             SetField(form, "App name", "Example Editor");
             SetField(form, "Package ID", "Example.Editor");
@@ -133,6 +133,42 @@ public class LibraryUiTests
         {
             foreach (var child in window.OwnedWindows.ToArray()) child.Close();
             editor.Text = initial; window.Close();
+        }
+    }
+
+    [AvaloniaFact]
+    public void PackageSearchAddsAVisualResultToTheOpenLibrary()
+    {
+        var window = new AdminWindow(new FakePackageSearch());
+        window.Show();
+        var editor = window.GetVisualDescendants().OfType<TextBox>().Single(t => t.Classes.Contains("jsonEditor"));
+        string initial = editor.Text!;
+        try
+        {
+            window.GetVisualDescendants().OfType<Button>().Single(b => AutomationProperties.GetName(b) == "Open library Apps, 0 apps")
+                .RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            Dispatcher.UIThread.RunJobs();
+            Click(window, "Find apps");
+            var search = Assert.Single(window.OwnedWindows);
+            SetField(search, "Search apps, publishers, or tools", "editor");
+            Click(search, "Search");
+            Dispatcher.UIThread.RunJobs();
+            Capture(search, "package-search-results");
+            var select = search.GetVisualDescendants().OfType<CheckBox>()
+                .Single(box => AutomationProperties.GetName(box) == "Select Example Editor");
+            select.IsChecked = true;
+            Dispatcher.UIThread.RunJobs();
+            Click(search, "Add selected to library");
+            Assert.Empty(window.OwnedWindows);
+            var app = Assert.Single(Assert.Single(SoftwareLibrary.Parse(editor.Text!)).Packages);
+            Assert.Equal("Example.Editor", app.Id);
+            Assert.Equal("2.1.0", app.Version);
+        }
+        finally
+        {
+            foreach (var child in window.OwnedWindows.ToArray()) child.Close();
+            editor.Text = initial;
+            window.Close();
         }
     }
 
@@ -206,5 +242,16 @@ public class LibraryUiTests
         using var frame = window.CaptureRenderedFrame();
         Assert.NotNull(frame);
         frame.Save(Path.Combine(path, name + ".png"));
+    }
+
+    private sealed class FakePackageSearch : IAdminPackageSearch
+    {
+        public IReadOnlyList<string> ManagerNames => ["WinGet"];
+
+        public Task<IReadOnlyList<AdminPackageSearchResult>> SearchAsync(
+            string query,
+            string? managerName,
+            CancellationToken cancellationToken) => Task.FromResult<IReadOnlyList<AdminPackageSearchResult>>
+            ([new("Example Editor", "Example.Editor", "2.1.0", "WinGet", "WinGet", "winget", null)]);
     }
 }
